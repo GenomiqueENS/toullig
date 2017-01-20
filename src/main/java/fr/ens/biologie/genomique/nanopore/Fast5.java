@@ -33,7 +33,6 @@ public class Fast5 implements AutoCloseable {
     this.version = readVersion();
     this.type = readType();
     this.rversion = readRVersion();
-
   }
 
   //
