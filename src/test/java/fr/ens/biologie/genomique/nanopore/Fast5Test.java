@@ -17,7 +17,7 @@ import java.util.Date;
 
 import org.junit.Test;
 
-import fr.ens.biologie.genomique.nanopore.Fast5.RVersion;
+import fr.ens.biologie.genomique.nanopore.Fast5.ChemistryVersion;
 import fr.ens.biologie.genomique.nanopore.Fast5.Status;
 import fr.ens.biologie.genomique.nanopore.Fast5.Type;
 import fr.ens.biologie.genomique.nanopore.Fast5.Version;
@@ -65,23 +65,23 @@ public class Fast5Test {
 	@Test
 	public void testReadVersion() {
 		Fast5 testf1 = new Fast5(getResourceAsFile(file1));
-		assertEquals(Version.V1_1, testf1.readVersion());
+		assertEquals(Version.V1_1, testf1.getVersion());
 		testf1.close();
 
 		Fast5 testf2 = new Fast5(getResourceAsFile(file2));
-		assertEquals(null, testf2.readVersion());
+		assertEquals(null, testf2.getVersion());
 		testf2.close();
 
 		Fast5 testf3 = new Fast5(getResourceAsFile(file3));
-		assertEquals(Version.V1_1, testf3.readVersion());
+		assertEquals(Version.V1_1, testf3.getVersion());
 		testf3.close();
 
 		Fast5 testf4 = new Fast5(getResourceAsFile(file4));
-		assertEquals(null, testf4.readVersion());
+		assertEquals(null, testf4.getVersion());
 		testf4.close();
 
 		Fast5 testf5 = new Fast5(getResourceAsFile(file5));
-		assertEquals(Version.V1_1, testf5.readVersion());
+		assertEquals(Version.V1_1, testf5.getVersion());
 		testf5.close();
 
 	}
@@ -89,28 +89,28 @@ public class Fast5Test {
 	@Test
 	public void testReadStatus() {
 		Fast5 testf1 = new Fast5(getResourceAsFile(file1));
-		assertEquals(Status.AFTER_BASECALLING, testf1.readStatus());
-		assertNotEquals(Status.PRE_BASECALLING, testf1.readStatus());
+		assertEquals(Status.AFTER_BASECALLING, testf1.getStatus());
+		assertNotEquals(Status.PRE_BASECALLING, testf1.getStatus());
 		testf1.close();
 
 		Fast5 testf2 = new Fast5(getResourceAsFile(file2));
-		assertEquals(Status.PRE_BASECALLING, testf2.readStatus());
-		assertNotEquals(Status.AFTER_BASECALLING, testf2.readStatus());
+		assertEquals(Status.PRE_BASECALLING, testf2.getStatus());
+		assertNotEquals(Status.AFTER_BASECALLING, testf2.getStatus());
 		testf2.close();
 
 		Fast5 testf3 = new Fast5(getResourceAsFile(file3));
-		assertEquals(Status.AFTER_BASECALLING, testf3.readStatus());
-		assertNotEquals(Status.PRE_BASECALLING, testf3.readStatus());
+		assertEquals(Status.AFTER_BASECALLING, testf3.getStatus());
+		assertNotEquals(Status.PRE_BASECALLING, testf3.getStatus());
 		testf3.close();
 
 		Fast5 testf4 = new Fast5(getResourceAsFile(file4));
-		assertEquals(Status.PRE_BASECALLING, testf4.readStatus());
-		assertNotEquals(Status.AFTER_BASECALLING, testf4.readStatus());
+		assertEquals(Status.PRE_BASECALLING, testf4.getStatus());
+		assertNotEquals(Status.AFTER_BASECALLING, testf4.getStatus());
 		testf4.close();
 
 		Fast5 testf5 = new Fast5(getResourceAsFile(file5));
-		assertEquals(Status.AFTER_BASECALLING, testf5.readStatus());
-		assertNotEquals(Status.PRE_BASECALLING, testf5.readStatus());
+		assertEquals(Status.AFTER_BASECALLING, testf5.getStatus());
+		assertNotEquals(Status.PRE_BASECALLING, testf5.getStatus());
 		testf5.close();
 
 	}
@@ -118,23 +118,23 @@ public class Fast5Test {
 	@Test
 	public void testReadType() {
 		Fast5 testf1 = new Fast5(getResourceAsFile(file1));
-		assertEquals(Type.TYPE_1D, testf1.readType());
+		assertEquals(Type.TYPE_1D, testf1.getType());
 		testf1.close();
 
 		Fast5 testf2 = new Fast5(getResourceAsFile(file2));
-		assertEquals(null, testf2.readType());
+		assertEquals(null, testf2.getType());
 		testf2.close();
 
 		Fast5 testf3 = new Fast5(getResourceAsFile(file3));
-		assertEquals(Type.TYPE_2D, testf3.readType());
+		assertEquals(Type.TYPE_2D, testf3.getType());
 		testf3.close();
 
 		Fast5 testf4 = new Fast5(getResourceAsFile(file4));
-		assertEquals(null, testf4.readType());
+		assertEquals(null, testf4.getType());
 		testf4.close();
 
 		Fast5 testf5 = new Fast5(getResourceAsFile(file5));
-		assertEquals(Type.TYPE_2D, testf5.readType());
+		assertEquals(Type.TYPE_2D, testf5.getType());
 		testf5.close();
 
 	}
@@ -142,29 +142,29 @@ public class Fast5Test {
 	@Test
 	public void testReadRVersion() {
 		Fast5 testf1 = new Fast5(getResourceAsFile(file1));
-		assertEquals(RVersion.R9_4, testf1.readRVersion());
-		assertNotEquals(RVersion.R9, testf1.readRVersion());
-		assertNotEquals(RVersion.R7, testf1.readRVersion());
+		assertEquals(ChemistryVersion.R9_4, testf1.getChemistryVersion());
+		assertNotEquals(ChemistryVersion.R9, testf1.getChemistryVersion());
+		assertNotEquals(ChemistryVersion.R7, testf1.getChemistryVersion());
 		testf1.close();
 
 		Fast5 testf2 = new Fast5(getResourceAsFile(file2));
-		assertEquals(RVersion.R7, testf2.readRVersion());
+		assertEquals(ChemistryVersion.R7, testf2.getChemistryVersion());
 		testf2.close();
 
 		Fast5 testf3 = new Fast5(getResourceAsFile(file3));
-		assertEquals(RVersion.R7, testf3.readRVersion());
-		assertNotEquals(RVersion.R9, testf3.readRVersion());
-		assertNotEquals(RVersion.R9_4, testf3.readRVersion());
+		assertEquals(ChemistryVersion.R7, testf3.getChemistryVersion());
+		assertNotEquals(ChemistryVersion.R9, testf3.getChemistryVersion());
+		assertNotEquals(ChemistryVersion.R9_4, testf3.getChemistryVersion());
 		testf3.close();
 
 		Fast5 testf4 = new Fast5(getResourceAsFile(file4));
-		assertEquals(RVersion.R9, testf4.readRVersion());
+		assertEquals(ChemistryVersion.R9, testf4.getChemistryVersion());
 		testf4.close();
 
 		Fast5 testf5 = new Fast5(getResourceAsFile(file5));
-		assertEquals(RVersion.R9, testf5.readRVersion());
-		assertNotEquals(RVersion.R9_4, testf5.readRVersion());
-		assertNotEquals(RVersion.R7, testf5.readRVersion());
+		assertEquals(ChemistryVersion.R9, testf5.getChemistryVersion());
+		assertNotEquals(ChemistryVersion.R9_4, testf5.getChemistryVersion());
+		assertNotEquals(ChemistryVersion.R7, testf5.getChemistryVersion());
 		testf5.close();
 
 	}

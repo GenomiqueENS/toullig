@@ -10,6 +10,7 @@ import ch.systemsx.cisd.hdf5.IHDF5Factory;
 import ch.systemsx.cisd.hdf5.IHDF5Reader;
 
 /**
+ * This class read a Fast5 of a minION (ONT) run. It's a HDF5 format file.
  * @author Aurelien Birer
  */
 public class Fast5 implements AutoCloseable {
@@ -17,10 +18,10 @@ public class Fast5 implements AutoCloseable {
   private static final Pattern PATTERN1 = Pattern.compile("chimaera .*");
   private static final Pattern PATTERN2 = Pattern.compile("dragonet .*");
   private final Version version;
-  private Type type;
+  private final Type type;
   private final Status status;
-  private RVersion rversion;
-  private IHDF5Reader reader;
+  private final ChemistryVersion chemistryVersion;
+  private final IHDF5Reader reader;
 
   /**
    * Constructor of the Fast5 class.
@@ -32,11 +33,11 @@ public class Fast5 implements AutoCloseable {
     this.status = readStatus();
     this.version = readVersion();
     this.type = readType();
-    this.rversion = readRVersion();
+    this.chemistryVersion = readChemistryVersion();
   }
 
   //
-  // Principals declaration
+  // Main declarations
   //
 
   /**
@@ -71,7 +72,7 @@ public class Fast5 implements AutoCloseable {
   /**
    * Values of the variable RVersion that design the chemical kit use.
    */
-  public enum RVersion {
+  public enum ChemistryVersion {
     R7, R9, R9_4 // Chemical version of the kit
   };
 
@@ -84,16 +85,16 @@ public class Fast5 implements AutoCloseable {
    * @return a hdf5 file open
    */
 
-  public IHDF5Reader readFast5File(File fast5File) {
+  private static IHDF5Reader readFast5File(File fast5File) {
     IHDF5Factory hdf5Fac = HDF5FactoryProvider.get();
-    return this.reader = hdf5Fac.openForReading(fast5File);
+    return hdf5Fac.openForReading(fast5File);
   }
 
   /**
    * Method of the variable Version who obtain the version of the fast5 format.
    * @return a version with the version of the fast5 format
    */
-  public Version readVersion() {
+  private Version readVersion() {
     if (!isBasecalled()) {
       return null;
     }
@@ -112,7 +113,7 @@ public class Fast5 implements AutoCloseable {
    * Method of the variable Type who obtain the type of experimental design.
    * @return a type with the type of sequencing done
    */
-  public Type readType() {
+  private Type readType() {
     if (!isBasecalled()) {
       return null;
     }
@@ -128,7 +129,7 @@ public class Fast5 implements AutoCloseable {
    * was basecalled or not).
    * @return a status with the status of the fast5 file
    */
-  public Status readStatus() {
+  private Status readStatus() {
     if (this.reader.getFile() == null) {
       throw new IllegalStateException("The file is closed");
     }
@@ -143,25 +144,25 @@ public class Fast5 implements AutoCloseable {
    * Method of the variable RVersion who obtain the chemical kit use.
    * @return a rversion with the chemical kit version use
    */
-  public RVersion readRVersion() {
+  private ChemistryVersion readChemistryVersion() {
     if (!isBasecalled() && reader.isGroup("/Raws/Reads")) {
-      return RVersion.R9;
+      return ChemistryVersion.R9;
     }
     if (!isBasecalled()
         && reader.isGroup("/Analyses/EventDetection_000/Reads")) {
-      return RVersion.R7;
+      return ChemistryVersion.R7;
     }
     if (reader.isGroup("/Analyses/Alignment_000") == true) {
-      return RVersion.R7;
+      return ChemistryVersion.R7;
     }
     if (reader.isGroup(
         "/Analyses/Basecall_1D_000/Configuration/genome_mapping") == false
         && reader.isGroup("/Analyses/Alignment_000") == false) {
-      return RVersion.R9;
+      return ChemistryVersion.R9;
     }
     if (reader.isGroup(
         "/Analyses/Basecall_1D_000/Configuration/genome_mapping") == true) {
-      return RVersion.R9_4;
+      return ChemistryVersion.R9_4;
     }
     return null;
   }
@@ -200,8 +201,8 @@ public class Fast5 implements AutoCloseable {
    * Getter of the variable RVersion.
    * @return a rversion with the chemical kit version use
    */
-  public RVersion getRversion() {
-    return this.rversion;
+  public ChemistryVersion getChemistryVersion() {
+    return this.chemistryVersion;
   }
 
   //
@@ -254,16 +255,7 @@ public class Fast5 implements AutoCloseable {
    * @return a double tabular with the electrical signal
    */
   public int[] getElectricalSignal() {
-    // if (this.rversion == RVersion.R7) {
-    // System.out.println(
-    // reader.isDataSet("/Analyses/EventDetection_000/Reads/Read_" +
-    // getNumberRead() + "/Events"));
-    // //
-    // System.out.println(reader.("/Analyses/EventDetection_000/Reads/Read_"
-    // // + getNumberRead() + "/Events"));
-    // return null;
-    // }
-    if (this.rversion == RVersion.R9) {
+    if (this.chemistryVersion == ChemistryVersion.R9) {
       return reader
           .readIntArray("/Raw/Reads/Read_" + getNumberRead() + "/Signal");
     }
@@ -360,7 +352,7 @@ public class Fast5 implements AutoCloseable {
    * @return a string with the experiment type
    */
   public String getExperimentType() {
-    if (this.rversion == RVersion.R7 || !isBasecalled()) {
+    if (this.chemistryVersion == ChemistryVersion.R7 || !isBasecalled()) {
       return null;
 
     }
@@ -400,12 +392,12 @@ public class Fast5 implements AutoCloseable {
    * @return an int with number of the read
    */
   public int getNumberRead() {
-    if (!isBasecalled() && getRversion() == RVersion.R9) {
+    if (!isBasecalled() && getChemistryVersion() == ChemistryVersion.R9) {
       String s = reader.getAllGroupMembers("/Raw/Reads").get(0);
       return Integer.parseInt(s.substring(s.indexOf('_')+1));
       
     }
-    if (!isBasecalled() && getRversion() == RVersion.R7) {
+    if (!isBasecalled() && getChemistryVersion() == ChemistryVersion.R7) {
       String s = reader.getAllGroupMembers("/Analyses/EventDetection_000/Reads").get(0);
       return Integer.parseInt(s.substring(s.indexOf('_')+1));
     }
