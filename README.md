@@ -1,7 +1,7 @@
-Nanoporetools 0.1-alpha-1
+Toullig 0.1-alpha-2
 =======
 
-Nanoporetools is (since January 17 2017) a reader, parser of Fast5 files of ONT (basecalled and not basecalled) and a fastq files writer.
+Toullig is (since January 17 2017) a reader, parser of Fast5 files of ONT (basecalled and not basecalled) and a fastq files writer.
 
 
 AUTHOR
@@ -23,12 +23,12 @@ You just need to have java 8 and maven installed on your computer. This alpha ve
     sudo apt-get install maven
 
 
-###TO INSTALL Nanoporetools
+###TO INSTALL Toullig
 
 
 
-    git clone https://github.com/GenomicParisCentre/nanoporetools.git
-    cd nanoporetools
+    git clone https://github.com/GenomicParisCentre/Toullig.git
+    cd Toullig
 
 
 HOW IT'S WORK
@@ -108,4 +108,4 @@ Maven version : '3.2.3'
 REPOSITORY
 -
 
-Currently the Git reference repository is [https://github.com/GenomicParisCentre/nanoporetools](https://github.com/GenomicParisCentre/nanoporetools).
+Currently the Git reference repository is [https://github.com/GenomicParisCentre/Toullig](https://github.com/GenomicParisCentre/Toullig).
