@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>fr.ens.biologie.genomique</groupId>
-  <artifactId>nanoporetools</artifactId>
-  <version>0.1-alpha-1</version>
+  <artifactId>toullig</artifactId>
+  <version>0.1-alpha-2</version>
   <packaging>jar</packaging>
 
-  <name>Nanoporetools</name>
+  <name>Toullig</name>
   <description>An automated post sequencing data processing pipeline</description>
   <url>http://outils.genomique.biologie.ens.fr/nanoporetools</url>
   <inceptionYear>2017</inceptionYear>
