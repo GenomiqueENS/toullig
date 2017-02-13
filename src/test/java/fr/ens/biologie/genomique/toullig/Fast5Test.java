@@ -1,4 +1,4 @@
-package fr.ens.biologie.genomique.nanopore;
+package fr.ens.biologie.genomique.toullig;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -17,10 +17,11 @@ import java.util.Date;
 
 import org.junit.Test;
 
-import fr.ens.biologie.genomique.nanopore.Fast5.ChemistryVersion;
-import fr.ens.biologie.genomique.nanopore.Fast5.Status;
-import fr.ens.biologie.genomique.nanopore.Fast5.Type;
-import fr.ens.biologie.genomique.nanopore.Fast5.Version;
+import fr.ens.biologie.genomique.toullig.Fast5;
+import fr.ens.biologie.genomique.toullig.Fast5.ChemistryVersion;
+import fr.ens.biologie.genomique.toullig.Fast5.Status;
+import fr.ens.biologie.genomique.toullig.Fast5.Type;
+import fr.ens.biologie.genomique.toullig.Fast5.Version;
 
 
 

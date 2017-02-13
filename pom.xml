@@ -9,19 +9,38 @@
 
   <name>Toullig</name>
   <description>An automated post sequencing data processing pipeline</description>
-  <url>http://outils.genomique.biologie.ens.fr/nanoporetools</url>
+  <url>http://outils.genomique.biologie.ens.fr/toullig</url>
   <inceptionYear>2017</inceptionYear>
 
- <organization>
+  <organization>
     <name>École normale supérieure genomic platform</name>
     <url>https://www.genomique.biologie.ens.fr/</url>
-</organization>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>GNU Lesser General Public License v2.1</name>
+      <url>http://www.gnu.org/licenses/lgpl-2.1.txt</url>
+      <distribution>repo</distribution>
+      <comments />
+    </license>
+    <license>
+      <name>GNU Lesser General Public License v3.0</name>
+      <url>http://www.gnu.org/licenses/lgpl-3.0.txt</url>
+      <distribution>repo</distribution>
+      <comments />
+    </license>
+    <license>
+      <name>CeCILL-C Licence française de logiciel libre</name>
+      <url>http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.txt</url>
+      <distribution>repo</distribution>
+      <comments />
+    </license>
+  </licenses>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
-
-
 
   <repositories>
     <repository>
@@ -32,30 +51,35 @@
       <name>ImageJ repository</name>
       <url>http://maven.imagej.net/content/repositories/releases/</url>
     </repository>
-</repositories>
+  </repositories>
 
   <dependencies>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.12</version>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>cisd</groupId>
       <artifactId>jhdf5</artifactId>
       <version>12.02.3</version>
       <!--scope>compile</scope-->
     </dependency>
+
     <dependency>
-			<groupId>commons-cli</groupId>
-			<artifactId>commons-cli</artifactId>
-			<version>1.2</version>
-			<scope>compile</scope>
+      <groupId>commons-cli</groupId>
+      <artifactId>commons-cli</artifactId>
+      <version>1.2</version>
+      <scope>compile</scope>
     </dependency>
+
   </dependencies>
 
   <build>
+
     <resources>
       <resource>
         <directory>src/main/java/files</directory>
@@ -65,11 +89,13 @@
         <targetPath>META-INF</targetPath>
       </resource>
     </resources>
+
     <testResources>
       <testResource>
         <directory>src/test/java/files</directory>
       </testResource>
     </testResources>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -79,26 +105,249 @@
           <target>1.7</target>
         </configuration>
       </plugin>
-<plugin>
-  <groupId>org.codehaus.mojo</groupId>
-  <artifactId>exec-maven-plugin</artifactId>
-  <version>1.2.1</version>
-  <executions>
-    <execution>
-      <goals>
-        <goal>java</goal>
-      </goals>
-    </execution>
-  </executions>
-  <configuration>
-    <mainClass>fr.ens.biologie.genomique.nanopore.Main</mainClass>
-  </configuration>
-</plugin>
+
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+
+          <execution>
+            <id>copy-common-libs</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <!-- All libs except junit, hadoop-core, ws-java-sdk and its runtime 
+								dependencies -->
+              <excludeArtifactIds>junit,hadoop-client,aws-java-sdk,httpclient,commons-logging,commons-codec,jackson-core-asl,jackson-mapper-asl</excludeArtifactIds>
+              <excludeTransitive>true</excludeTransitive>
+              <outputDirectory>${basedir}/target/dist/lib</outputDirectory>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>copy</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <!-- hadoop-core, aws-java-sdk and its runtime dependencies -->
+              <includeArtifactIds>hadoop-client,aws-java-sdk,httpclient,commons-logging,commons-codec,jackson-core-asl,jackson-mapper-asl</includeArtifactIds>
+              <outputDirectory>${basedir}/target/dist/lib/local</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.2.1</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>java</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+
+        <executions>
+
+
+
+          <execution>
+            <id>generate-ressources</id>
+            <phase>generate-resources</phase>
+            <configuration>
+              <tasks>
+                <mkdir dir="${basedir}/target/generated-resources" />
+                <buildnumber file="${basedir}/build.num" />
+                <tstamp>
+                  <format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss z" />
+                  <format property="YEAR" pattern="yyyy" />
+                </tstamp>
+
+                <!-- execute git describe -->
+                <exec executable="git" failifexecutionfails="false"
+									outputproperty="build.commit">
+                  <arg value="describe" />
+                  <arg value="--all" />
+                  <arg value="--long" />
+                </exec>
+
+                <condition property="build.commit" value="">
+                  <not>
+                    <isset property="build.commit"/>
+                  </not>
+                </condition>
+
+                <exec executable="hostname" outputproperty="build.host"/>
+
+                <manifest file="${basedir}/target/generated-resources/MANIFEST.MF">
+                  <attribute name="Built-By" value="${user.name}"/>
+                  <attribute name="Built-Date" value="${TODAY}"/>
+                  <attribute name="Built-Year" value="${YEAR}"/>
+                  <attribute name="Built-Commit" value="${build.commit}" />
+                  <attribute name="Built-Host" value="${build.host}" />
+
+                  <attribute name="Specification-Title" value="${project.name}"/>
+                  <attribute name="Specification-Version" value="${project.version}"/>
+                  <attribute name="Specification-Vendor" value="${project.organization.name}"/>
+
+                  <attribute name="Implementation-Title" value="${project.name}"/>
+                  <attribute name="Implementation-Version" value="build${build.number}"/>
+                  <attribute name="Implementation-Vendor" value="${project.organization.name}"/>
+
+                  <attribute name="Main-Class" value="fr.ens.biologie.genomique.eoulsan.Main" />
+                </manifest>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+
+          <execution>
+            <id>pre-integration-test</id>
+            <phase>pre-integration-test</phase>
+            <configuration>
+              <tasks>
+                <mkdir dir="${basedir}/target/classes/META-INF" />
+                <copy file="${basedir}/target/generated-resources/MANIFEST.MF"
+									tofile="${basedir}/target/classes/META-INF/MANIFEST.MF" />
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+
+          <execution>
+            <id>create-dists</id>
+            <phase>package</phase>
+            <configuration>
+              <tasks unless="distrib.package.skip">
+               <!-- skip this task with command: mvn -Ddistrib.package.skip=true -->
+               <!-- Package binary distribution -->
+
+               <mkdir dir="${basedir}/target/dist/bin" />
+               <mkdir dir="${basedir}/target/dist/lib" />
+               <!--copy file="${basedir}/COMPILING.txt" todir="${basedir}/target/dist/" 
+									/ -->
+               <copy file="${basedir}/INSTALL.txt" todir="${basedir}/target/dist/" />
+               <copy file="${basedir}/LICENSE-LGPL.txt" todir="${basedir}/target/dist/" />
+               <copy file="${basedir}/LICENSE-CeCILL-C.txt" todir="${basedir}/target/dist/" />
+
+               <copy file="${basedir}/src/main/bin/${project.artifactId}.sh" todir="${basedir}/target/dist/" />
+               <chmod file="${basedir}/target/dist/${project.artifactId}.sh" perm="ugo+rx" />
+
+               <copy todir="${basedir}/target/dist/bin">
+                 <fileset dir="${basedir}/src/main/bin">
+                   <include name="bpipe-*" />
+                 </fileset>
+               </copy>
+
+               <copy todir="${basedir}/target/dist/galaxytools">
+                 <fileset dir="${basedir}/src/main/galaxytools"/>
+               </copy>
+
+               <copy todir="${basedir}/target/dist/formats">
+                 <fileset dir="${basedir}/src/main/formats"/>
+               </copy>
+
+               <copy file="${basedir}/target/${project.artifactId}-${project.version}.jar" todir="${basedir}/target/dist/lib/" />
+               <move file="${basedir}/target/dist/" tofile="${basedir}/target/dist/${project.artifactId}-${project.version}"/>
+
+                <!-- Package source distribution -->
+
+               <mkdir dir="${basedir}/target/dist-src/" />
+                 <copy todir="${basedir}/target/dist-src/">
+                    <fileset dir="${basedir}">
+                      <include name="src/**" />
+                      <include name="pom.xml" />
+                      <include name="checkstyle.xml" />
+                      <include name="checkstyle-license.txt" />
+                      <include name="COMPILING.txt" />
+                      <include name="INSTALL.txt" />
+                      <include name="LICENSE-LGPL.txt" />
+                      <include name="LICENSE-CeCILL-C.txt" />
+                    </fileset>
+                  </copy>
+                <move file="${basedir}/target/dist-src/" tofile="${basedir}/target/dist-src/${project.artifactId}-${project.version}"/>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+
+          <execution>
+            <id>compress-dists</id>
+            <phase>package</phase>
+            <configuration>
+              <tasks unless="distrib.package.compression.skip">
+
+              <!-- skip this task with command: mvn -Ddistrib.package.compression.skip=true -->
+              <!-- Compress dist -->
+
+              <tar longfile="gnu" destfile="${basedir}/target/${project.artifactId}-${project.version}.tar">
+                <tarfileset dir="${basedir}/target/dist"  mode="644" dirmode="755" username="nobody" group="nobody">
+                  <include name="*/**"/>
+                  <exclude name="${project.artifactId}-${project.version}/${project.artifactId}.sh" />
+                  <exclude name="${project.artifactId}-${project.version}/bin/*" />
+                </tarfileset>
+                <tarfileset dir="${basedir}/target/dist"  mode="755" dirmode="755" username="nobody" group="nobody">
+                  <include name="${project.artifactId}-${project.version}/${project.artifactId}.sh" />
+                  <include name="${project.artifactId}-${project.version}/bin/*" />
+                </tarfileset>
+              </tar>
+              <gzip zipfile="${basedir}/target/${project.artifactId}-${project.version}.tar.gz"
+									src="${basedir}/target/${project.artifactId}-${project.version}.tar"/>
+              <bzip2 destfile="${basedir}/target/${project.artifactId}-${project.version}.tar.bz2"
+                                    src="${basedir}/target/${project.artifactId}-${project.version}.tar"/>
+								<untar src="${basedir}/target/${project.artifactId}-${project.version}.tar"
+									dest="${basedir}/target/tar-bin"/>
+              <zip destfile="${basedir}/target/${project.artifactId}-${project.version}.zip"
+                                    basedir="${basedir}/target/tar-bin"/>
+
+              <!-- Compress dist-src -->
+              <tar longfile="gnu" tarfile="${basedir}/target/${project.artifactId}-src-${project.version}.tar">
+
+                <tarfileset dir="${basedir}/target/dist-src" mode="755"
+										username="nobody" group="nobody">
+                  <include name="*/**" />
+                </tarfileset>
+              </tar>
+              <gzip zipfile="${basedir}/target/${project.artifactId}-src-${project.version}.tar.gz"
+									src="${basedir}/target/${project.artifactId}-src-${project.version}.tar"/>
+              <bzip2 destfile="${basedir}/target/${project.artifactId}-src-${project.version}.tar.bz2"
+									src="${basedir}/target/${project.artifactId}-src-${project.version}.tar"/>
+
+              <untar src="${basedir}/target/${project.artifactId}-src-${project.version}.tar"
+									dest="${basedir}/target/tar-src"/>
+              <zip destfile="${basedir}/target/${project.artifactId}-src-${project.version}.zip"
+                                    basedir="${basedir}/target/tar-src"/>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+
+        <configuration>
+          <mainClass>fr.ens.biologie.genomique.toullig.Main</mainClass>
+        </configuration>
+      </plugin>
     </plugins>
-
   </build>
-
-
 </project>
 
 

@@ -1,4 +1,4 @@
-package fr.ens.biologie.genomique.nanopore;
+package fr.ens.biologie.genomique.toullig;
 
 import java.io.File;
 import java.io.FileWriter;
