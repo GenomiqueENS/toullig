@@ -1,7 +1,0 @@
-Barcode	SampleType
-BC01	WT
-BC02	WT
-BC03	WT
-BC04	MT
-BC05	MT
-BC06	MT

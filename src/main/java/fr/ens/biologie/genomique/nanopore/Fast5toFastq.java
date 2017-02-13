@@ -1,13 +1,21 @@
 package fr.ens.biologie.genomique.nanopore;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.zip.GZIPOutputStream;
 
 import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
 
@@ -21,6 +29,7 @@ public class Fast5toFastq {
   private File repertoryFastqOutput;
 
   private List<File> listFast5Files = new ArrayList<File>();
+  private List<File> listCorruptFast5Files = new ArrayList<File>();
 
   private int numberFast5Files;
   private int numberFailFast5Files;
@@ -37,10 +46,35 @@ public class Fast5toFastq {
 
   private boolean saveComplementSequence = false;
   private boolean saveTemplateSequence = false;
-  private boolean saveHairpinSequence = false;
   private boolean saveBarcodeSequence = false;
 
   private List<String> listWriteSequenceLog = new ArrayList<String>();
+  private List<String> listWorkflowStatusLog = new ArrayList<String>();
+
+  private static class SynchronizedWriter extends OutputStreamWriter {
+
+    public SynchronizedWriter(File file) throws IOException {
+      // super(new GZIPOutputStream(new FileOutputStream(file)));
+      super(new FileOutputStream(file));
+    }
+
+    @Override
+    public synchronized void write(final String str) throws IOException {
+      super.write(str);
+    }
+  }
+
+  private static class countWriteFastq {
+    int numberSequenceComplementWrite = 0;
+    int numberSequenceTemplateWrite = 0;
+    int numberSequenceBarcodeWrite = 0;
+    Map<String, Integer> BarcodeStatusHash = new HashMap<>();
+    Map<String, Integer> Basecall1DStatusHash = new HashMap<>();
+    Map<String, Integer> Basecall2DStatusHash = new HashMap<>();
+    Map<String, Integer> CalibrationStrandStatusHash = new HashMap<>();
+    Map<String, Integer> EventDetectionStatusHash = new HashMap<>();
+    Map<String, Integer> HairpinSplitStatusHash = new HashMap<>();
+  }
 
   //
   //
@@ -77,8 +111,7 @@ public class Fast5toFastq {
    */
   public enum SequenceType {
 
-    COMPLEMENT("complement"), TEMPLATE("template"), HAIRPIN("hairpin"),
-    BARCODE("barcode");
+    COMPLEMENT("complement"), TEMPLATE("template"), BARCODE("barcode");
 
     private final String name;
 
@@ -99,6 +132,15 @@ public class Fast5toFastq {
     SequenceType(String name) {
       this.name = name;
     }
+  }
+
+  /**
+   * This method of the class Fast5toFastq return the name of the directory of
+   * the minION run.
+   * @return a string of the name of root directory
+   */
+  public String getNameDirectoryRunFast5() {
+    return this.fast5RunDirectory.getName();
   }
 
   //
@@ -183,7 +225,7 @@ public class Fast5toFastq {
     // number
     String preNameFile = fast5File.getName().substring(0,
         fast5File.getName().indexOf("_ch") + 1);
-    Writer fastqFile = new FileWriter(new File(this.repertoryFastqOutput
+    Writer fastqFile = new SynchronizedWriter(new File(this.repertoryFastqOutput
         + "/" + preNameFile + status + "_" + typeSequence + ".fastq"));
     return fastqFile;
   }
@@ -373,18 +415,6 @@ public class Fast5toFastq {
   }
 
   /**
-   * This method of the class Fast5toFastq set the type of hairpin sequence on
-   * process.
-   * @param saveHairpinSequence, a boolean to process the type of hairpin
-   *          sequences
-   */
-  public void setSaveHairpinSequence(boolean saveHairpinSequence) {
-    if (saveHairpinSequence) {
-      this.saveHairpinSequence = true;
-    }
-  }
-
-  /**
    * This method of the class Fast5toFastq set the type of barcode sequence on
    * process.
    * @param saveBarcodeSequence, a boolean to process the type of barcode
@@ -398,30 +428,132 @@ public class Fast5toFastq {
 
   //
   //
-  // Create Log in a Hash
+  // Create Log
   //
   //
 
   /**
    * This method of the class Fast5toFastq get a list of log on the number of
    * files.
-   * @return a hash
+   * @return a list of string
    */
   public List<String> getListLog() {
     List<String> listLog = new ArrayList<String>();
-    listLog.add("Number of fast5 files read " + getNumberFast5Files());
     listLog.add("Number of fast5 files read " + getNumberFast5Files());
     listLog.add("Number of corrupt files " + getNumberCorruptFast5Files());
     listLog.add("Number of fail files read " + getNumberFailFast5Files());
     listLog.add("Number of pass files read " + getNumberPassFast5Files());
     listLog.add("Number of fail attribution barcode files read "
         + getNumberBadBarcodeFast5Files());
-    listLog
-        .add("Number of Barcode file " + getNumberBarcodeFast5Files() + "\n");
+    listLog.add(
+        "Number of pass barcode file " + getNumberBarcodeFast5Files() + "\n");
     for (String element : this.listWriteSequenceLog) {
       listLog.add(element);
     }
     return listLog;
+  }
+
+  /**
+   * This method of the class Fast5toFastq get a list of log on the status of
+   * the workflows.
+   * @return a list of string
+   */
+  public List<String> getListLogStatusWorkflow() {
+    List<String> listLog = new ArrayList<String>();
+    for (String element : this.listWorkflowStatusLog) {
+      listLog.add(element);
+    }
+    return listLog;
+  }
+
+  /**
+   * This method of the class Fast5toFastq get a list of corrupt fast5 files
+   * @return a list of string
+   */
+  public List<String> getListCorruptFileLog() {
+    List<String> listCorruptFile = new ArrayList<String>();
+    for (File file : this.listCorruptFast5Files) {
+      listCorruptFile.add(file.toString());
+    }
+    return listCorruptFile;
+  }
+
+  private void getAllListForLog(String status, countWriteFastq countObject) {
+    //
+    // Count of write sequence in fastq file
+    //
+    this.listWriteSequenceLog.add("In the file "
+        + status + " complement the number of total sequence write "
+        + countObject.numberSequenceComplementWrite);
+    this.listWriteSequenceLog.add("In the file "
+        + status + " template the number of total sequence write "
+        + countObject.numberSequenceTemplateWrite);
+    this.listWriteSequenceLog.add("In the file "
+        + status + " barcode the number of total sequence write "
+        + countObject.numberSequenceBarcodeWrite);
+
+    //
+    // Workflow status getters
+    //
+
+    // Event Detection Workflow
+    //
+    this.listWorkflowStatusLog.add("\nEvent Detection workflow :\n");
+    stackHashWorkflow(countObject.EventDetectionStatusHash, status,
+        "Event Detection");
+    
+    // Hairpin Split Workflow
+    //
+    this.listWorkflowStatusLog.add("\nHairpin Split workflow :\n");
+    stackHashWorkflow(countObject.HairpinSplitStatusHash, status,
+        "Hairpin Split");
+    
+    // Basecall_1D Workflow
+    //
+    this.listWorkflowStatusLog.add("\nBasecall_1D workflow :\n");
+    stackHashWorkflow(countObject.Basecall1DStatusHash, status, "Basecall1D");
+
+    // Basecall_2D Workflow
+    //
+    this.listWorkflowStatusLog.add("\nBasecall_2D workflow :\n");
+    stackHashWorkflow(countObject.Basecall2DStatusHash, status, "Basecall2D");
+
+    // Calibration Strand Workflow
+    //
+    this.listWorkflowStatusLog.add("\nCalibration Strand :\n");
+    stackHashWorkflow(countObject.CalibrationStrandStatusHash, status,
+        "Calibration Strand");
+
+    // Barcode Workflow
+    //
+    this.listWorkflowStatusLog.add("\nBarcode workflow :\n");
+    stackHashWorkflow(countObject.BarcodeStatusHash, status, "Barcode");
+
+
+
+
+  }
+
+  /**
+   * This method of the class Fast5toFastq stack the list of workflow status
+   * with information of workflow status hash.
+   * @param statusHash, a hash of final status
+   * @param status, the name of folder fast5 status
+   * @param nameWorkflow, the name of the workflow
+   */
+  private void stackHashWorkflow(Map<String, Integer> statusHash, String status,
+      String nameWorkflow) {
+    Set<String> keys = statusHash.keySet();
+    if (keys.size() >= 2) {
+      for (String key : keys) {
+        this.listWorkflowStatusLog.add("The status \""
+            + key + "\" is present " + statusHash.get(key)
+            + " times in the folder " + status);
+      }
+    } else {
+      this.listWorkflowStatusLog.add("No status for the "
+          + nameWorkflow + " Workflow in the folder " + status);
+    }
   }
 
   //
@@ -431,15 +563,8 @@ public class Fast5toFastq {
   //
 
   /**
-   * This method of the class Fast5toFastq retrun the name of the directory of the minION run.
-   * @return a string of the name of root directory
-   */
-  public String getNameDirectoryRunFast5() {
-    return this.fast5RunDirectory.getName();
-  }
-
-  /**
-   * This method of the class Fast5toFastq launch processDirectory for a directory of fast5.
+   * This method of the class Fast5toFastq launch processDirectory for a
+   * directory of fast5.
    * @param fast5SubdirName is a directory of fast5 files
    * @param status is the status of fast5 file
    * @return an int who is the number of fast5 process
@@ -469,7 +594,6 @@ public class Fast5toFastq {
     // Create writters
     Writer complementWriter = null;
     Writer templateWriter = null;
-    Writer hairpinWriter = null;
     Writer barcodeWriter = null;
 
     if (this.saveComplementSequence) {
@@ -480,17 +604,42 @@ public class Fast5toFastq {
       templateWriter =
           createWriterFastq(listFast5Files.get(0), "template", status);
     }
-    if (this.saveHairpinSequence) {
-      hairpinWriter =
-          createWriterFastq(listFast5Files.get(0), "hairpin", status);
-    }
     if (this.saveBarcodeSequence) {
       barcodeWriter =
           createWriterFastq(listFast5Files.get(0), "barcode", status);
     }
+
     // Read all Fast5 files
+
+    long start1 = System.currentTimeMillis();
+
     readFast5WriteFastq(listFast5Files, complementWriter, templateWriter,
-        hairpinWriter, barcodeWriter, status);
+        barcodeWriter, status);
+
+    long end1 = System.currentTimeMillis();
+    System.out.println("Time exe 1 thread:"
+        + (end1 - start1) / 1000 + "s for a " + listFast5Files.size()
+        + " number of fast5");
+
+    // for (int i = 0; i <= listFast5Files.size(); i += 10000) {
+    //
+    // long start2 = System.currentTimeMillis();
+    // multiThreadReadFast5WriteFastq(listFast5Files.subList(0, i),
+    // complementWriter, templateWriter, barcodeWriter, status);
+    //
+    // long end2 = System.currentTimeMillis();
+    //
+    // System.out.println("Time exe multi thread :"
+    // + (end2 - start2) / 1000 + "s for a " + i + " number of fast5");
+    // }
+    // long start3 = System.currentTimeMillis();
+    // multiThreadReadFast5WriteFastq(listFast5Files, complementWriter,
+    // templateWriter, barcodeWriter, status);
+    //
+    // long end3 = System.currentTimeMillis();
+    //
+    // System.out
+    // .println("Time exe multi thread :" + (end3 - start3) / 1000 + "s");
 
     // Close writters
     if (this.saveComplementSequence) {
@@ -498,9 +647,6 @@ public class Fast5toFastq {
     }
     if (this.saveTemplateSequence) {
       templateWriter.close();
-    }
-    if (this.saveHairpinSequence) {
-      hairpinWriter.close();
     }
     if (this.saveBarcodeSequence) {
       barcodeWriter.close();
@@ -519,7 +665,151 @@ public class Fast5toFastq {
       List<File> listBarcodeFast5Files = listFast5(barcodeDirectory);
       processDirectory(listBarcodeFast5Files, barcodeDirectory.getName());
       this.numberBarcodeFast5Files += listBarcodeFast5Files.size();
+      this.numberFast5Files += this.numberBarcodeFast5Files;
     }
+  }
+
+  private void readFast5WriteFastq(File fast5File, Writer complementWriter,
+      Writer templateWriter, Writer barcodeWriter, String status,
+      countWriteFastq countObject) throws IOException {
+
+    try (Fast5 f5 = new Fast5(fast5File)) {
+      if (complementWriter != null && f5.getComplementFastq() != null) {
+        complementWriter.write(f5.getComplementFastq());
+        countObject.numberSequenceComplementWrite++;
+      }
+      if (templateWriter != null && f5.getTemplateFastq() != null) {
+        templateWriter.write(f5.getTemplateFastq());
+        countObject.numberSequenceTemplateWrite++;
+      }
+      if (barcodeWriter != null && f5.getLongBarcodingFastq() != null) {
+        barcodeWriter.write(f5.getLongBarcodingFastq());
+        countObject.numberSequenceBarcodeWrite++;
+      }
+
+      //
+      // Get the Workflows Informations in the SynchronizedCountWriteFastq
+      // Object
+      //
+
+      // Barcode Workflow
+      //
+      if (countObject.BarcodeStatusHash
+          .containsKey(f5.getBarcodindFinalStatus())) {
+        countObject.BarcodeStatusHash.put(f5.getBarcodindFinalStatus(),
+            countObject.BarcodeStatusHash.get(f5.getBarcodindFinalStatus())
+                + 1);
+      } else {
+        countObject.BarcodeStatusHash.put(f5.getBarcodindFinalStatus(), 1);
+      }
+
+      // Basecall_1D Workflow
+      //
+      if (countObject.Basecall1DStatusHash
+          .containsKey(f5.getBaseCall1DFinalStatus())) {
+        countObject.Basecall1DStatusHash.put(f5.getBaseCall1DFinalStatus(),
+            countObject.Basecall1DStatusHash.get(f5.getBaseCall1DFinalStatus())
+                + 1);
+      } else {
+        countObject.Basecall1DStatusHash.put(f5.getBaseCall1DFinalStatus(), 1);
+      }
+
+      // Basecall_2D Workflow
+      //
+      if (countObject.Basecall2DStatusHash
+          .containsKey(f5.getBaseCall2DFinalStatus())) {
+        countObject.Basecall2DStatusHash.put(f5.getBaseCall2DFinalStatus(),
+            countObject.Basecall2DStatusHash.get(f5.getBaseCall2DFinalStatus())
+                + 1);
+      } else {
+        countObject.Basecall2DStatusHash.put(f5.getBaseCall2DFinalStatus(), 1);
+      }
+
+      // Calibration Strand Workflow
+      //
+      if (countObject.CalibrationStrandStatusHash
+          .containsKey(f5.getCalibrationStrandFinalStatus())) {
+        countObject.CalibrationStrandStatusHash.put(
+            f5.getCalibrationStrandFinalStatus(),
+            countObject.CalibrationStrandStatusHash
+                .get(f5.getCalibrationStrandFinalStatus()) + 1);
+      } else {
+        countObject.CalibrationStrandStatusHash
+            .put(f5.getCalibrationStrandFinalStatus(), 1);
+      }
+
+      // Event Detection Workflow
+      //
+      if (countObject.EventDetectionStatusHash
+          .containsKey(f5.getEventDetectionFinalStatus())) {
+        countObject.EventDetectionStatusHash.put(
+            f5.getEventDetectionFinalStatus(),
+            countObject.EventDetectionStatusHash
+                .get(f5.getEventDetectionFinalStatus()) + 1);
+      } else {
+        countObject.EventDetectionStatusHash
+            .put(f5.getEventDetectionFinalStatus(), 1);
+      }
+
+      // Hairpin Split Workflow
+      //
+      if (countObject.HairpinSplitStatusHash
+          .containsKey(f5.getHairpinSplitFinalStatus())) {
+        countObject.HairpinSplitStatusHash.put(f5.getHairpinSplitFinalStatus(),
+            countObject.HairpinSplitStatusHash
+                .get(f5.getHairpinSplitFinalStatus()) + 1);
+      } else {
+        countObject.HairpinSplitStatusHash.put(f5.getHairpinSplitFinalStatus(),
+            1);
+      }
+
+      //
+      //
+      //
+
+    } catch (HDF5Exception e) {
+      this.numberCorruptFast5Files++;
+      this.listCorruptFast5Files.add(fast5File);
+    }
+  }
+
+  private void multiThreadReadFast5WriteFastq(List<File> listFast5Files,
+      final Writer complementWriter, final Writer templateWriter,
+      final Writer barcodeWriter, final String status) throws IOException {
+
+    ExecutorService executor = Executors
+        .newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+    final countWriteFastq countObject = new countWriteFastq();
+
+    for (final File fast5File : listFast5Files) {
+      executor.submit(new Runnable() {
+
+        @Override
+        public void run() {
+          try {
+            readFast5WriteFastq(fast5File, complementWriter, templateWriter,
+                barcodeWriter, status, countObject);
+          } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+          }
+        }
+      });
+    }
+
+    executor.shutdown();
+    while (!executor.isTerminated()) {
+      try {
+        Thread.sleep(2000);
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      ;
+    }
+    getAllListForLog(status, countObject);
+
   }
 
   /**
@@ -528,52 +818,21 @@ public class Fast5toFastq {
    * @param listFast5Files is the list of fast5 file
    * @param complementWriter is the writer of the complement sequence
    * @param templateWriter is the writer of the template sequence
-   * @param hairpinWriter is the writer of the hairpin sequence
    * @param barcodeWriter is the writer of the barcode sequence
    * @param status is the status of the fast5 file
    * @throws IOException
    */
   private void readFast5WriteFastq(List<File> listFast5Files,
-      Writer complementWriter, Writer templateWriter, Writer hairpinWriter,
-      Writer barcodeWriter, String status) throws IOException {
-    int numberSequenceComplementWrite = 0;
-    int numberSequenceTemplateWrite = 0;
-    int numberSequenceHairpinWrite = 0;
-    int numberSequenceBarcodeWrite = 0;
+      Writer complementWriter, Writer templateWriter, Writer barcodeWriter,
+      String status) throws IOException {
+
+    final countWriteFastq countObject = new countWriteFastq();
     for (File fast5File : listFast5Files) {
-      try (Fast5 f5 = new Fast5(fast5File)) {
-        if (complementWriter != null && f5.getComplementFastq() != null) {
-          complementWriter.write(f5.getComplementFastq());
-          numberSequenceComplementWrite++;
-        }
-        if (templateWriter != null && f5.getTemplateFastq() != null) {
-          templateWriter.write(f5.getTemplateFastq());
-          numberSequenceTemplateWrite++;
-        }
-        if (hairpinWriter != null && f5.getHairpinFastq() != null) {
-          hairpinWriter.write(f5.getHairpinFastq());
-          numberSequenceHairpinWrite++;
-        }
-        if (barcodeWriter != null && f5.getBarcodingFastq() != null) {
-          barcodeWriter.write(f5.getBarcodingFastq());
-          numberSequenceBarcodeWrite++;
-        }
-      } catch (HDF5Exception e) {
-        this.numberCorruptFast5Files++;
-      }
+      readFast5WriteFastq(fast5File, complementWriter, templateWriter,
+          barcodeWriter, status, countObject);
     }
-    this.listWriteSequenceLog.add("In the file "
-        + status + " complement the number of total sequence write "
-        + numberSequenceComplementWrite);
-    this.listWriteSequenceLog.add("In the file "
-        + status + " template the number of total sequence write "
-        + numberSequenceTemplateWrite);
-    this.listWriteSequenceLog.add("In the file "
-        + status + " hairpin the number of total sequence write "
-        + numberSequenceHairpinWrite);
-    this.listWriteSequenceLog.add("In the file "
-        + status + " barcode the number of total sequence write "
-        + numberSequenceBarcodeWrite);
+    getAllListForLog(status, countObject);
+
   }
 
   //
@@ -587,25 +846,28 @@ public class Fast5toFastq {
    * fastq sequence on fast5 file.
    * @throws IOException
    */
-  public void execution() throws IOException {
+  public void execute() throws IOException {
 
     if (this.processMergeStatus) {
 
       this.listFast5Files = listAllFast5();
       processDirectory(this.listFast5Files, "merge_status");
-      this.numberFast5Files = this.listFast5Files.size();
+
       return;
     }
 
     if (this.processFail) {
       this.numberFailFast5Files = processDirectory("downloads/fail", "fail");
+      this.numberFast5Files += this.numberFailFast5Files;
     }
     if (this.processPass) {
       this.numberPassFast5Files = processDirectory("downloads/pass", "pass");
+      this.numberFast5Files += this.numberPassFast5Files;
     }
     if (this.processFailBarcode) {
       this.numberFailBarcodeFast5Files =
           processDirectory("downloads/fail/unclassified", "unclassified");
+      this.numberFast5Files += this.numberFailBarcodeFast5Files;
     }
     if (this.processPassBarcode) {
       List<File> listBarcodeFast5Dir =

@@ -2,8 +2,6 @@ package fr.ens.biologie.genomique.nanopore;
 
 import java.io.File;
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
 import ch.systemsx.cisd.hdf5.IHDF5Factory;
@@ -15,8 +13,6 @@ import ch.systemsx.cisd.hdf5.IHDF5Reader;
  */
 public class Fast5 implements AutoCloseable {
 
-  private static final Pattern PATTERN1 = Pattern.compile("chimaera .*");
-  private static final Pattern PATTERN2 = Pattern.compile("dragonet .*");
   private final Version version;
   private final Type type;
   private final Status status;
@@ -34,6 +30,7 @@ public class Fast5 implements AutoCloseable {
     this.version = readVersion();
     this.type = readType();
     this.chemistryVersion = readChemistryVersion();
+
   }
 
   //
@@ -73,7 +70,7 @@ public class Fast5 implements AutoCloseable {
    * Values of the variable RVersion that design the chemical kit use.
    */
   public enum ChemistryVersion {
-    R7, R9, R9_4 // Chemical version of the kit
+    R7_3, R9, R9_4 // Chemical version of the kit
   };
 
   //
@@ -144,25 +141,40 @@ public class Fast5 implements AutoCloseable {
    * Method of the variable RVersion who obtain the chemical kit use.
    * @return a rversion with the chemical kit version use
    */
+
   private ChemistryVersion readChemistryVersion() {
-    if (!isBasecalled() && reader.isGroup("/Raws/Reads")) {
+
+    // Case of not basecalled fast5 file
+    if (!isBasecalled() && reader.isGroup("/Raw/Reads")) {
       return ChemistryVersion.R9;
     }
     if (!isBasecalled()
         && reader.isGroup("/Analyses/EventDetection_000/Reads")) {
-      return ChemistryVersion.R7;
+      return ChemistryVersion.R7_3;
     }
-    if (reader.isGroup("/Analyses/Alignment_000") == true) {
-      return ChemistryVersion.R7;
+
+    // Case of basecalled fast5 file
+
+    if (reader
+        .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
+            "model_type")
+        .contains("r7.3_")) {
+      return ChemistryVersion.R7_3;
     }
-    if (reader.isGroup(
-        "/Analyses/Basecall_1D_000/Configuration/genome_mapping") == false
-        && reader.isGroup("/Analyses/Alignment_000") == false) {
+
+    if (reader
+        .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
+            "model_type")
+        .contains("r9_")) {
       return ChemistryVersion.R9;
+
     }
-    if (reader.isGroup(
-        "/Analyses/Basecall_1D_000/Configuration/genome_mapping") == true) {
+    if (reader
+        .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
+            "model_type")
+        .contains("r94_")) {
       return ChemistryVersion.R9_4;
+
     }
     return null;
   }
@@ -286,10 +298,10 @@ public class Fast5 implements AutoCloseable {
   }
 
   /**
-   * Method of the class Fast5 to obtain the flowcell version in the fast5 file.
-   * @return a string with the flowcell version
+   * Method of the class Fast5 to obtain the MinKnow version in the fast5 file.
+   * @return a string with the MinKnow version
    */
-  public String getFlowcellVersion() {
+  public String getMinknowVersion() {
     return reader.getStringAttribute("/UniqueGlobalKey/tracking_id", "version");
   }
 
@@ -352,12 +364,12 @@ public class Fast5 implements AutoCloseable {
    * @return a string with the experiment type
    */
   public String getExperimentType() {
-    if (this.chemistryVersion == ChemistryVersion.R7 || !isBasecalled()) {
-      return null;
-
+    if (reader.hasAttribute("/UniqueGlobalKey/context_tags",
+        "experiment_type")) {
+      return reader.getStringAttribute("/UniqueGlobalKey/context_tags",
+          "experiment_type");
     }
-    return reader.getStringAttribute("/UniqueGlobalKey/context_tags",
-        "experiment_type");
+    return null;
   }
 
   /**
@@ -366,8 +378,8 @@ public class Fast5 implements AutoCloseable {
    * @return an int with sample frequency
    */
   public int getSampleFrequency() {
-    return Integer.parseInt(reader.getStringAttribute("/UniqueGlobalKey/context_tags",
-        "sample_frequency"));
+    return Integer.parseInt(reader.getStringAttribute(
+        "/UniqueGlobalKey/context_tags", "sample_frequency"));
   }
 
   /**
@@ -376,13 +388,13 @@ public class Fast5 implements AutoCloseable {
    * @return an int with sample frequency
    */
   public int getChannelNumber() {
-    return Integer.parseInt(reader.getStringAttribute("/UniqueGlobalKey/channel_id",
-        "channel_number"));
+    return Integer.parseInt(reader
+        .getStringAttribute("/UniqueGlobalKey/channel_id", "channel_number"));
   }
 
   //
   //
-  // basecalling information getters
+  // Basecalling information getters
   //
   //
 
@@ -394,12 +406,12 @@ public class Fast5 implements AutoCloseable {
   public int getNumberRead() {
     if (!isBasecalled() && getChemistryVersion() == ChemistryVersion.R9) {
       String s = reader.getAllGroupMembers("/Raw/Reads").get(0);
-      return Integer.parseInt(s.substring(s.indexOf('_')+1));
-      
+      return Integer.parseInt(s.substring(s.indexOf('_') + 1));
     }
-    if (!isBasecalled() && getChemistryVersion() == ChemistryVersion.R7) {
-      String s = reader.getAllGroupMembers("/Analyses/EventDetection_000/Reads").get(0);
-      return Integer.parseInt(s.substring(s.indexOf('_')+1));
+    if (!isBasecalled() && getChemistryVersion() == ChemistryVersion.R7_3) {
+      String s = reader.getAllGroupMembers("/Analyses/EventDetection_000/Reads")
+          .get(0);
+      return Integer.parseInt(s.substring(s.indexOf('_') + 1));
     }
     return Integer.parseInt(reader.getStringAttribute(
         "/Analyses/Basecall_1D_000/Configuration/general", "read_id"));
@@ -414,18 +426,11 @@ public class Fast5 implements AutoCloseable {
     if (!isBasecalled()) {
       return null;
     }
-    String log = reader.readString("/Analyses/Basecall_1D_000/Log");
-    String Basecallers = "";
-    Matcher matcher1 = PATTERN1.matcher(log);
-    while (matcher1.find()) {
-      Basecallers = matcher1.group();
-    }
-
-    Matcher matcher2 = PATTERN2.matcher(log);
-    while (matcher2.find()) {
-      Basecallers = Basecallers + " | " + matcher2.group();
-    }
-    return Basecallers;
+    String chimaeraVersion = reader
+        .getStringAttribute("/Analyses/Basecall_1D_000", "chimaera version");
+    String dragonetVersion = reader
+        .getStringAttribute("/Analyses/Basecall_1D_000", "dragonet version");
+    return "chimaera v" + chimaeraVersion + " | dragonet v" + dragonetVersion;
   }
 
   /**
@@ -519,28 +524,122 @@ public class Fast5 implements AutoCloseable {
 
   /**
    * Method of the class Fast5 to obtain the sequence fastq + score of the
-   * hairpin sequence in the fast5 file.
-   * @return a string with the sequence fastq of the hairpin
+   * barcode sequence in the fast5 file for the pos0 of the alignement.
+   * @return a string with the sequence fastq of the short barcode
    */
-  public String getHairpinFastq() {
-    if (!is2D() || !isBasecalled()) {
-      return null;
-    }
-    // If the file is fail after the basecalling online, it's possible that the
-    // group "/Analyses/Basecall_2D_000/BaseCalled_2D" dont exist.
-    return reader.readString("/Analyses/Basecall_2D_000/BaseCalled_2D/Fastq");
-  }
-
-  /**
-   * Method of the class Fast5 to obtain the sequence fastq + score of the
-   * barcode sequence in the fast5 file.
-   * @return a string with the sequence fastq of the barcode
-   */
-  public String getBarcodingFastq() {
+  public String getShortBarcodingFastq() {
     if (!isBarcoded() || !isBasecalled()) {
       return null;
     }
     return reader.readString("/Analyses/Barcoding_000/Barcoding/Fastq");
+  }
+
+  /**
+   * Method of the class Fast5 to obtain the sequence fastq + score of the
+   * barcode sequence in the fast5 file for the pos0 and pos1 of the alignement.
+   * @return a string with the sequence fastq of the long barcode
+   */
+  public String getLongBarcodingFastq() {
+    if (!isBarcoded() || !isBasecalled()) {
+      return null;
+    }
+    return reader.readString("/Analyses/Basecall_2D_000/BaseCalled_2D/Fastq");
+  }
+
+  //
+  //
+  // Log Status getters
+  //
+  //
+
+  /**
+   * Method of the class Fast5 to obtain the status of the barcoding workflow.
+   * @return a string of the status of the barcode workflow
+   */
+  public String getBarcodindFinalStatus() {
+    if (!isBasecalled() || !isBarcoded()) {
+      return null;
+    }
+    return getLogFinalStatus(reader.readString("/Analyses/Barcoding_000/Log"));
+  }
+
+  /**
+   * Method of the class Fast5 to obtain the status of the basecall1D workflow.
+   * @return a string of the status of the basecall1D workflow
+   */
+  public String getBaseCall1DFinalStatus() {
+    if (!isBasecalled()) {
+      return null;
+    }
+    return getLogFinalStatus(
+        reader.readString("/Analyses/Basecall_1D_000/Log"));
+  }
+
+  /**
+   * Method of the class Fast5 to obtain the status of the basecall2D workflow.
+   * @return a string of the status of the basecall2D workflow
+   */
+  public String getBaseCall2DFinalStatus() {
+    if (!isBasecalled() || !is2D()) {
+      return null;
+    }
+    return getLogFinalStatus(
+        reader.readString("/Analyses/Basecall_2D_000/Log"));
+  }
+
+  /**
+   * Method of the class Fast5 to obtain the status of the Calibration Strand
+   * workflow.
+   * @return a string of the status of the Calibration Strand workflow
+   */
+  public String getCalibrationStrandFinalStatus() {
+    if (!isBasecalled()) {
+      return null;
+    }
+    return getLogFinalStatus(
+        reader.readString("/Analyses/Calibration_Strand_000/Log"));
+  }
+
+  /**
+   * Method of the class Fast5 to obtain the status of the Event Detection
+   * workflow.
+   * @return a string of the status of the Event Detection workflow
+   */
+  public String getEventDetectionFinalStatus() {
+    if (!isBasecalled() || getChemistryVersion() == ChemistryVersion.R7_3) {
+      return null;
+    }
+    return getLogFinalStatus(
+        reader.readString("/Analyses/EventDetection_000/Log"));
+  }
+
+  /**
+   * Method of the class Fast5 to obtain the status of the Hairpin split
+   * workflow.
+   * @return a string of the status of the Hairpin split workflow
+   */
+  public String getHairpinSplitFinalStatus() {
+    if (!isBasecalled() || !is2D()) {
+      return null;
+    }
+    return getLogFinalStatus(
+        reader.readString("/Analyses/Hairpin_Split_000/Log"));
+  }
+
+  /**
+   * Method of the class Fast5 to obtain the final status of the workflow.
+   * @param log of a workflow
+   * @return a string of the status of the Hairpin split workflow
+   */
+  public String getLogFinalStatus(String log) {
+    String[] work = log.split("[\n]");
+    String[] work2 = work[work.length - 2].split("\\s");
+    String Status = "";
+    for (int i = 2; i < work2.length; i++) {
+      Status += work2[i] + " ";
+    }
+    Status = Status.substring(0, Status.length() - 1);
+    return Status;
   }
 
 }

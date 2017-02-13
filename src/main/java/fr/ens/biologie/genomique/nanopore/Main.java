@@ -68,7 +68,7 @@ public abstract class Main {
 
     options.addOption(OptionBuilder.withArgName("type").hasArg()
         .withDescription(
-            "set a type of sequence [template|complement|hairpin|barcode] to process;(default : template,complement)")
+            "set a type of sequence [template|complement|barcode] to process;(default : template,complement)")
         .create("type"));
 
     options
@@ -110,8 +110,8 @@ public abstract class Main {
       // parse the command line arguments
       CommandLine line = parser.parse(options, args, true);
       // Help option
+
       if (line.hasOption("help")) {
-        // help(options);
         showMessageAndExit(Globals.HELP_TXT);
       }
       // About option
@@ -136,8 +136,11 @@ public abstract class Main {
       }
       {
         String[] remainder = line.getArgs();
-        dirFast5 = new File(remainder[0]);
-        dirOutputFastq = new File(remainder[1]);
+        if (remainder.length >= 2) {
+          dirFast5 = new File(remainder[0]);
+          dirOutputFastq = new File(remainder[1]);
+        }
+
       }
       // Set the root directory of the Fast5 run
       if (line.hasOption("mergeSequence")) {
@@ -150,14 +153,6 @@ public abstract class Main {
       showErrorMessageAndExit("This program needs one argument."
           + " Use the -h option to get more information.\n");
     }
-
-    // FAD22491_20161011 sans barcode R9
-    // FAD22487_20160810 avec barcode R9
-    // FAA105486_20160617 sans barcode R7
-    // File rootFast5Dir = new File("/mnt/hardMinion/FAA105486_20160617");
-    //
-    // File fastqDir =
-    // new File("/home/birer/Bureau/nanoporetools/src/test/java/files/");
 
     try {
       Fast5toFastq if5 = new Fast5toFastq(dirFast5, dirOutputFastq);
@@ -186,18 +181,21 @@ public abstract class Main {
       if (type.contains("complement")) {
         if5.setSaveComplementSequence(true);
       }
-      if (type.contains("hairpin")) {
-        if5.setSaveHairpinSequence(true);
-      }
       if (type.contains("barcode")) {
         if5.setSaveBarcodeSequence(true);
       }
+      
+      //Execution to the read of fast5 to fastq
 
-      if5.execution();
+      if5.execute();
+      
+      //Write of few logs files
 
       try {
         LogFast5toFastq logIf5 = new LogFast5toFastq(if5, dirOutputFastq);
         logIf5.createLogConversionFastq();
+        logIf5.createLogCorruptFile();
+        logIf5.createLogWorkflow();
       } catch (Exception e1) {
         e1.printStackTrace();
       }

@@ -59,7 +59,7 @@ Nanoporetools read the rootDirectory/downloads of your Fast5 run minION after th
 
 In the execution of nanoporetools, the programm step :
 
- + list the fast5 files.
+ + List the fast5 files.
  + Read a fast5 file.
  + Write the fastq sequence(s).
  + Make a log information.
@@ -76,22 +76,22 @@ OPTIONS
     
     #Options
     -status pass|fail|failbarcode|passbarcode (default : pass)                  #The status of fast5 file
-    -type template|complement|hairpin|barcode (default : template,complement)   #The type of sequence
+    -type template|complement|barcode (default : template,complement)   #The type of sequence
     -mergeSequence true|false (default : false)                                 #If you want merge all type of sequence whatever the status
     
     #Arguments
     -rootDirectoryFast5run /home/user/yourRootDirectoryFast5run
-    -outputDirectoryFastq /home/user/yourOutputDirectoryFastq/
+    -outputDirectoryFastq /home/user/yourOutputDirectoryFastq
     
     
 ###Example
 
 
 I have a directory of a minION run in 2D with barcode.
-If i want just get the fastq sequence of the 'template', the 'complement', the 'hairpin' and the 'barcode' for the fast5 files in the status/repertory 'fail'.
+If i want just get the fastq sequence of the 'template', the 'complement' and the 'barcode' for the fast5 files in the status/repertory 'fail'.
 
 
-    mvn exec:java -Dexec.args="-status fail -type template,complement,hairpin,barcode /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq/"
+    mvn exec:java -Dexec.args="-status fail -type template,complement,barcode /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq/"
 
 
 

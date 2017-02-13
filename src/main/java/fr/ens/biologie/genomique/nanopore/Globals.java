@@ -52,9 +52,8 @@ public class Globals {
       + " is a pipeline for NGS analysis.\n" + "This version has been built on "
       + APP_BUILD_DATE + ".\n\n" + "Authors:\n"
       + "  Laurent Jourdren <jourdren@biologie.ens.fr>\n"
-      + "  Aurélien Birer <birer@biologie.ens.fr>\n"
-      + "\n" + "Copyright " + COPYRIGHT_DATE + " IBENS genomic platform\n"
-      + LICENSE_TXT + "\n";
+      + "  Aurélien Birer <birer@biologie.ens.fr>\n" + "\n" + "Copyright "
+      + COPYRIGHT_DATE + " IBENS genomic platform\n" + LICENSE_TXT + "\n";
 
   /** The welcome message. */
   public static final String WELCOME_MSG = Globals.APP_NAME
