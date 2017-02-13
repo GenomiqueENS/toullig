@@ -70,6 +70,11 @@ public abstract class Main {
         .withDescription(
             "set a type of sequence [template|complement|barcode] to process;(default : template,complement)")
         .create("type"));
+    
+    options.addOption(OptionBuilder.withArgName("compress").hasArg()
+        .withDescription(
+            "set a compression for the output fastq [GZIP|BZIP2]")
+        .create("compress"));
 
     options
         .addOption(OptionBuilder.withArgName("rootDirectoryFast5run").hasArg()
@@ -96,6 +101,7 @@ public abstract class Main {
 
     String status = "pass";
     String type = "template,complement";
+    String compress = "s";
     File dirFast5 = null;
     File dirOutputFastq = null;
     boolean merge = false;
@@ -133,6 +139,10 @@ public abstract class Main {
       // Set type
       if (line.hasOption("type")) {
         type = line.getOptionValue("type").toLowerCase();
+      }
+      // Set compression format
+      if (line.hasOption("compress")) {
+        compress = line.getOptionValue("compress").toLowerCase();
       }
       {
         String[] remainder = line.getArgs();
@@ -184,9 +194,17 @@ public abstract class Main {
       if (type.contains("barcode")) {
         if5.setSaveBarcodeSequence(true);
       }
+      //Compress format
+      if(compress.contains("gzip")) {
+        if5.setCompressGZIP(true);
+      }
+      if(compress.contains("bzip2")) {
+        if5.setCompressBZIP2(true);
+      }
       
       //Execution to the read of fast5 to fastq
 
+      
       if5.execute();
       
       //Write of few logs files

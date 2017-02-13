@@ -2,9 +2,9 @@ package fr.ens.biologie.genomique.toullig;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.zip.GZIPOutputStream;
+
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 
 import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
 
@@ -48,20 +50,42 @@ public class Fast5toFastq {
   private boolean saveTemplateSequence = false;
   private boolean saveBarcodeSequence = false;
 
+  private boolean saveCompressGZIP = false;
+  private boolean saveCompressBZIP2 = false;
+
   private List<String> listWriteSequenceLog = new ArrayList<String>();
   private List<String> listWorkflowStatusLog = new ArrayList<String>();
 
   private static class SynchronizedWriter extends OutputStreamWriter {
 
-    public SynchronizedWriter(File file) throws IOException {
-      // super(new GZIPOutputStream(new FileOutputStream(file)));
-      super(new FileOutputStream(file));
+    private SynchronizedWriter(File file, String compress) throws Exception {
+      super(getOutputStream(file, compress));
     }
 
-    @Override
-    public synchronized void write(final String str) throws IOException {
-      super.write(str);
+    private static OutputStream getOutputStream(File file, String compress)
+        throws Exception {
+      try {
+        if (compress.equals("gzip")) {
+          return new GZIPOutputStream(new FileOutputStream(file));
+        }
+        if (compress.equals("bzip2")) {
+          return new BZip2CompressorOutputStream(new FileOutputStream(file));
+          // return new
+          // ApacheCommonCompressionCodecs.createBZip2OutputStream(new
+          // FileOutputStream(file));
+        } else {
+          return new FileOutputStream(file);
+        }
+      } catch (IOException e) {
+        throw new Exception("Could not create CompressorOutputStream", e);
+      }
     }
+
+    // @Override
+    // private synchronized void write(final String str) throws IOException {
+    // super.write(str);
+    // }
+
   }
 
   private static class countWriteFastq {
@@ -217,17 +241,32 @@ public class Fast5toFastq {
    * @param typeSequence is the type of sequence (ex:complement)
    * @param status is the status of the fast5 file (ex:fail)
    * @return a writter with the correct output name for write a fastq sequence
-   * @throws IOException
+   * @throws Exception
    */
   private Writer createWriterFastq(File fast5File, String typeSequence,
-      String status) throws IOException {
+      String status) throws Exception {
     // the substring is done on the string "_ch" who correspond to the channel
     // number
     String preNameFile = fast5File.getName().substring(0,
         fast5File.getName().indexOf("_ch") + 1);
-    Writer fastqFile = new SynchronizedWriter(new File(this.repertoryFastqOutput
-        + "/" + preNameFile + status + "_" + typeSequence + ".fastq"));
-    return fastqFile;
+    
+    if (saveCompressBZIP2) {
+      return new SynchronizedWriter(
+          new File(this.repertoryFastqOutput
+              + "/" + preNameFile + status + "_" + typeSequence + ".bzip2"),
+          "bzip2");
+    }
+    if (saveCompressGZIP) {
+      return new SynchronizedWriter(
+          new File(this.repertoryFastqOutput
+              + "/" + preNameFile + status + "_" + typeSequence + ".gzip"),
+          "gzip");
+    } else {
+     return new SynchronizedWriter(
+          new File(this.repertoryFastqOutput
+              + "/" + preNameFile + status + "_" + typeSequence + ".fastq"),
+          "");
+    }
   }
 
   //
@@ -427,6 +466,22 @@ public class Fast5toFastq {
   }
 
   //
+  // Compression format setters
+  //
+
+  public void setCompressGZIP(boolean saveCompressGZIP) {
+    if (saveCompressGZIP) {
+      this.saveCompressGZIP = true;
+    }
+  }
+
+  public void setCompressBZIP2(boolean saveCompressBZIP2) {
+    if (saveCompressBZIP2) {
+      this.saveCompressBZIP2 = true;
+    }
+  }
+
+  //
   //
   // Create Log
   //
@@ -501,13 +556,13 @@ public class Fast5toFastq {
     this.listWorkflowStatusLog.add("\nEvent Detection workflow :\n");
     stackHashWorkflow(countObject.EventDetectionStatusHash, status,
         "Event Detection");
-    
+
     // Hairpin Split Workflow
     //
     this.listWorkflowStatusLog.add("\nHairpin Split workflow :\n");
     stackHashWorkflow(countObject.HairpinSplitStatusHash, status,
         "Hairpin Split");
-    
+
     // Basecall_1D Workflow
     //
     this.listWorkflowStatusLog.add("\nBasecall_1D workflow :\n");
@@ -528,9 +583,6 @@ public class Fast5toFastq {
     //
     this.listWorkflowStatusLog.add("\nBarcode workflow :\n");
     stackHashWorkflow(countObject.BarcodeStatusHash, status, "Barcode");
-
-
-
 
   }
 
@@ -568,10 +620,10 @@ public class Fast5toFastq {
    * @param fast5SubdirName is a directory of fast5 files
    * @param status is the status of fast5 file
    * @return an int who is the number of fast5 process
-   * @throws IOException
+   * @throws Exception
    */
   private int processDirectory(String fast5SubdirName, String status)
-      throws IOException {
+      throws Exception {
 
     List<File> list = listFast5(fast5SubdirName);
     processDirectory(list, status);
@@ -583,10 +635,10 @@ public class Fast5toFastq {
    * launch the read of fast5 and write of fastq sequence.
    * @param listFast5Files is a list of fast5 file
    * @param status is the status of fast5 file
-   * @throws IOException
+   * @throws Exception
    */
   private void processDirectory(List<File> listFast5Files, String status)
-      throws IOException {
+      throws Exception {
 
     if (listFast5Files.isEmpty()) {
       return;
@@ -657,15 +709,14 @@ public class Fast5toFastq {
    * This method of the class Fast5toFastq execute processDirectory with a list
    * of barcode.
    * @param listBarcodeDir is the list of barcode of the run
-   * @throws IOException
+   * @throws Exception
    */
-  private void processDirectories(List<File> listBarcodeDir)
-      throws IOException {
+  private void processDirectories(List<File> listBarcodeDir) throws Exception {
     for (File barcodeDirectory : listBarcodeDir) {
       List<File> listBarcodeFast5Files = listFast5(barcodeDirectory);
       processDirectory(listBarcodeFast5Files, barcodeDirectory.getName());
       this.numberBarcodeFast5Files += listBarcodeFast5Files.size();
-      this.numberFast5Files += this.numberBarcodeFast5Files;
+      this.numberFast5Files += listBarcodeFast5Files.size();
     }
   }
 
@@ -844,10 +895,11 @@ public class Fast5toFastq {
   /**
    * This method of the class Fast5toFastq execute the process to retrieve the
    * fastq sequence on fast5 file.
-   * @throws IOException
+   * @throws Exception
    */
-  public void execute() throws IOException {
+  public void execute() throws Exception {
 
+    
     if (this.processMergeStatus) {
 
       this.listFast5Files = listAllFast5();

@@ -91,7 +91,7 @@ I have a directory of a minION run in 2D with barcode.
 If i want just get the fastq sequence of the 'template', the 'complement' and the 'barcode' for the fast5 files in the status/repertory 'fail'.
 
 
-    mvn exec:java -Dexec.args="-status fail -type template,complement,barcode /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq/"
+    bash ./target/dist/toullig-0.1-alpha-2/toullig.sh -status fail -type template,complement,barcode /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq/
 
 
 
