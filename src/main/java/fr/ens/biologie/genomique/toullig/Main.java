@@ -63,7 +63,7 @@ public abstract class Main {
 
     options.addOption(OptionBuilder.withArgName("status").hasArg()
         .withDescription(
-            "set a status of the fast5 file [pass|fail|failbarcode|passbarcode] to process;(default : pass)")
+            "set a status of the fast5 file [pass|fail|unclassified|passbarcode] to process;(default : pass)")
         .create("status"));
 
     options.addOption(OptionBuilder.withArgName("type").hasArg()
@@ -101,7 +101,7 @@ public abstract class Main {
 
     String status = "pass";
     String type = "template,complement";
-    String compress = "s";
+    String compress = "";
     File dirFast5 = null;
     File dirOutputFastq = null;
     boolean merge = false;
@@ -174,11 +174,11 @@ public abstract class Main {
       if (status.contains("fail")) {
         if5.setProcessFail(true);
       }
-      if (status.contains("pass")) {
+      if (status.contains("pass") && !status.contains("passbarcode")) {
         if5.setProcessPass(true);
       }
       // If the Experimental protocol is barcoded
-      if (status.contains("failbarcode")) {
+      if (status.contains("unclassified")) {
         if5.setProcessFailBarcode(true);
       }
       if (status.contains("passbarcode")) {

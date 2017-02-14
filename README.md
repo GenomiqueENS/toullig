@@ -75,7 +75,7 @@ OPTIONS
     -license        #display license of nanoporetools
     
     #Options
-    -status pass|fail|failbarcode|passbarcode (default : pass)                  #The status of fast5 file
+    -status pass|fail|unclassified|passbarcode (default : pass)                  #The status of fast5 file
     -type template|complement|barcode (default : template,complement)   #The type of sequence
     -mergeSequence true|false (default : false)                                 #If you want merge all type of sequence whatever the status
     
