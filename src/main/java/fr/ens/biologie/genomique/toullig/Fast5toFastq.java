@@ -37,6 +37,7 @@ public class Fast5toFastq {
   private int numberFailBarcodeFast5Files;
   private int numberBarcodeFast5Files;
   private int numberCorruptFast5Files;
+  private long numberCalibrateStrandFast5Files;
 
   private boolean processMergeStatus = false;
   private boolean processFail = false;
@@ -299,7 +300,16 @@ public class Fast5toFastq {
   public int getNumberBarcodeFast5Files() {
     return this.numberBarcodeFast5Files;
   }
-
+  
+  
+  /**
+   * This method of the class Fast5toFastq get the number of calibrate strand files.
+   * @return an int of the number of calibrate strand files
+   */
+  public long getNumberCalibrateStrandFast5Files() {
+    return this.numberCalibrateStrandFast5Files;
+  }
+  
   //
   //
   // Getter Process
@@ -473,10 +483,13 @@ public class Fast5toFastq {
     List<String> listLog = new ArrayList<String>();
     listLog.add("Number of fast5 files read " + getNumberFast5Files());
     listLog.add("Number of corrupt files " + getNumberCorruptFast5Files());
-    listLog.add("Number of fail files read " + getNumberFailFast5Files());
-    listLog.add("Number of pass files read " + getNumberPassFast5Files());
+    listLog.add("Number of calibrate strand files read "
+        + getNumberCalibrateStrandFast5Files());
     listLog.add("Number of fail attribution barcode files read "
         + getNumberBadBarcodeFast5Files());
+    listLog.add("Number of fail files read " + getNumberFailFast5Files());
+    listLog.add("Number of pass files read " + getNumberPassFast5Files());
+
     listLog.add(
         "Number of pass barcode file " + getNumberBarcodeFast5Files() + "\n");
     for (String element : this.listWriteSequenceLog) {
@@ -520,18 +533,31 @@ public class Fast5toFastq {
     //
     // Count of write sequence in fastq file
     //
+    long nbSeqTempWrite=logGroup.getCounterValue("numberSequenceWrite",
+        "numberSequenceTemplateWrite");
+    long nbSeqCompWrite=logGroup.getCounterValue("numberSequenceWrite",
+        "numberSequenceComplementWrite");
+    long nbSeqBarWrite=logGroup.getCounterValue("numberSequenceWrite",
+        "numberSequenceBarcodeWrite");
+    if(nbSeqTempWrite==-1){
+      nbSeqTempWrite=0;
+    }
+    if(nbSeqCompWrite==-1){
+      nbSeqCompWrite=0;
+    }
+    if(nbSeqBarWrite==-1){
+      nbSeqBarWrite=0;
+    }
+    
     this.listWriteSequenceLog.add("In the file "
         + status + " template the number of total sequence write "
-        + logGroup.getCounterValue("numberSequenceWrite",
-            "numberSequenceTemplateWrite"));
+        + nbSeqTempWrite);
     this.listWriteSequenceLog.add("In the file "
         + status + " complement the number of total sequence write "
-        + logGroup.getCounterValue("numberSequenceWrite",
-            "numberSequenceComplementWrite"));
+        + nbSeqCompWrite);
     this.listWriteSequenceLog.add("In the file "
         + status + " barcode the number of total sequence write "
-        + logGroup.getCounterValue("numberSequenceWrite",
-            "numberSequenceBarcodeWrite"));
+        + nbSeqBarWrite);
 
     //
     // Workflow status getters
@@ -585,8 +611,14 @@ public class Fast5toFastq {
       String status, String nameWorkflow) {
     Set<String> keys = logGroup.getCounterNames(group);
 
+   
+    
     if (keys.size() >= 1) {
       for (String key : keys) {
+        
+        if(status.equals("fail") && key.contains("Calibration strand detected.") ){
+          this.numberCalibrateStrandFast5Files=logGroup.getCounterValue(group, key) ;
+        }
         this.listWorkflowStatusLog.add("The status \""
             + key + "\" is present " + logGroup.getCounterValue(group, key)
             + " times in the folder " + status);
@@ -706,6 +738,7 @@ public class Fast5toFastq {
       List<File> listBarcodeFast5Files = listFast5(barcodeDirectory);
       processDirectory(listBarcodeFast5Files, barcodeDirectory.getName(),
           logGroup);
+      
       this.numberBarcodeFast5Files += listBarcodeFast5Files.size();
       this.numberFast5Files += listBarcodeFast5Files.size();
     }
@@ -726,6 +759,8 @@ public class Fast5toFastq {
         logGroup.incrCounter("numberSequenceWrite",
             "numberSequenceTemplateWrite", 1);
       }
+      
+     
       if (barcodeWriter != null && f5.getLongBarcodingFastq() != null) {
         barcodeWriter.write(f5.getLongBarcodingFastq());
         logGroup.incrCounter("numberSequenceWrite",
@@ -888,7 +923,7 @@ public class Fast5toFastq {
   public void execute() throws Exception {
 
     final LocalReporter logGroup = new LocalReporter();
-
+    
     if (this.processMergeStatus) {
       this.listFast5Files = listAllFast5();
       processDirectory(this.listFast5Files, "merge_status", logGroup);
