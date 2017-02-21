@@ -1,6 +1,7 @@
 package fr.ens.biologie.genomique.toullig;
 
 import java.io.File;
+import java.util.Date;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -98,6 +99,8 @@ public abstract class Main {
    * @return the number of options argument in the command line
    */
   public static void main(String[] args) {
+    
+    Date dateDeb = new Date();
 
     String status = "pass";
     String type = "template,complement";
@@ -204,14 +207,16 @@ public abstract class Main {
       
       //Execution to the read of fast5 to fastq
 
-      
+
+   
       if5.execute();
       
+      Date dateEnd = new Date();
+      
       //Write of few logs files
-
       try {
         LogFast5toFastq logIf5 = new LogFast5toFastq(if5, dirOutputFastq);
-        logIf5.createLogConversionFastq();
+        logIf5.createLogConversionFastq(dateDeb,dateEnd);
         logIf5.createLogCorruptFile();
         logIf5.createLogWorkflow();
       } catch (Exception e1) {

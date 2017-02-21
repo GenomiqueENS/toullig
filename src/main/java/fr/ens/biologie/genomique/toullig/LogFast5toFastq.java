@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Date;
 
 /**
  * This class make Log files.
@@ -38,14 +39,16 @@ public class LogFast5toFastq {
    * all differents status of fast5 files.
    * @throws IOException
    */
-  public void createLogConversionFastq() throws IOException {
+  public void createLogConversionFastq(Date dateDeb, Date dateEnd) throws IOException {
     try {
+      this.logWriter.write(dateDeb+"\n\n");
       this.logWriter.write("Log of the fast5 run "
           + this.f5.getNameDirectoryRunFast5()
           + " to extract fastq sequences\n\n");
       for (String element : this.f5.getListLog()) {
         this.logWriter.write(element + "\n");
       }
+      this.logWriter.write("\n"+dateEnd);
       this.logWriter.close();
     } catch (Exception e) {
       throw new IOException(e);
