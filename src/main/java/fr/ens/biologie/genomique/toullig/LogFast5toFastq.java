@@ -12,6 +12,7 @@ import java.util.Date;
  */
 public class LogFast5toFastq {
 
+  private LocalReportertoLog logF5;
   private Fast5toFastq f5;
   private Writer logWriter;
   private Writer logCorruptWriter;
@@ -25,7 +26,9 @@ public class LogFast5toFastq {
    */
   public LogFast5toFastq(Fast5toFastq runConversionFastq, File fastqDir)
       throws IOException {
-    this.f5 = runConversionFastq;
+
+    this.f5= runConversionFastq;
+    this.logF5 = new LocalReportertoLog(this.f5);
     this.logWriter =
         new FileWriter(new File(fastqDir + "/logConversionFastq.txt"));
     this.logCorruptWriter =
@@ -45,7 +48,7 @@ public class LogFast5toFastq {
       this.logWriter.write("Log of the fast5 run "
           + this.f5.getNameDirectoryRunFast5()
           + " to extract fastq sequences\n\n");
-      for (String element : this.f5.getListLog()) {
+      for (String element : this.logF5.getListLog()) {
         this.logWriter.write(element + "\n");
       }
       this.logWriter.write("\n"+dateEnd);
@@ -62,7 +65,7 @@ public class LogFast5toFastq {
    */
   public void createLogWorkflow() throws IOException {
     try {
-      for (String element : this.f5.getListLogStatusWorkflow()) {
+      for (String element : this.logF5.getListLogStatusWorkflow()) {
         this.logWorkflowWriter.write(element + "\n");
       }
       this.logWorkflowWriter.close();
@@ -78,8 +81,8 @@ public class LogFast5toFastq {
    */
   public void createLogCorruptFile() throws IOException {
     try {
-      for (String element : this.f5.getListCorruptFileLog()) {
-        this.logCorruptWriter.write(element + "\n");
+      for (File file : this.f5.getListCorruptFast5Files()) {
+        this.logCorruptWriter.write(file.toString() + "\n");
       }
       this.logCorruptWriter.close();
     } catch (Exception e) {

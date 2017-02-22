@@ -10,6 +10,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+
 /**
  * Main class of nanoporetools
  * @author birer
@@ -119,7 +120,6 @@ public abstract class Main {
       // parse the command line arguments
       CommandLine line = parser.parse(options, args, true);
       // Help option
-
       if (line.hasOption("help")) {
         showMessageAndExit(Globals.HELP_TXT);
       }
@@ -182,7 +182,7 @@ public abstract class Main {
       }
       // If the Experimental protocol is barcoded
       if (status.contains("unclassified")) {
-        if5.setProcessFailBarcode(true);
+        if5.setProcessUnclassified(true);
       }
       if (status.contains("passbarcode")) {
         if5.setProcessPassBarcode(true);
