@@ -70,7 +70,7 @@ public abstract class Main {
 
     options.addOption(OptionBuilder.withArgName("type").hasArg()
         .withDescription(
-            "set a type of sequence [template|complement|barcode] to process;(default : template,complement)")
+            "set a type of sequence [template|complement|consensus|transcript] to obtain ;(default : transcript)")
         .create("type"));
     
     options.addOption(OptionBuilder.withArgName("compress").hasArg()
@@ -104,7 +104,7 @@ public abstract class Main {
     Date dateDeb = new Date();
 
     String status = "pass";
-    String type = "template,complement";
+    String type = "transcript";
     String compress = "";
     File dirFast5 = null;
     File dirOutputFastq = null;
@@ -153,8 +153,8 @@ public abstract class Main {
           dirFast5 = new File(remainder[0]);
           dirOutputFastq = new File(remainder[1]);
         }
-
       }
+
       // Set the root directory of the Fast5 run
       if (line.hasOption("mergeSequence")) {
         merge = Boolean.parseBoolean(line.getOptionValue("merge"));
@@ -168,7 +168,7 @@ public abstract class Main {
     }
 
     try {
-      Fast5toFastq if5 = new Fast5toFastq(dirFast5, dirOutputFastq);
+      Fast5ToFastq if5 = new Fast5ToFastq(dirFast5, dirOutputFastq);
 
       // If you want to specify the group of the status of the read in the
       // output file(ex : .._fail_complement.fastq)
@@ -194,28 +194,29 @@ public abstract class Main {
       if (type.contains("complement")) {
         if5.setSaveComplementSequence(true);
       }
-      if (type.contains("barcode")) {
-        if5.setSaveBarcodeSequence(true);
+      if (type.contains("consensus")) {
+        if5.setSaveConsensusSequence(true);
+      }
+      if (type.contains("transcript")) {
+        if5.setSaveTranscriptSequence(true);
       }
       //Compress format
       if(compress.contains("gzip")) {
-        if5.setCompressGZIP(true);
+        if5.setGzipCompression(true);
       }
       if(compress.contains("bzip2")) {
-        if5.setCompressBZIP2(true);
+        if5.setBZip2Compression(true);
       }
       
       //Execution to the read of fast5 to fastq
 
-
-   
       if5.execute();
       
       Date dateEnd = new Date();
       
       //Write of few logs files
       try {
-        LogFast5toFastq logIf5 = new LogFast5toFastq(if5, dirOutputFastq);
+        Fast5ToFastqLogger logIf5 = new Fast5ToFastqLogger(if5, dirOutputFastq);
         logIf5.createLogConversionFastq(dateDeb,dateEnd);
         logIf5.createLogCorruptFile();
         logIf5.createLogWorkflow();

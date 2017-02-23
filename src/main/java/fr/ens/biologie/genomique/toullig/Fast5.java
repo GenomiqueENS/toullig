@@ -524,10 +524,10 @@ public class Fast5 implements AutoCloseable {
 
   /**
    * Method of the class Fast5 to obtain the sequence fastq + score of the
-   * barcode sequence in the fast5 file for the pos0 of the alignement.
+   * transcript sequence contains adaptor5'+transcript-consensus+adaptor3'.
    * @return a string with the sequence fastq of the short barcode
    */
-  public String getShortBarcodingFastq() {
+  public String getTranscriptFastq() {
     if (!isBarcoded() || !isBasecalled()) {
       return null;
     }
@@ -536,10 +536,10 @@ public class Fast5 implements AutoCloseable {
 
   /**
    * Method of the class Fast5 to obtain the sequence fastq + score of the
-   * barcode sequence in the fast5 file for the pos0 and pos1 of the alignement.
+   * consensus sequence contains barcodePos0+adaptor5'+transcript-consensus+adaptor3'+barcodePos1.
    * @return a string with the sequence fastq of the long barcode
    */
-  public String getLongBarcodingFastq() {
+  public String getConsensusFastq() {
     if (!isBarcoded() || !isBasecalled()) {
       return null;
     }

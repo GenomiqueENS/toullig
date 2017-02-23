@@ -62,7 +62,30 @@ In the execution of nanoporetools, the programm step :
  + List the fast5 files.
  + Read a fast5 file.
  + Write the fastq sequence(s).
- + Make a log information.
+ + Make few some log informations.
+
+###UNDERSTAND THE TYPE OF SEQUENCE
+
+Actually, we use in developpement Metrichor for the basecalling of our .fast5 file.
+
+But it's important to understand clearly the type of the 4 fastq sequences give by metrichor (in our case in 2D).
+
+
+The template sequence is the first sequence basecalled, this sequence correspond to the own read sequenced in 1D. This sequence contains section as follow :
+
+noise|barcodePOS0|short-noise|anti-hairpin-adaptor|GGG|transcript|NVTTT{n}|hairpin-adaptor|short-noise|barcodePOS1|noise
+
+The complement sequence is the second sequence basecalled (in 2D), this sequence correspond to the reverse of the template sequence. This sequence contains section as follow :
+
+noise|barcodePOS0|short-noise|anti-hairpin-adaptor|CCC|transcript|NBAAAAA{n}|hairpin-adaptor|short-noise|barcodePOS1|noise
+
+The consensus sequence is the sequence result of the alignement of the template and the complement sequence (in 2D). This sequence contains section as follow :
+
+noise|barcodePOS0|short-noise|anti-hairpin-adaptor|GGG|transcript|NVTTT{n}|hairpin-adaptor|short-noise|barcodePOS1|noise
+
+The transcript sequence is the sequence result of the alignement of the template and the complement sequence (in 2D) trim of the barcode sequence. This sequence contains section as follow :
+
+short-noise|anti-hairpin-adaptor|GGG|transcript|NVTTT{n}|hairpin-adaptor|short-noise
 
 
 OPTIONS
@@ -76,7 +99,7 @@ OPTIONS
     
     #Options
     -status pass|fail|unclassified|passbarcode (default : pass)                  #The status of fast5 file
-    -type template|complement|barcode (default : template,complement)   #The type of sequence
+    -type template|complement|consensus|transcript (default : transcript)   #The type of sequence
     -mergeSequence true|false (default : false)                                 #If you want merge all type of sequence whatever the status
     
     #Arguments
@@ -88,10 +111,10 @@ OPTIONS
 
 
 I have a directory of a minION run in 2D with barcode.
-If i want just get the fastq sequence of the 'template', the 'complement' and the 'barcode' for the fast5 files in the status/repertory 'fail'.
+If i want just get the fastq sequence of the 'template', the 'complement' and the 'consensus' for the fast5 files in the status/repertory 'fail'.
 
 
-    bash ./target/dist/toullig-0.1-alpha-2/toullig.sh -status fail -type template,complement,barcode /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq
+    bash ./target/dist/toullig-0.1-alpha-2/toullig.sh -status fail -type template,complement,consensus /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq
 
 
 
