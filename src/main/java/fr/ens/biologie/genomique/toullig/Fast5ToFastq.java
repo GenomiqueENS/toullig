@@ -553,6 +553,7 @@ public class Fast5ToFastq {
               createWriterFastq(listFast5Files.get(0), "transcript", status);
     }
 
+
     // Read all Fast5 files
 
     long start1 = System.currentTimeMillis();
@@ -585,16 +586,16 @@ public class Fast5ToFastq {
 //
 //     System.out
 //     .println("Time exe multi thread :" + (end3 - start3) / 1000 + "s");
-
-    long start4 = System.currentTimeMillis();
-
-    readFast5WriteFastq(listFast5Files, complementWriter, templateWriter,
-            consensusWriter, transcriptWriter, status, localReporter);
-
-    long end4 = System.currentTimeMillis();
-    System.out.println("Time exe 1 thread:"
-            + (end4 - start4) / 1000 + "s for a " + listFast5Files.size()
-            + " number of fast5");
+//
+//    long start4 = System.currentTimeMillis();
+//
+//    readFast5WriteFastq(listFast5Files, complementWriter, templateWriter,
+//            consensusWriter, transcriptWriter, status, localReporter);
+//
+//    long end4 = System.currentTimeMillis();
+//    System.out.println("Time exe 1 thread:"
+//            + (end4 - start4) / 1000 + "s for a " + listFast5Files.size()
+//            + " number of fast5");
 
     // Close writters
     if (this.saveComplementSequence) {
@@ -606,6 +607,7 @@ public class Fast5ToFastq {
     if (this.saveConsensusSequence) {
       consensusWriter.close();
     }
+
     if (this.saveTranscriptSequence) {
       transcriptWriter.close();
     }

@@ -207,13 +207,16 @@ public abstract class Main {
       if(compress.contains("bzip2")) {
         if5.setBZip2Compression(true);
       }
-      
-      //Execution to the read of fast5 to fastq
 
-      if5.execute();
+
+//      File fatsqFile = new File("/home/birer/Bureau/fastq_old_toullig/R9_barcode_fastq/dnacpc14_20160809_FNFAD22487_MN17734_sequencing_run_PCR_Barcoding_validation_54065_BC01_barcode.fastq");
+//      TrimFastq clean = new TrimFastq(fatsqFile);
+//      clean.trimFastq();
+
+      //Execution to the read of fast5 to fastq
+     if5.execute();
       
       Date dateEnd = new Date();
-      
       //Write of few logs files
       try {
         Fast5ToFastqLogger logIf5 = new Fast5ToFastqLogger(if5, dirOutputFastq);

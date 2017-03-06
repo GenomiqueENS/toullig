@@ -505,8 +505,8 @@ public class Fast5 implements AutoCloseable {
     if (!isBasecalled()) {
       return null;
     }
-    return reader
-        .readString("/Analyses/Basecall_1D_000/BaseCalled_template/Fastq");
+    return fix(reader
+        .readString("/Analyses/Basecall_1D_000/BaseCalled_template/Fastq"));
   }
 
   /**
@@ -518,32 +518,31 @@ public class Fast5 implements AutoCloseable {
     if (!is2D() || !isBasecalled()) {
       return null;
     }
-    return reader
-        .readString("/Analyses/Basecall_1D_000/BaseCalled_complement/Fastq");
+    return fix(reader.readString("/Analyses/Basecall_1D_000/BaseCalled_complement/Fastq"));
   }
 
   /**
    * Method of the class Fast5 to obtain the sequence fastq + score of the
    * transcript sequence contains adaptor5'+transcript-consensus+adaptor3'.
-   * @return a string with the sequence fastq of the short barcode
+   * @return a string with the sequence fastq of the transcript+rt-adaptor
    */
   public String getTranscriptFastq() {
     if (!isBarcoded() || !isBasecalled()) {
       return null;
     }
-    return reader.readString("/Analyses/Barcoding_000/Barcoding/Fastq");
+    return fix(reader.readString("/Analyses/Barcoding_000/Barcoding/Fastq"));
   }
 
   /**
    * Method of the class Fast5 to obtain the sequence fastq + score of the
    * consensus sequence contains barcodePos0+adaptor5'+transcript-consensus+adaptor3'+barcodePos1.
-   * @return a string with the sequence fastq of the long barcode
+   * @return a string with the sequence fastq of the consensus
    */
   public String getConsensusFastq() {
-    if (!isBarcoded() || !isBasecalled()) {
+    if (!is2D() || !isBasecalled()) {
       return null;
     }
-    return reader.readString("/Analyses/Basecall_2D_000/BaseCalled_2D/Fastq");
+    return fix(reader.readString("/Analyses/Basecall_2D_000/BaseCalled_2D/Fastq"));
   }
 
   //
@@ -640,6 +639,25 @@ public class Fast5 implements AutoCloseable {
     }
     Status = Status.substring(0, Status.length() - 1);
     return Status;
+  }
+
+  /**
+   * Method of the class Fast5 to fix the line break of fastq.
+   * @param s a string
+   * @return a string with a "\n" at the end
+   */
+  private static String fix(String s) {
+
+    if (s==null) {
+      return null;
+    }
+
+    if (s.length()==1) {
+      return "";
+    }
+
+    return s + (s.charAt(s.length()-1) != '\n' ? "\n" : "");
+
   }
 
 }

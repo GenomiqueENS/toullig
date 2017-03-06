@@ -1055,7 +1055,7 @@ public class Fast5Test {
 	 }
 	
 	 @Test
-	 public void testGetBarcodingFastq() throws IOException {
+	 public void testGetConsensusFastq() throws IOException {
 	 Fast5 testf1 = new Fast5(getResourceAsFile(file1));
 	 assertEquals(null, testf1.getConsensusFastq());
 	 testf1.close();
@@ -1065,7 +1065,8 @@ public class Fast5Test {
 	 testf2.close();
 	
 	 Fast5 testf3 = new Fast5(getResourceAsFile(file3));
-	 assertEquals(null, testf3.getConsensusFastq());
+	 String sequence3=readInputStream("/dnacpc14_20160617_R7_2D_consensus.fastq");
+	 assertEquals(sequence3, testf3.getConsensusFastq());
 	 testf3.close();
 	
 	 Fast5 testf4 = new Fast5(getResourceAsFile(file4));
@@ -1073,7 +1074,8 @@ public class Fast5Test {
 	 testf4.close();
 	
 	 Fast5 testf5 = new Fast5(getResourceAsFile(file5));
-	 assertEquals(null, testf5.getConsensusFastq());
+	 String sequence5=readInputStream("/dnacpc14_20161011_R9_2D_consensus.fastq");
+	 assertEquals(sequence5, testf5.getConsensusFastq());
 	 testf5.close();
 	 
 	 Fast5 testf6 = new Fast5(getResourceAsFile(file6));
@@ -1081,10 +1083,42 @@ public class Fast5Test {
      testf6.close();
      
      Fast5 testf7 = new Fast5(getResourceAsFile(file7));
-     String sequence7=readInputStream("/dnacpc14_20170124_R9-4_2D_barcodeLong.fastq");
+     String sequence7=readInputStream("/dnacpc14_20170124_R9-4_2D_consensus.fastq");
      assertEquals(sequence7, testf7.getConsensusFastq());
      testf7.close();
 	 }
+
+	@Test
+	public void testGetTranscriptFastq() throws IOException {
+		Fast5 testf1 = new Fast5(getResourceAsFile(file1));
+		assertEquals(null, testf1.getTranscriptFastq());
+		testf1.close();
+
+		Fast5 testf2 = new Fast5(getResourceAsFile(file2));
+		assertEquals(null, testf2.getTranscriptFastq());
+		testf2.close();
+
+		Fast5 testf3 = new Fast5(getResourceAsFile(file3));
+		assertEquals(null, testf3.getTranscriptFastq());
+		testf3.close();
+
+		Fast5 testf4 = new Fast5(getResourceAsFile(file4));
+		assertEquals(null, testf4.getTranscriptFastq());
+		testf4.close();
+
+		Fast5 testf5 = new Fast5(getResourceAsFile(file5));
+		assertEquals(null, testf5.getTranscriptFastq());
+		testf5.close();
+
+		Fast5 testf6 = new Fast5(getResourceAsFile(file6));
+		assertEquals(null, testf6.getTranscriptFastq());
+		testf6.close();
+
+		Fast5 testf7 = new Fast5(getResourceAsFile(file7));
+		String sequence7=readInputStream("/dnacpc14_20170124_R9-4_2D_transcript.fastq");
+		assertEquals(sequence7, testf7.getTranscriptFastq());
+		testf7.close();
+	}
 	 
 	 @Test
      public void testGetBarcodindFinalStatus() throws IOException {

@@ -73,20 +73,19 @@ But it's important to understand clearly the type of the 4 fastq sequences give 
 
 The template sequence is the first sequence basecalled, this sequence correspond to the own read sequenced in 1D. This sequence contains section as follow :
 
-noise|barcodePOS0|short-noise|anti-hairpin-adaptor|GGG|transcript|NVTTT{n}|hairpin-adaptor|short-noise|barcodePOS1|noise
+leader-adaptor|barcodePOS0|Switch-PCR-RT-Primer|GGG|transcript|NVTTT{n}|PCR-RT-Primer|barcodePOS1|hairpin-adaptor
 
 The complement sequence is the second sequence basecalled (in 2D), this sequence correspond to the reverse of the template sequence. This sequence contains section as follow :
 
-noise|barcodePOS0|short-noise|anti-hairpin-adaptor|CCC|transcript|NBAAAAA{n}|hairpin-adaptor|short-noise|barcodePOS1|noise
+leader-adaptor|barcodePOS0|Switch-PCR-RT-Primer|CCC|transcript|NBAAAAA{n}|PCR-RT-Primer|barcodePOS1|hairpin-adaptor
 
 The consensus sequence is the sequence result of the alignement of the template and the complement sequence (in 2D). This sequence contains section as follow :
 
-noise|barcodePOS0|short-noise|anti-hairpin-adaptor|GGG|transcript|NVTTT{n}|hairpin-adaptor|short-noise|barcodePOS1|noise
+leader-adaptor|barcodePOS0|Switch-PCR-RT-Primer|GGG|transcript|NVTTT{n}|PCR-RT-Primer|barcodePOS1|hairpin-adaptor
 
 The transcript sequence is the sequence result of the alignement of the template and the complement sequence (in 2D) trim of the barcode sequence. This sequence contains section as follow :
 
-short-noise|anti-hairpin-adaptor|GGG|transcript|NVTTT{n}|hairpin-adaptor|short-noise
-
+Switch-PCR-RT-Primer|GGG|transcript|NVTTT{n}|PCR-RT-Primer
 
 OPTIONS
 -

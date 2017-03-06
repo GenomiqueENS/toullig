@@ -1,0 +1,15 @@
+#Hairpin with the site of fixation of the MyOne C1-bead enzyme
+>Hairpin_1
+CGTTCTGTTTATGTTTCTTGGACACTGATTGACACGGTTTAGTAGAAC
+#Hairpin of the other side
+>Hairpin_2
+CAAGAAACATAAACAGAACGT
+#Site of the enzyme in the leader
+>adapt_Y_top_1
+GGCGTCTGCTTGGGTGTTTAACCTTTTTTTTTT
+#Leader sequence between the site of the enzyme leader and the barcode
+>adapt_Y_top_2
+AATGTACTTCGTTCAGTTACGTATTGCT
+#Leader of the other side with the site of fixation of the tether
+>adapt_Y_bottom
+GCAATACGTAACTGAACGAAGT
