@@ -2,8 +2,12 @@ package fr.ens.biologie.genomique.toullig;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.Set;
+import java.util.Collections;
 
 public class Globals {
 
@@ -37,29 +41,34 @@ public class Globals {
   /** The date of the copyright. */
   private static final String COPYRIGHT_DATE = "2010-" + APP_BUILD_YEAR;
 
+  /** Platforms where the application is available. */
+  public static final Set<String> AVAILABLE_BINARY_ARCH =
+          Collections.unmodifiableSet(new HashSet<>(
+                  Arrays.asList(new String[] {"linux\tamd64", "linux\tx86_64"})));
+
   /** Help text. */
   public static final String HELP_TXT = "To do";
 
   /** Licence text. */
   public static final String LICENSE_TXT =
-      "This program is developed under the GNU Lesser General Public License"
-          + " version 2.1 or later and CeCILL-C.";
+          "This program is developed under the GNU Lesser General Public License"
+                  + " version 2.1 or later and CeCILL-C.";
 
   /** About string, plain text version. */
   public static final String ABOUT_TXT = Globals.APP_NAME
-      + " version " + Globals.APP_VERSION_STRING + " (" + APP_BUILD_COMMIT
-      + ", " + Globals.APP_BUILD_NUMBER + ")"
-      + " is a pipeline for NGS analysis.\n" + "This version has been built on "
-      + APP_BUILD_DATE + ".\n\n" + "Authors:\n"
-      + "  Laurent Jourdren <jourdren@biologie.ens.fr>\n"
-      + "  Aurélien Birer <birer@biologie.ens.fr>\n" + "\n" + "Copyright "
-      + COPYRIGHT_DATE + " IBENS genomic platform\n" + LICENSE_TXT + "\n";
+          + " version " + Globals.APP_VERSION_STRING + " (" + APP_BUILD_COMMIT
+          + ", " + Globals.APP_BUILD_NUMBER + ")"
+          + " is a pipeline for NGS analysis.\n" + "This version has been built on "
+          + APP_BUILD_DATE + ".\n\n" + "Authors:\n"
+          + "  Laurent Jourdren <jourdren@biologie.ens.fr>\n"
+          + "  Aurélien Birer <birer@biologie.ens.fr>\n" + "\n" + "Copyright "
+          + COPYRIGHT_DATE + " IBENS genomic platform\n" + LICENSE_TXT + "\n";
 
   /** The welcome message. */
   public static final String WELCOME_MSG = Globals.APP_NAME
-      + " version " + Globals.APP_VERSION_STRING + " (" + APP_BUILD_COMMIT
-      + ", " + Globals.APP_BUILD_NUMBER + " build on " + APP_BUILD_HOST + ", "
-      + Globals.APP_BUILD_DATE + ")";
+          + " version " + Globals.APP_VERSION_STRING + " (" + APP_BUILD_COMMIT
+          + ", " + Globals.APP_BUILD_NUMBER + " build on " + APP_BUILD_HOST + ", "
+          + Globals.APP_BUILD_DATE + ")";
 
   //
   // Private constants
@@ -150,12 +159,12 @@ public class Globals {
         // Class not from JAR
 
         String basePath = classPath.substring(0,
-            classPath.length() - clazz.getName().length() - ".class".length());
+                classPath.length() - clazz.getName().length() - ".class".length());
         manifestPath = basePath + MANIFEST_FILE;
 
       } else {
         manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1)
-            + MANIFEST_FILE;
+                + MANIFEST_FILE;
       }
 
       Manifest manifest = new Manifest(new URL(manifestPath).openStream());

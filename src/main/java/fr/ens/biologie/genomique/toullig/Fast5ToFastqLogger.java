@@ -29,17 +29,17 @@ public class Fast5ToFastqLogger {
    * @throws IOException
    */
   public Fast5ToFastqLogger(Fast5ToFastq runConversionFastq, File fastqDir)
-      throws IOException {
+          throws IOException {
 
     this.localReporter=runConversionFastq.getLocalReporter();
     getAllListForLog(localReporter);
     this.f5= runConversionFastq;
     this.logWriter =
-        new FileWriter(new File(fastqDir + "/logConversionFastq.txt"));
+            new FileWriter(new File(fastqDir + "/logConversionFastq.txt"));
     this.logCorruptWriter =
-        new FileWriter(new File(fastqDir + "/logCorruptFast5Files.txt"));
+            new FileWriter(new File(fastqDir + "/logCorruptFast5Files.txt"));
     this.logWorkflowWriter =
-        new FileWriter(new File(fastqDir + "/logWorkflow.txt"));
+            new FileWriter(new File(fastqDir + "/logWorkflow.txt"));
   }
 
   /**
@@ -51,8 +51,8 @@ public class Fast5ToFastqLogger {
     try {
       this.logWriter.write(dateDeb+"\n\n");
       this.logWriter.write("Log of the fast5 run "
-          + this.f5.getNameDirectoryRunFast5()
-          + " to extract fastq sequences\n\n");
+              + this.f5.getNameDirectoryRunFast5()
+              + " to extract fastq sequences\n\n");
       for (String element : getListLog()) {
         this.logWriter.write(element + "\n");
       }

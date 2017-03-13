@@ -43,7 +43,7 @@ public class LocalReporter implements Reporter {
 
   @Override
   public void incrCounter(final String counterGroup, final String counter,
-      final long amount) {
+                          final long amount) {
 
     if (counterGroup == null || counter == null || amount <= 0) {
       return;
@@ -75,7 +75,7 @@ public class LocalReporter implements Reporter {
    * @param value value of the counter
    */
   public void setCounter(final String counterGroup, final String counter,
-      final long value) {
+                         final long value) {
 
     if (counterGroup == null || counter == null || value <= 0) {
       return;
@@ -144,7 +144,7 @@ public class LocalReporter implements Reporter {
    * @return a string with all the values of counter of the counter group
    */
   public String countersValuesToString(final String counterGroup,
-      final String header) {
+                                       final String header) {
 
     final StringBuilder sb = new StringBuilder();
 

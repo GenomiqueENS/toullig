@@ -56,41 +56,70 @@ public abstract class Main {
     // create Options object
     final Options options = new Options();
 
+    //
+    //General
+    //
+
     options.addOption("version", false, "show version of the software");
     options.addOption("about", false,
-        "display information about this software");
+            "display information about this software");
     options.addOption("h", "help", false, "display this help");
     options.addOption("license", false,
-        "display information about the license of this software");
-
-    options.addOption(OptionBuilder.withArgName("status").hasArg()
-        .withDescription(
-            "set a status of the fast5 file [pass|fail|unclassified|passbarcode] to process;(default : pass)")
-        .create("status"));
-
-    options.addOption(OptionBuilder.withArgName("type").hasArg()
-        .withDescription(
-            "set a type of sequence [template|complement|consensus|transcript] to obtain ;(default : transcript)")
-        .create("type"));
-    
-    options.addOption(OptionBuilder.withArgName("compress").hasArg()
-        .withDescription(
-            "set a compression for the output fastq [GZIP|BZIP2]")
-        .create("compress"));
+            "display information about the license of this software");
 
     options
-        .addOption(OptionBuilder.withArgName("rootDirectoryFast5run").hasArg()
-            .withDescription("the path to the main directory of the minION run")
-            .create("dirFast5"));
+            .addOption(OptionBuilder.withArgName("mode").hasArg()
+                    .withDescription("mode of toullig [fast5tofastq|trim]")
+                    .create("mode"));
+
+
+    //
+    //Trim
+    //
+
+    options
+            .addOption(OptionBuilder.withArgName("samFile").hasArg()
+                    .withDescription("the path to the .sam file")
+                    .create("samFile"));
+
+    options.addOption(OptionBuilder.withArgName("fastqFile").hasArg()
+            .withDescription("the path to the .fastq file")
+            .create("fastqFile"));
+
+
+    //
+    //Fast5tofastq
+    //
+
+
+    options.addOption(OptionBuilder.withArgName("status").hasArg()
+            .withDescription(
+                    "set a status of the fast5 file [pass|fail|unclassified|passbarcode] to process;(default : pass)")
+            .create("status"));
+
+    options.addOption(OptionBuilder.withArgName("type").hasArg()
+            .withDescription(
+                    "set a type of sequence [template|complement|consensus|transcript] to obtain ;(default : transcript)")
+            .create("type"));
+
+    options.addOption(OptionBuilder.withArgName("compress").hasArg()
+            .withDescription(
+                    "set a compression for the output fastq [GZIP|BZIP2]")
+            .create("compress"));
+
+    options
+            .addOption(OptionBuilder.withArgName("rootDirectoryFast5run").hasArg()
+                    .withDescription("the path to the main directory of the minION run")
+                    .create("dirFast5"));
 
     options.addOption(OptionBuilder.withArgName("outputDirectoryFastq").hasArg()
-        .withDescription("the path to the output of Fastq sequences")
-        .create("dirOutputFastq"));
+            .withDescription("the path to the output of Fastq sequences")
+            .create("dirOutputFastq"));
 
     options.addOption(OptionBuilder.withArgName("mergeSequence").hasArg()
-        .withDescription(
-            "merge the sequence of status choose [true/false];(default : false)")
-        .create("merge"));
+            .withDescription(
+                    "merge the sequence of status choose [true/false];(default : false)")
+            .create("merge"));
 
     return options;
   }
@@ -100,8 +129,13 @@ public abstract class Main {
    * @return the number of options argument in the command line
    */
   public static void main(String[] args) {
-    
+
     Date dateDeb = new Date();
+
+    String mode="";
+
+    File samFile = new File("");
+    File fastqFile=new File("");
 
     String status = "pass";
     String type = "transcript";
@@ -117,8 +151,14 @@ public abstract class Main {
     CommandLineParser parser = new GnuParser();
 
     try {
+
+      //
+      //General
+      //
+
       // parse the command line arguments
       CommandLine line = parser.parse(options, args, true);
+
       // Help option
       if (line.hasOption("help")) {
         showMessageAndExit(Globals.HELP_TXT);
@@ -135,100 +175,142 @@ public abstract class Main {
       if (line.hasOption("license")) {
         showMessageAndExit(Globals.LICENSE_TXT);
       }
-      // Set status
-      if (line.hasOption("status")) {
-        status = line.getOptionValue("status").toLowerCase();
-      }
-      // Set type
-      if (line.hasOption("type")) {
-        type = line.getOptionValue("type").toLowerCase();
-      }
-      // Set compression format
-      if (line.hasOption("compress")) {
-        compress = line.getOptionValue("compress").toLowerCase();
-      }
-      {
-        String[] remainder = line.getArgs();
-        if (remainder.length >= 2) {
-          dirFast5 = new File(remainder[0]);
-          dirOutputFastq = new File(remainder[1]);
-        }
+      // Mode option
+      if(line.hasOption("mode")){
+        mode = line.getOptionValue("mode").toLowerCase();
       }
 
-      // Set the root directory of the Fast5 run
-      if (line.hasOption("mergeSequence")) {
-        merge = Boolean.parseBoolean(line.getOptionValue("merge"));
+      //
+      //Trim
+      //
+
+      if(mode.equals("trim")){
+        {
+          String[] remainder = line.getArgs();
+          if (remainder.length >= 2) {
+            samFile = new File(remainder[0]);
+            fastqFile = new File(remainder[1]);
+          }
+       }
+//        // Set samFile
+//        if (line.hasOption("samFile")) {
+//          samFilePath = line.getOptionValue("samFile").toLowerCase();
+//        }
+//        // Set fastqFile
+//        if (line.hasOption("fastqFile")) {
+//          fastqFilePath = line.getOptionValue("fastqFile").toLowerCase();
+//        }
+      }
+
+
+      //
+      //Fast5tofastq
+      //
+
+      if(mode.equals("fast5tofastq")){
+        // Set status
+        if (line.hasOption("status")) {
+          status = line.getOptionValue("status").toLowerCase();
+        }
+        // Set type
+        if (line.hasOption("type")) {
+          type = line.getOptionValue("type").toLowerCase();
+        }
+        // Set compression format
+        if (line.hasOption("compress")) {
+          compress = line.getOptionValue("compress").toLowerCase();
+        }
+        {
+          String[] remainder = line.getArgs();
+          if (remainder.length >= 2) {
+            dirFast5 = new File(remainder[0]);
+            dirOutputFastq = new File(remainder[1]);
+          }
+        }
+
+        // Set the root directory of the Fast5 run
+        if (line.hasOption("mergeSequence")) {
+          merge = Boolean.parseBoolean(line.getOptionValue("merge"));
+        }
       }
     } catch (ParseException e) {
       e.printStackTrace();
     }
     if (args == null) {
       showErrorMessageAndExit("This program needs one argument."
-          + " Use the -h option to get more information.\n");
+              + " Use the -h option to get more information.\n");
     }
 
-    try {
-      Fast5ToFastq if5 = new Fast5ToFastq(dirFast5, dirOutputFastq);
-
-      // If you want to specify the group of the status of the read in the
-      // output file(ex : .._fail_complement.fastq)
-      if5.setMergeAllStatusFast5(merge);
-      // If the Experimental protocol is not barcoded
-      if (status.contains("fail")) {
-        if5.setProcessFail(true);
-      }
-      if (status.contains("pass") && !status.contains("passbarcode")) {
-        if5.setProcessPass(true);
-      }
-      // If the Experimental protocol is barcoded
-      if (status.contains("unclassified")) {
-        if5.setProcessUnclassified(true);
-      }
-      if (status.contains("passbarcode")) {
-        if5.setProcessPassBarcode(true);
-      }
-      // List of sequences :
-      if (type.contains("template")) {
-        if5.setSaveTemplateSequence(true);
-      }
-      if (type.contains("complement")) {
-        if5.setSaveComplementSequence(true);
-      }
-      if (type.contains("consensus")) {
-        if5.setSaveConsensusSequence(true);
-      }
-      if (type.contains("transcript")) {
-        if5.setSaveTranscriptSequence(true);
-      }
-      //Compress format
-      if(compress.contains("gzip")) {
-        if5.setGzipCompression(true);
-      }
-      if(compress.contains("bzip2")) {
-        if5.setBZip2Compression(true);
-      }
-
-
-//      File fatsqFile = new File("/home/birer/Bureau/fastq_old_toullig/R9_barcode_fastq/dnacpc14_20160809_FNFAD22487_MN17734_sequencing_run_PCR_Barcoding_validation_54065_BC01_barcode.fastq");
-//      TrimFastq clean = new TrimFastq(fatsqFile);
-//      clean.trimFastq();
-
-      //Execution to the read of fast5 to fastq
-     if5.execute();
-      
-      Date dateEnd = new Date();
-      //Write of few logs files
+    if(mode.equals("fast5tofastq")){
       try {
-        Fast5ToFastqLogger logIf5 = new Fast5ToFastqLogger(if5, dirOutputFastq);
-        logIf5.createLogConversionFastq(dateDeb,dateEnd);
-        logIf5.createLogCorruptFile();
-        logIf5.createLogWorkflow();
-      } catch (Exception e1) {
-        e1.printStackTrace();
-      }
+        Fast5ToFastq if5 = new Fast5ToFastq(dirFast5, dirOutputFastq);
 
-    } catch (Exception e2) {
-      e2.printStackTrace();
+        // If you want to specify the group of the status of the read in the
+        // output file(ex : .._fail_complement.fastq)
+        if5.setMergeAllStatusFast5(merge);
+        // If the Experimental protocol is not barcoded
+        if (status.contains("fail")) {
+          if5.setProcessFail(true);
+        }
+        if (status.contains("pass") && !status.contains("passbarcode")) {
+          if5.setProcessPass(true);
+        }
+        // If the Experimental protocol is barcoded
+        if (status.contains("unclassified")) {
+          if5.setProcessUnclassified(true);
+        }
+        if (status.contains("passbarcode")) {
+          if5.setProcessPassBarcode(true);
+        }
+        // List of sequences :
+        if (type.contains("template")) {
+          if5.setSaveTemplateSequence(true);
+        }
+        if (type.contains("complement")) {
+          if5.setSaveComplementSequence(true);
+        }
+        if (type.contains("consensus")) {
+          if5.setSaveConsensusSequence(true);
+        }
+        if (type.contains("transcript")) {
+          if5.setSaveTranscriptSequence(true);
+        }
+        //Compress format
+        if(compress.contains("gzip")) {
+          if5.setGzipCompression(true);
+        }
+        if(compress.contains("bzip2")) {
+          if5.setBZip2Compression(true);
+        }
+        //Execution to the read of fast5 to fastq
+        //if5.execute();
+
+        Date dateEnd = new Date();
+        //Write of few logs files
+        try {
+          Fast5ToFastqLogger logIf5 = new Fast5ToFastqLogger(if5, dirOutputFastq);
+          logIf5.createLogConversionFastq(dateDeb,dateEnd);
+          logIf5.createLogCorruptFile();
+          logIf5.createLogWorkflow();
+        } catch (Exception e1) {
+          e1.printStackTrace();
+        }
+
+      } catch (Exception e2) {
+        e2.printStackTrace();
+      }
+    }
+
+
+
+    if(mode.equals("trim")){
+      try {
+
+        TrimSamToFasta clean = new TrimSamToFasta(samFile,fastqFile);
+        
+      }catch (Exception e3){
+        e3.printStackTrace();
+      }
     }
   }
 }
