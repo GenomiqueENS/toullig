@@ -191,15 +191,7 @@ public abstract class Main {
             samFile = new File(remainder[0]);
             fastqFile = new File(remainder[1]);
           }
-       }
-//        // Set samFile
-//        if (line.hasOption("samFile")) {
-//          samFilePath = line.getOptionValue("samFile").toLowerCase();
-//        }
-//        // Set fastqFile
-//        if (line.hasOption("fastqFile")) {
-//          fastqFilePath = line.getOptionValue("fastqFile").toLowerCase();
-//        }
+        }
       }
 
 
@@ -306,8 +298,8 @@ public abstract class Main {
     if(mode.equals("trim")){
       try {
 
-        TrimSamToFasta clean = new TrimSamToFasta(samFile,fastqFile);
-        
+        TrimFastq clean = new TrimFastq(samFile,fastqFile);
+
       }catch (Exception e3){
         e3.printStackTrace();
       }

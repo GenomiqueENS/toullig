@@ -1,24 +1,37 @@
 package fr.ens.biologie.genomique.toullig;
 
+import fr.ens.biologie.genomique.eoulsan.bio.Alphabet;
+import fr.ens.biologie.genomique.eoulsan.bio.ReadSequence;
+import fr.ens.biologie.genomique.eoulsan.bio.Sequence;
+import fr.ens.biologie.genomique.eoulsan.bio.io.FastqReader;
+import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.SamInputResource;
+import htsjdk.samtools.SamReader;
+import htsjdk.samtools.SamReaderFactory;
+
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static fr.ens.biologie.genomique.eoulsan.bio.Alphabets.*;
+import static fr.ens.biologie.genomique.eoulsan.bio.Sequence.reverseComplement;
+
 /**
  * Created by birer on 24/02/17.
  */
-public class TrimSamToFasta {
+public class TrimFastq {
 
     private HashMap<String, String[]> fastqHash = new HashMap<String, String[]>();
     private String PCRPrimer;
     private String strandSwitching;
     private BufferedWriter fastaFileLeftOutlier;
     private BufferedWriter fastaFileRightOutlier;
-    private Alphabet alphabet = Alphabets.AMBIGUOUS_DNA_ALPHABET;
+    private Alphabet alphabet = AMBIGUOUS_DNA_ALPHABET;
 
-    public TrimSamToFasta(File samFile, File fastqFile) throws IOException, InterruptedException {
+    public TrimFastq(File samFile, File fastqFile) throws IOException, InterruptedException {
 
         String pathOutputTrimLeftFasta= "/home/birer/Bureau/nanoporetools/output/outputFastaFileLeftOutlier.fasta";
         String pathOutputTrimRightFasta= "/home/birer/Bureau/nanoporetools/output/outputFastaFileRightOutlier.fasta";
@@ -29,19 +42,19 @@ public class TrimSamToFasta {
         //Thread.sleep(20000);
 
         //readAdaptorRTFile(new BufferedReader(new FileReader("/home/birer/Bureau/nanoporetools/config_files/adaptor_RT_sequence.txt")));
+        InputStream samInputStream =new FileInputStream(samFile);
+        readSamFile(samInputStream);
 
-        readSamFile(new BufferedReader(new FileReader(samFile)));
-
-        readFastqFile(new BufferedReader(new FileReader(fastqFile)));
+        readFastqFile(fastqFile);
 
         this.fastaFileLeftOutlier= new BufferedWriter(new FileWriter(pathFastaFileLeftOutlier));
         this.fastaFileRightOutlier= new BufferedWriter(new FileWriter(pathFastaFileRightOutlier));
 
-        trimOutlier1();
+        //trimOutlier1();
 
         int lenWindows=15;
         double threshold=0.8;
-        //trimOutlier2(lenWindows,threshold);
+        trimOutlier2(lenWindows,threshold);
 
         this.fastaFileRightOutlier.close();
         this.fastaFileLeftOutlier.close();
@@ -62,7 +75,7 @@ public class TrimSamToFasta {
 
 
     /**
-     * Method of the class TrimSamToFasta to trim sequence to create sequences files for cutadapt.
+     * Method of the class TrimFastq to trim sequence to create sequences files for cutadapt.
      * @throws IOException
      * @throws InterruptedException
      */
@@ -72,6 +85,9 @@ public class TrimSamToFasta {
         int count2=0;
         int count3=0;
         int count4=0;
+        int count5=0;
+        int count6=0;
+        int count7=0;
 
         for (String key : this.fastqHash.keySet()) {
 
@@ -118,19 +134,34 @@ public class TrimSamToFasta {
                 }
 
                 writeOutlier(lengthOutlierBegin,lengthOutlierEnd,sequence,key,this.fastaFileLeftOutlier,this.fastaFileRightOutlier);
+
+
+
             }else{
                 count4++;
+            }
+            if(tabValue[5].equals("16")){
+                count5++;
+            }
+            if(tabValue[5].equals("0")){
+                count6++;
+            }
+            if(tabValue[5].equals("4")){
+                count7++;
             }
         }
 
         System.out.println("Nombre total de sequence mapped: "+count1);
         System.out.println("Nombre de sequence CIGAR '*': "+count4);
+        System.out.println("Nombre de QFlag '16': "+count5);
+        System.out.println("Nombre de QFlag '0': "+count6);
+        System.out.println("Nombre de QFlag '4': "+count7);
         System.out.println("Nombre d'Outlier Debut bien trouvé: "+count2);
         System.out.println("Nombre d'Outlier Fin bien trouvé: "+count3);
     }
 
     /**
-     * Method of the class TrimSamToFasta to trim sequence to create sequences files for cutadapt with the side-windows method.
+     * Method of the class TrimFastq to trim sequence to create sequences files for cutadapt with the side-windows method.
      * @param lenWindows, the length of the window
      * @param threshold, the threshold
      * @throws IOException
@@ -201,7 +232,7 @@ public class TrimSamToFasta {
     //
 
     /**
-     * Method of the class TrimSamToFasta to merge the results of cutadapt with the trim sequence.
+     * Method of the class TrimFastq to merge the results of cutadapt with the trim sequence.
      * @param pathOutputTrimLeftFasta, the path of the left output
      * @param pathOutputTrimRightFasta, the path of the right output
      * @throws IOException
@@ -291,7 +322,7 @@ public class TrimSamToFasta {
     //
 
     /**
-     * Method of the class TrimSamToFasta to execute cutadapt.
+     * Method of the class TrimFastq to execute cutadapt.
      * @param pathFastaFileOutlier, the path of the fasta file with outlier to trim
      * @param pathOutputTrimFasta, the path of the trimmed reads in fasta file
      * @param adaptorRT, the sequence of the adaptor RT
@@ -363,7 +394,7 @@ public class TrimSamToFasta {
     //
 
     /**
-     * Method of the class TrimSamToFasta to write the outliers (3' and 5') in fasta files.
+     * Method of the class TrimFastq to write the outliers (3' and 5') in fasta files.
      * @param lengthOutlierBegin, the length of the outlier 3'
      * @param lengthOutlierEnd, the length of the outlier 5'
      * @param sequence, the sequence of the read
@@ -381,7 +412,7 @@ public class TrimSamToFasta {
     }
 
     /**
-     * Method of the class TrimSamToFasta to obtain the sequence of the 3' (Left) outlier.
+     * Method of the class TrimFastq to obtain the sequence of the 3' (Left) outlier.
      * @param lengthOutlierBegin, the length of the outlier
      * @param sequence, the sequence of the read
      * @return the sequence of the left outlier
@@ -392,7 +423,7 @@ public class TrimSamToFasta {
     }
 
     /**
-     * Method of the class TrimSamToFasta to obtain the sequence of the 5' (Right) outlier.
+     * Method of the class TrimFastq to obtain the sequence of the 5' (Right) outlier.
      * @param lengthOutlierEnd, the length of the outlier
      * @param sequence, the sequence of the read
      * @return the sequence of the right outlier
@@ -407,7 +438,7 @@ public class TrimSamToFasta {
     //
 
     /**
-     * Method of the class TrimSamToFasta to the length of the left outlier with a binair CIGAR sequence.
+     * Method of the class TrimFastq to the length of the left outlier with a binair CIGAR sequence.
      * @param sequenceCigarBinaire, a binaire CIGAR sequence
      * @param lenWindows, the length of the window
      * @param threshold, the threshold to separate the outlier to the main sequence
@@ -425,7 +456,7 @@ public class TrimSamToFasta {
                 break;
             }
             windows=sequenceCigarBinaire.substring(i,i+lenWindows);
-            if(sum(windows)>=threshold){
+            if(sumWindowCIGAR(windows)>=threshold){
                 length=i+lenWindows;
                 break;
             }
@@ -434,7 +465,7 @@ public class TrimSamToFasta {
     }
 
     /**
-     * Method of the class TrimSamToFasta to the length of the right outlier with a binair CIGAR sequence.
+     * Method of the class TrimFastq to the length of the right outlier with a binair CIGAR sequence.
      * @param sequenceCigarBinaire, a binaire CIGAR sequence
      * @param lenWindows, the length of the window
      * @param threshold, the threshold to separate the outlier to the main sequence
@@ -448,12 +479,12 @@ public class TrimSamToFasta {
         String windows="";
         int length=0;
         for(int i = sequenceCigarBinaire.length();i>=0;i--){
-            if(i==lenWindows-2){
+            if(i==lenWindows){
                 break;
             }
 
             windows=sequenceCigarBinaire.substring(i-lenWindows,i);
-            if(sum(windows)>=threshold){
+            if(sumWindowCIGAR(windows)>=threshold){
                 if(i>=sequenceCigarBinaire.length()-lenWindows){
                     length=sequenceCigarBinaire.length()-i;
                 }else{
@@ -467,11 +498,11 @@ public class TrimSamToFasta {
 
 
     /**
-     * Method of the class TrimSamToFasta to sum a sequence CIGAR encode in 1/0.
+     * Method of the class TrimFastq to sumWindowCIGAR a sequence CIGAR encode in 1/0.
      * @param windows, a String of CIGAR sequence encode in 1/0
-     * @return double, the sum of the CIGAR window
+     * @return double, the sumWindowCIGAR of the CIGAR window
      */
-    public double sum(String windows){
+    public double sumWindowCIGAR(String windows){
         String[] arrayWindows = windows.split("");
         int sum=0;
         for(int i = 0;i<=arrayWindows.length-1;i++){
@@ -487,7 +518,7 @@ public class TrimSamToFasta {
     //
 
     /**
-     * Method of the class TrimSamToFasta to write a sequence to the fasta format.
+     * Method of the class TrimFastq to write a sequence to the fasta format.
      * @param sequence, the sequence of the read
      * @param ID, the ID of the read
      * @param fastaFile, the file to write fasta sequence
@@ -511,7 +542,7 @@ public class TrimSamToFasta {
 
 
     /**
-     * Method of the class TrimSamToFasta to write a sequence to the fastq format.
+     * Method of the class TrimFastq to write a sequence to the fastq format.
      * @param ID, the ID of the read
      * @param sequenceTrim, the sequence of the read
      * @param scoreTrim, the score of the read
@@ -531,7 +562,7 @@ public class TrimSamToFasta {
     //
 
     /**
-     * Method of the class TrimSamToFasta to read and get the adaptor in the adaptor file.
+     * Method of the class TrimFastq to read and get the adaptor in the adaptor file.
      * @param adaptorFile, the file who contains adaptor
      * @throws IOException
      */
@@ -552,65 +583,61 @@ public class TrimSamToFasta {
     }
 
     /**
-     * Method of the class TrimSamToFasta to read and get the ID,sequence, score and CIGAR of a sam file.
-     * @param samBufferedReader, the buffered reader file sam
+     * Method of the class TrimFastq to read and get the ID,sequence, score and CIGAR of a sam file.
+     * @param samInputStream, the input stream file sam
      * @throws IOException
      */
-    public void readSamFile(BufferedReader samBufferedReader) throws IOException {
+    public void readSamFile(InputStream samInputStream) throws IOException {
 
-        String lengthBeginOutlier="";
-        String lengthEndOutlier="";
-        String sequence="";
-        String score="";
-        String line = "";
-        while ((line = samBufferedReader.readLine()) != null) {
-            if (!line.startsWith("@")) {
-                String[] part = line.split("\t");
-                String ID = part[0];
-                String CIGAR = part[5];
+        try(final SamReader inputSam =
+                    SamReaderFactory.makeDefault().open(SamInputResource.of(samInputStream))){
+
+            String lengthBeginOutlier="";
+            String lengthEndOutlier="";
+            String sequence="";
+            String score="";
+            for (SAMRecord samRecord : inputSam) {
+
+                String CIGAR=samRecord.getCigarString();
+                String QFlag = ""+samRecord.getFlags();
+                String ID =samRecord.getReadName();
 
                 if(this.fastqHash.containsKey(ID)) {
-                    String[] tabValue = this.fastqHash.get(ID);
-                    if (sequence.length() > tabValue[0].length()) {
-                        this.fastqHash.put(ID, new String[]{sequence, score, CIGAR, lengthBeginOutlier, lengthEndOutlier});
-                    }
+                    this.fastqHash.put(ID, new String[]{sequence, score, CIGAR, lengthBeginOutlier, lengthEndOutlier, QFlag});
                 }else {
-                    this.fastqHash.put(ID, new String[]{sequence, score, CIGAR, lengthBeginOutlier, lengthEndOutlier});
+                    this.fastqHash.put(ID, new String[]{sequence, score, CIGAR, lengthBeginOutlier, lengthEndOutlier, QFlag});
                 }
             }
+            inputSam.close();
+        }catch (IOException e){
+            e.printStackTrace();
         }
-        samBufferedReader.close();
     }
 
 
     /**
-     * Method of the class TrimSamToFasta to read a fastq file.
+     * Method of the class TrimFastq to read a fastq file.
      * @param fastqBufferedReader, a BufferedReader fastq file
      * @throws IOException
      */
-    public void readFastqFile(BufferedReader fastqBufferedReader)throws IOException{
-        String line = "";
-        while ((line = fastqBufferedReader.readLine()) != null) {
-            if(line.startsWith("@")){
-                String[] part=line.split("@");
-                String[] part2=part[1].split(" ");
-                String ID="";
-                //try/catch for score line begin with @
-                try{
-                    ID=part2[0];
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
+    public void readFastqFile(File fastqBufferedReader)throws IOException{
+
+        try (FastqReader reader = new FastqReader(fastqBufferedReader)) {
+            for (ReadSequence read : reader) {
+
+                String header = read.getName();
+                String[] part=header.split(" ");
+                String ID = part[0];
+                String sequence = read.getSequence();
+                String score = read.getQuality();
                 String[] tabValue = this.fastqHash.get(ID);
-                String sequence = fastqBufferedReader.readLine();
-                fastqBufferedReader.readLine(); //for "+"
-                String score=fastqBufferedReader.readLine();
-                //get in the hash value the sequence and score of the read
                 tabValue[0]=sequence;
                 tabValue[1]=score;
             }
+            reader.close();
+        }catch (IOException e){
+            e.printStackTrace();
         }
-        fastqBufferedReader.close();
     }
 
 
@@ -618,29 +645,6 @@ public class TrimSamToFasta {
     //  utils
     //
 
-    /**
-     * Get the sequence as the reverse complement. This method work only with
-     * A,T,G and C bases.
-     * @param sequence sequence to reverse complement
-     * @param alphabet alphabet of the sequence to reverse complement
-     * @return the reverse complement sequence
-     */
-    public static final String reverseComplement(final String sequence,
-                                                 final Alphabet alphabet) {
-
-        if (sequence == null || alphabet == null) {
-            return null;
-        }
-
-        final char[] array = sequence.toCharArray();
-        final int len = array.length;
-        final StringBuilder sb = new StringBuilder(len);
-
-        for (int i = len - 1; i >= 0; i--) {
-            sb.append(alphabet.getComplement(array[i]));
-        }
-        return sb.toString();
-    }
 
     /**
      * Get the sequence as the complement. This method work only with
@@ -656,12 +660,14 @@ public class TrimSamToFasta {
             return null;
         }
 
-        final char[] array = sequence.toCharArray();
+        String s =
+                reverseComplement(sequence,alphabet);
+        final char[] array = s.toCharArray();
         final int len = array.length;
         final StringBuilder sb = new StringBuilder(len);
 
-        for (int i = 0; i <= len - 1; i++) {
-            sb.append(alphabet.getComplement(array[i]));
+        for (int i = len-1; i >=  0; i--) {
+            sb.append(array[i]);
         }
         return sb.toString();
     }

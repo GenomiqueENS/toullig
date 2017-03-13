@@ -1,5 +1,7 @@
 package fr.ens.biologie.genomique.toullig;
 
+import fr.ens.biologie.genomique.eoulsan.util.LocalReporter;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;

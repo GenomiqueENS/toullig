@@ -40,6 +40,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <java.version>1.7</java.version>
+    <htsjdk.version>1.118</htsjdk.version>
   </properties>
 
   <repositories>
@@ -51,6 +53,15 @@
       <name>ImageJ repository</name>
       <url>http://maven.imagej.net/content/repositories/releases/</url>
     </repository>
+    <repository>
+      <snapshots>
+      <enabled>true</enabled>
+      </snapshots>
+      <id>ens</id>
+      <name>ENS repository</name>
+      <!--url>https://maven-repository.dev.java.net/nonav/repository</url-->
+      <url>http://outils.genomique.biologie.ens.fr/maven2</url>
+    </repository>
   </repositories>
 
   <dependencies>
@@ -61,6 +72,20 @@
       <version>4.12</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+       <groupId>net.sourceforge.picard</groupId>
+       <artifactId>htsjdk</artifactId>
+       <version>${htsjdk.version}</version>
+       <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>fr.ens.biologie.genomique</groupId>
+      <artifactId>eoulsan</artifactId>
+      <version>2.0-beta4</version>
+      <scope>compile</scope>
+    </dependency> 
 
     <dependency>
       <groupId>cisd</groupId>

@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.zip.GZIPOutputStream;
 
+import fr.ens.biologie.genomique.eoulsan.util.LocalReporter;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 
 import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
