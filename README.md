@@ -140,7 +140,7 @@ I have a directory of a minION run in 2D with barcode.
 If i want just get the fastq sequence of the 'template', the 'complement' and the 'consensus' for the fast5 files in the status/repertory 'fail'.
 
 
-    bash ./target/dist/toullig-0.1-alpha-2/toullig.sh -mode fast5tofastq -status fail -type template,complement,consensus /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq
+    bash ./target/dist/toullig-0.1-alpha-2/toullig.sh Fast5tofastq -status fail -type template,complement,consensus /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq
 
 
 MODE trim
@@ -154,13 +154,14 @@ OPTIONS trim
 -
     
     #Arguments
-    -rootDirectoryFast5run /home/user/yourRootDirectoryFast5run
-    -outputDirectoryFastq /home/user/yourOutputDirectoryFastq
+    -samFile /home/user/yourSamFile
+    -fastqFile /home/user/yourFastqFile
+    -fastqOutputFile /home/user/yourFastqTrimOutput
 
 ###Example
 
 
-    bash ./target/dist/toullig-0.1-alpha-2/toullig.sh -mode trim /home/user/samFile.sam /home/user/fastqONTFile.fastq
+    bash ./target/dist/toullig-0.1-alpha-2/toullig.sh Trim /home/user/samFile.sam /home/user/fastqONTFile.fastq /home/user/myFastqTrim.fastq
 
 
 DEVELOPPEMENT ENVIRONNEMENT

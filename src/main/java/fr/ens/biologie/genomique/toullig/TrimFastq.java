@@ -31,7 +31,7 @@ public class TrimFastq {
     private BufferedWriter fastaFileRightOutlier;
     private Alphabet alphabet = AMBIGUOUS_DNA_ALPHABET;
 
-    public TrimFastq(File samFile, File fastqFile) throws IOException, InterruptedException {
+    public TrimFastq(File samFile, File fastqFile, File nameOutputFastq) throws IOException, InterruptedException {
 
         String pathOutputTrimLeftFasta= "/home/birer/Bureau/nanoporetools/output/outputFastaFileLeftOutlier.fasta";
         String pathOutputTrimRightFasta= "/home/birer/Bureau/nanoporetools/output/outputFastaFileRightOutlier.fasta";
@@ -50,18 +50,20 @@ public class TrimFastq {
         this.fastaFileLeftOutlier= new BufferedWriter(new FileWriter(pathFastaFileLeftOutlier));
         this.fastaFileRightOutlier= new BufferedWriter(new FileWriter(pathFastaFileRightOutlier));
 
-        //trimOutlier1();
+        System.out.println("Trim begin !");
+
+        trimOutlier1();
 
         int lenWindows=15;
         double threshold=0.8;
-        trimOutlier2(lenWindows,threshold);
+        //trimOutlier2(lenWindows,threshold);
 
         this.fastaFileRightOutlier.close();
         this.fastaFileLeftOutlier.close();
 
         System.out.println("Begin use cutadapt !");
 
-        String adaptorRT="CTTGCCTGTCGCTCTATCTTCTTTTT";
+        String adaptorRT="CTTGCCTGTCGCTCTATCTTCTTTTTVN";
         String adaptorSwithStrand="TTTCTGTTGGTGCTGATATTGCTGCCATTACGGCCGGG";
         String strandLeft="-g";
         String strandRight="-a";
@@ -70,7 +72,7 @@ public class TrimFastq {
         cutadaptTrim(pathFastaFileLeftOutlier,pathOutputTrimLeftFasta,adaptorRT,adaptorSwithStrand,strandLeft,errorRate);
         cutadaptTrim(pathFastaFileRightOutlier,pathOutputTrimRightFasta,adaptorRT,adaptorSwithStrand,strandRight,errorRate);
 
-        mergeTrimOutlier(pathOutputTrimLeftFasta,pathOutputTrimRightFasta);
+        mergeTrimOutlier(pathOutputTrimLeftFasta,pathOutputTrimRightFasta,nameOutputFastq);
     }
 
 
@@ -237,10 +239,9 @@ public class TrimFastq {
      * @param pathOutputTrimRightFasta, the path of the right output
      * @throws IOException
      */
-    public void mergeTrimOutlier(String pathOutputTrimLeftFasta,String pathOutputTrimRightFasta) throws IOException {
+    public void mergeTrimOutlier(String pathOutputTrimLeftFasta,String pathOutputTrimRightFasta, File nameOutputFastq) throws IOException {
 
-        String pathFastaTrimSequence = "/home/birer/Bureau/nanoporetools/output/fastaTrimSequence.fastq";
-        BufferedWriter fastqTrimBufferedWritter= new BufferedWriter(new FileWriter(pathFastaTrimSequence));
+        BufferedWriter fastqTrimBufferedWritter= new BufferedWriter(new FileWriter(nameOutputFastq));
         HashMap<String, String> fastaLeftHash = new HashMap<String, String>();
         HashMap<String, String> fastaRightHash = new HashMap<String, String>();
 
