@@ -79,8 +79,6 @@
     <orderEntry type="library" name="Maven: uk.ac.babraham:fastqc:0.11.2" level="project" />
     <orderEntry type="library" name="Maven: org.seqdoop:hadoop-bam:7.0.0-hadoop-2.3.0" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: itadaki:jbzip2:0.9" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.ant:ant:1.8.2" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.ant:ant-launcher:1.8.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-core:2.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-api:2.2" level="project" />
     <orderEntry type="library" name="Maven: javassist:javassist:3.12.1.GA" level="project" />
@@ -139,6 +137,8 @@
     <orderEntry type="library" name="Maven: org.xerial.snappy:snappy-java:1.0.3-rc3" level="project" />
     <orderEntry type="library" name="Maven: org.cheetahtemplate:cheetah:2.4.4" level="project" />
     <orderEntry type="library" name="Maven: cisd:jhdf5:12.02.3" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.ant:ant:1.8.2" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.ant:ant-launcher:1.8.2" level="project" />
     <orderEntry type="library" name="Maven: commons-cli:commons-cli:1.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-compress:1.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.tukaani:xz:1.0" level="project" />

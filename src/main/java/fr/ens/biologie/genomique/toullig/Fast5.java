@@ -18,6 +18,7 @@ public class Fast5 implements AutoCloseable {
   private final Status status;
   private final ChemistryVersion chemistryVersion;
   private final IHDF5Reader reader;
+  private final File fast5File;
 
   /**
    * Constructor of the Fast5 class.
@@ -25,6 +26,7 @@ public class Fast5 implements AutoCloseable {
    */
   Fast5(File fast5File) {
 
+    this.fast5File = fast5File;
     this.reader = readFast5File(fast5File);
     this.status = readStatus();
     this.version = readVersion();
@@ -55,7 +57,7 @@ public class Fast5 implements AutoCloseable {
    * Values of the variable Type that design the type of experimental design.
    */
   public enum Type {
-    TYPE_1D, TYPE_2D // Type of the sequencing
+    TYPE_1D, TYPE_2D,TYPE_1D2 // Type of the sequencing
   };
 
   /**
@@ -70,7 +72,7 @@ public class Fast5 implements AutoCloseable {
    * Values of the variable RVersion that design the chemical kit use.
    */
   public enum ChemistryVersion {
-    R7_3, R9, R9_4 // Chemical version of the kit
+    R7_3, R9, R9_4, R9_5 // Chemical version of the kit
   };
 
   //
@@ -184,6 +186,10 @@ public class Fast5 implements AutoCloseable {
   // Important getters
   //
   //
+
+  public String getNameFast5File(){
+    return this.fast5File.toString();
+  }
 
   /**
    * Getter of the variable Status.

@@ -171,6 +171,7 @@ public class Fast5ToFastq {
         result.add(file);
       }
     }
+
     return result;
   }
 
@@ -650,29 +651,71 @@ public class Fast5ToFastq {
                                    LocalReporter localReporter) throws IOException {
 
     try (Fast5 f5 = new Fast5(fast5File)) {
+
+
       if (complementWriter != null && f5.getComplementFastq() != null) {
-        complementWriter.write(f5.getComplementFastq());
-        String counterName = status+"_numberSequenceComplementWrite";
-        localReporter.incrCounter("numberSequenceWrite",
-                counterName, 1);
+
+        String sequence=f5.getComplementFastq();
+        String[] part = sequence.split("\n");
+        if (part[1].equals("")){
+          String counterName = status+"_numberSequenceComplementNull";
+          localReporter.incrCounter("numberSequenceWrite",
+                  counterName, 1);
+        }else{
+          complementWriter.write(sequence);
+          String counterName = status+"_numberSequenceComplementWrite";
+          localReporter.incrCounter("numberSequenceWrite",
+                  counterName, 1);
+        }
+
       }
       if (templateWriter != null && f5.getTemplateFastq() != null) {
-        templateWriter.write(f5.getTemplateFastq());
-        String counterName = status + "_numberSequenceTemplateWrite";
-        localReporter.incrCounter("numberSequenceWrite",
-                counterName, 1);
+
+        String sequence=f5.getTemplateFastq();
+        String[] part = sequence.split("\n");
+        if (part[1].equals("")){
+          String counterName = status+"_numberSequenceTemplateNull";
+          localReporter.incrCounter("numberSequenceWrite",
+                  counterName, 1);
+        }else{
+          templateWriter.write(sequence);
+          String counterName = status+"_numberSequenceTemplateWrite";
+          localReporter.incrCounter("numberSequenceWrite",
+                  counterName, 1);
+        }
+
       }
       if (consensusWriter != null && f5.getConsensusFastq() != null) {
-        consensusWriter.write(f5.getConsensusFastq());
-        String counterName = status+"_numberSequenceConsensusWrite";
-        localReporter.incrCounter("numberSequenceWrite",
-                counterName, 1);
+
+        String sequence=f5.getConsensusFastq();
+        String[] part = sequence.split("\n");
+        if (part[1].equals("")){
+          String counterName = status+"_numberSequenceConsensusNull";
+          localReporter.incrCounter("numberSequenceWrite",
+                  counterName, 1);
+        }else{
+          consensusWriter.write(sequence);
+          String counterName = status+"_numberSequenceConsensusWrite";
+          localReporter.incrCounter("numberSequenceWrite",
+                  counterName, 1);
+        }
+
       }
       if (transcriptWriter != null && f5.getTranscriptFastq() != null) {
-        transcriptWriter.write(f5.getTranscriptFastq());
-        String counterName = status+"_numberSequenceTranscriptWrite";
-        localReporter.incrCounter("numberSequenceWrite",
-                counterName, 1);
+
+        String sequence=f5.getTranscriptFastq();
+        String[] part = sequence.split("\n");
+        if (part[1].equals("")){
+          String counterName = status+"_numberSequenceTranscriptNull";
+          localReporter.incrCounter("numberSequenceWrite",
+                  counterName, 1);
+        }else{
+          transcriptWriter.write(sequence);
+          String counterName = status+"_numberSequenceTranscriptWrite";
+          localReporter.incrCounter("numberSequenceWrite",
+                  counterName, 1);
+        }
+
       }
 
       //

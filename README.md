@@ -13,7 +13,7 @@ Aurélien Birer, [birer@biologie.ens.fr](birer@biologie.ens.fr)
 REQUIREMENTS
 -
 
-You just need to have java 8 and maven installed on your computer. This alpha version work on Ubutun (Unix distribution).
+You just need to have java 8 and maven installed on your computer. This alpha version work on Ubuntu (Unix distribution).
 
 
 ###TO INSTALL MAVEN
@@ -34,10 +34,10 @@ You just need to have java 8 and maven installed on your computer. This alpha ve
 HOW IT'S WORK
 -
 
-Toullig have 2 scripts :
+Toullig have 2 tools :
 
-- fast5tofastq : read the rootDirectory/downloads of your Fast5 run minION after the step of basecalling.
-- trim : trim the reads of a ONT fastq with a sam file.
+- Fast5tofastq : read the rootDirectory/downloads of your Fast5 run minION after the step of basecalling (metrichor/albacore).
+- Trim : trim the reads of a ONT fastq with a sam file.
 
 CLASSIFICATION MINION RUN
 -
@@ -63,14 +63,14 @@ CLASSIFICATION MINION RUN
 │       └── BC06 <br>
 └── uploaded <br>
 
-MODE fast5tofastq
+Fast5tofastq
 -
 
-In the execution of toullig fast5tofastq, the programm step :
+In the execution of toullig Fast5tofastq, the programm step :
 
- + List the fast5 files.
- + Read a fast5 file.
- + Write the fastq sequence(s).
+ + List the .fast5 files.
+ + Read a .fast5 file.
+ + Write the .fastq sequence(s).
  + Make few some log informations.
 
 ###UNDERSTAND THE TYPE OF SEQUENCE
@@ -117,7 +117,6 @@ OPTIONS GENERAL
     -about          #display information of toullig
     -license        #display license of toullig
     
-    -mode           #display the mode of toullig
 
 OPTIONS fast5tofastq
 -
@@ -143,12 +142,19 @@ If i want just get the fastq sequence of the 'template', the 'complement' and th
     bash ./target/dist/toullig-0.1-alpha-2/toullig.sh Fast5tofastq -status fail -type template,complement,consensus /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq
 
 
-MODE trim
+Trim
 -
 
 One of the problem of the minION reads in the format fastq is that the read is not the transcript as we expected. The read still have the RT adaptor and, in some case, the barcode with adaptors (leader/hairpin).
 
 For enhance the mapping quality, it's important to trim the reads to delete these unwanted sequences.
+
+In the execution of toullig Trim, the programm step :
+
+ + Repere the index between the outliers and the mRNA.
+ + Write Fasta File for each Outlier.
+ + Trim with cutadapt
+ + Write the cutadapt output merge.
 
 OPTIONS trim
 -
