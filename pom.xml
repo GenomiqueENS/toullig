@@ -122,6 +122,13 @@
       <scope>compile</scope>
     </dependency>
 
+    <!-- Trimmomatic -->
+    <dependency>
+      <groupId>org.usadellab</groupId>
+      <artifactId>trimmomatic</artifactId>
+      <version>0.36</version>
+    </dependency>
+
   </dependencies>
 
   <build>
