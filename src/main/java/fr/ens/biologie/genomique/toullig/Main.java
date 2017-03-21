@@ -99,20 +99,20 @@ public abstract class Main {
     }
   }
 
-    /**
-     * Show command line help.
-     * @param args, String[] of the software
-     */
-    private static void help(final String[] args) {
+  /**
+   * Show command line help.
+   * @param args, String[] of the software
+   */
+  private static void help(final String[] args) {
 
-        // Show help message
-        System.out.println(Globals.APP_NAME_LOWER_CASE
-                        + ".sh tool [options tool] "+
-                args);
-        System.out.println("Toullig have 2 tools : \n" +
-                "\t\t - Fast5tofastq : Tool for read Fast5 files of minION and create the fastq.\n" +
-                "\t\t - Trim : Tool for trim adaptor in the fasqt of ONT.\n");
+    // Show help message
+    System.out.println(Globals.APP_NAME_LOWER_CASE
+            + ".sh tool [options tool] "+
+            args);
+    System.out.println("Toullig have 2 tools : \n" +
+            "\t\t - Fast5tofastq : Tool for read Fast5 files of minION and create the fastq.\n" +
+            "\t\t - Trim : Tool for trim adaptor in the fasqt of ONT.\n");
 
-        Common.exit(0);
-    }
+    Common.exit(0);
+  }
 }

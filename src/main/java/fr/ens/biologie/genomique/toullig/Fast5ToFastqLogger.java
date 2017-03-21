@@ -72,6 +72,13 @@ public class Fast5ToFastqLogger {
    */
   public void createLogWorkflow() throws IOException {
     try {
+      this.logWorkflowWriter.write("\n The normal way of workflows use by basecaller follow this order : \n" +
+              " - eventDetectionWorkflow \n" +
+              " - hairpinSplitWorkflow \n" +
+              " - basecall1DWorkflow \n" +
+              " - basecall2DWorkflow \n" +
+              " - calibrationStrandWorkflow \n" +
+              " - barcodeWorkflow \n");
       for (String element : getListLogStatusWorkflow()) {
         this.logWorkflowWriter.write(element + "\n");
       }

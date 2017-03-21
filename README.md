@@ -123,9 +123,9 @@ OPTIONS fast5tofastq
 
     
     #Options
-    -status pass|fail|unclassified|passbarcode (default : pass)                  #The status of fast5 file
-    -type template|complement|consensus|transcript (default : transcript)   #The type of sequence
-    -mergeSequence true|false (default : false)                                 #If you want merge all type of sequence whatever the status
+    -status pass|fail|unclassified|passbarcode (default : pass)                 # The status of fast5 file
+    -type template|complement|consensus|transcript (default : transcript)       # The type of sequence
+    -mergeSequence true|false (default : false)                                 # If you want merge all type of sequence whatever the status
     
     #Arguments
     -rootDirectoryFast5run /home/user/yourRootDirectoryFast5run
@@ -139,7 +139,7 @@ I have a directory of a minION run in 2D with barcode.
 If i want just get the fastq sequence of the 'template', the 'complement' and the 'consensus' for the fast5 files in the status/repertory 'fail'.
 
 
-    bash ./target/dist/toullig-0.1-alpha-2/toullig.sh Fast5tofastq -status fail -type template,complement,consensus /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq
+    bash ./target/dist/toullig-0.2-alpha/toullig.sh Fast5tofastq -status fail -type template,complement,consensus /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq
 
 
 Trim
@@ -159,6 +159,14 @@ In the execution of toullig Trim, the programm step :
 OPTIONS trim
 -
     
+    #Options
+    -trimmer cutadapt|trimmomatic (default : cutadapt)      # The trimmer tool use for trimming
+    -mode P | SW (default : P)                              # The type of trimming the transcripts reads
+    -stats true|flase (default : false)                     # If you want somes stats on the trimming
+    -minlen (default : 100)                                 # The threshold of minimum length to write trimmed fastq
+
+
+    
     #Arguments
     -samFile /home/user/yourSamFile
     -fastqFile /home/user/yourFastqFile
@@ -167,7 +175,7 @@ OPTIONS trim
 ###Example
 
 
-    bash ./target/dist/toullig-0.1-alpha-2/toullig.sh Trim /home/user/samFile.sam /home/user/fastqONTFile.fastq /home/user/myFastqTrim.fastq
+    bash ./target/dist/toullig-0.2-alpha/toullig.sh Trim /home/user/samFile.sam /home/user/fastqONTFile.fastq /home/user/myFastqTrim.fastq
 
 
 DEVELOPPEMENT ENVIRONNEMENT

@@ -21,7 +21,7 @@ import static fr.ens.biologie.genomique.eoulsan.EoulsanLogger.getLogger;
 /**
  * This class define the Local exec Action.
  * @since 1.0
- * @author Laurent Jourdren
+ * @author Aurélien Birer
  */
 public class TrimAction extends AbstractAction {
 
@@ -48,6 +48,11 @@ public class TrimAction extends AbstractAction {
         final Options options = makeOptions();
         final CommandLineParser parser = new GnuParser();
 
+        String trimmer="cutadapt";
+        String mode="P";
+        String stats = "false";
+        int minlen = 100;
+
         File samFile = new File("");
         File fastqFile=new File("");
         File fastqOutputFile=new File("");
@@ -61,6 +66,22 @@ public class TrimAction extends AbstractAction {
             // Display help
             if (line.hasOption("help")) {
                 help(options);
+            }
+
+            if (line.hasOption("trimmer")) {
+                trimmer = line.getOptionValue("trimmer").toLowerCase();
+            }
+
+            if (line.hasOption("mode")) {
+                mode = line.getOptionValue("mode").toLowerCase();
+            }
+
+            if (line.hasOption("stats")) {
+                stats = line.getOptionValue("stats").toLowerCase();
+            }
+
+            if (line.hasOption("minlen")) {
+                stats = line.getOptionValue("minlen").toLowerCase();
             }
 
             {
@@ -77,7 +98,7 @@ public class TrimAction extends AbstractAction {
                     "Error while parsing command line arguments: " + e.getMessage());
         }
         // Execute program in local mode
-        run(samFile, fastqFile, fastqOutputFile);
+        run(trimmer, mode, stats, minlen, samFile, fastqFile, fastqOutputFile);
     }
 
     //
@@ -98,6 +119,27 @@ public class TrimAction extends AbstractAction {
                 .withDescription(
                         "display help")
                 .create("help"));
+
+        options
+                .addOption(OptionBuilder.withArgName("trimmer").hasArg()
+                        .withDescription("name of trimmer use [cutadapt | trimmomatic] (default : cutadapt)")
+                        .create("trimmer"));
+
+        options
+                .addOption(OptionBuilder.withArgName("mode").hasArg()
+                        .withDescription("mode of trimming use [P | SW] (default : P)")
+                        .create("mode"));
+        options
+                .addOption(OptionBuilder.withArgName("stats").hasArg()
+                        .withDescription("make somes stats on the trimming [true | false] (default : false)")
+                        .create("stats"));
+
+        options
+                .addOption(OptionBuilder.withArgName("minlen").hasArg()
+                        .withDescription("minimum length of trimmed fastq write (default : 100)")
+                        .create("minlen"));
+
+
 
         options
                 .addOption(OptionBuilder.withArgName("samFile").hasArg()
@@ -142,7 +184,7 @@ public class TrimAction extends AbstractAction {
      * @param fastqFile, a fasqt file
      * @param fastqOutputFile, a fastq trimmed at output
      */
-    private static void run(final File samFile, final File fastqFile, final File fastqOutputFile) {
+    private static void run(final String trimmer, final String mode, final String stats, final int minlen, final File samFile, final File fastqFile, final File fastqOutputFile) {
 
         try {
 
@@ -150,7 +192,28 @@ public class TrimAction extends AbstractAction {
             getLogger().info("Fastq File: " + fastqFile);
             getLogger().info("Fastq Trimmed Output File: " + fastqOutputFile);
 
-            TrimFastq clean = new TrimFastq(samFile,fastqFile,fastqOutputFile);
+            TrimFastq trim = new TrimFastq(samFile,fastqFile,fastqOutputFile);
+
+            if (trimmer.contains("cutadapt")) {
+                trim.setProcessCutadapt(true);
+            }
+            if (trimmer.contains("trimmomatic")) {
+                trim.setProcessTrimmomatic(true);
+            }
+            if (mode.contains("P")) {
+                trim.setProcessPTrim(true);
+            }
+            if (mode.contains("SW")) {
+                trim.setProcessSWTrim(true);
+            }
+            if (stats.contains("true")) {
+                trim.setProcessStats(true);
+            }
+
+            trim.setMinimunLengthToWrite(minlen);
+
+            trim.execution();
+
 
         }catch (Exception e3){
             e3.printStackTrace();

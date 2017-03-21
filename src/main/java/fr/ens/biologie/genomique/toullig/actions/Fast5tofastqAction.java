@@ -23,7 +23,7 @@ package fr.ens.biologie.genomique.toullig.actions;
 /**
  * This class define the Local exec Action.
  * @since 1.0
- * @author Laurent Jourdren
+ * @author Aurélien Birer
  */
 public class Fast5tofastqAction extends AbstractAction {
 
