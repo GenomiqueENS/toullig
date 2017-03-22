@@ -90,6 +90,8 @@ public class TrimFastq {
         int count7=0;
         int count8=0;
 
+        BufferedWriter BufferedWriterFastqOutput = new BufferedWriter(new FileWriter(this.outputFastqFile));
+
         for (String ID : this.fastqHash.keySet()) {
 
             int lengthOutlierEnd=0;
@@ -135,12 +137,13 @@ public class TrimFastq {
                     lengthOutlierEnd=0;
                 }
 
-
                 if(this.processCutadapt){
                     writeOutlier(lengthOutlierBegin,lengthOutlierEnd,sequence,ID, score,this.fastaFileLeftOutlier,this.fastaFileRightOutlier);
                 }
 
                 if(this.processTrimmomatic){
+
+
                     String leftOutlierSequence= getOutlierLeftSequence(lengthOutlierBegin,sequence);
                     String rightOutlierSequence= getOutlierRightSequence(lengthOutlierEnd,sequence);
                     String leftOutlierScore= getOutlierLeftScore(lengthOutlierBegin,score);
@@ -149,13 +152,10 @@ public class TrimFastq {
                     String mainSequence = sequence.substring(lengthOutlierBegin,sequence.length()-lengthOutlierEnd);
                     String mainScore = score.substring(lengthOutlierBegin,score.length()-lengthOutlierEnd);
 
-                    String arguments = "/home/birer/Bureau/nanoporetools/config_files/adaptor_RT_sequence_modify_for_nanopore.txt:20:30:10";
+                    String arguments = "/home/birer/Bureau/nanoporetools/config_files/adaptor_RT_sequence_modify_for_nanopore.txt:17:30:7";
 
                     String rigthTrimSequence=TrimmomaticTrim(rightOutlierSequence,rightOutlierScore,arguments);
                     String leftTrimSequence=TrimmomaticTrim(reverse(leftOutlierSequence),reverse(leftOutlierScore),arguments);
-
-                    System.out.println("left sequence before trimming : "+leftOutlierSequence+ "| right sequence before trimming : "+rightOutlierSequence);
-                    System.out.println("left sequence after trimming : "+leftTrimSequence+ "| right sequence after trimming : "+rigthTrimSequence);
 
                     String rigthTrimScore=score.substring(mainScore.length(),mainScore.length()+rightOutlierSequence.length());
                     String leftTrimScore=score.substring(leftOutlierScore.length()-leftTrimSequence.length(),leftOutlierScore.length());
@@ -164,14 +164,11 @@ public class TrimFastq {
                     String scoreTranscript = leftTrimScore+mainScore+rigthTrimScore;
 
                     if(sequenceTranscript.length()>=this.minLenProcess){
-                        writeFastq(ID,sequenceTranscript,scoreTranscript,new BufferedWriter(new FileWriter(this.outputFastqFile)));
+                        writeFastq( ID, sequenceTranscript, scoreTranscript, BufferedWriterFastqOutput);
                     }else{
                         count8++;
                     }
-
-
                 }
-
             }else{
                 count4++;
             }
@@ -186,7 +183,7 @@ public class TrimFastq {
             }
         }
 
-        System.out.println("Nombre total de sequence mapped: "+count1);
+        System.out.println("Nombre total de sequence dans le SAM : "+count1);
         System.out.println("Nombre de sequence CIGAR '*': "+count4);
         System.out.println("Nombre de QFlag '16': "+count5);
         System.out.println("Nombre de QFlag '0': "+count6);
@@ -195,6 +192,7 @@ public class TrimFastq {
         System.out.println("Nombre d'Outlier Fin bien trouvé: "+count3);
         if(this.processTrimmomatic) {
             System.out.println("Nombre de sequence trop petite (<" + this.minLenProcess + ") : " + count8);
+            BufferedWriterFastqOutput.close();
         }
     }
 
@@ -249,7 +247,6 @@ public class TrimFastq {
                                 if(!matcher2.group(2).equals("N") || !matcher2.group(2).equals("M")){
                                     sequenceCigarBinaire=sequenceCigarBinaire+0;
                                 }
-
                             }
                         }
                     }
@@ -315,6 +312,7 @@ public class TrimFastq {
         //merge of the outlier trim on the main sequence
         for (String ID : this.fastqHash.keySet()) {
 
+
             i++;
 
             String leftSequence="";
@@ -325,44 +323,47 @@ public class TrimFastq {
 
             String[] tabValue = this.fastqHash.get(ID);
 
+            if(!tabValue[2].equals("*")) {
 
-            if(tabValue[3].equals("")){
-                lengthBeginOutlier=0;
-            }else{
-                lengthBeginOutlier=Integer.parseInt(tabValue[3]);
-            }
-            if(tabValue[4].equals("")){
-                lengthEndOutlier=0;
-            }else{
-                lengthEndOutlier=Integer.parseInt(tabValue[4]);
-            }
+                if (tabValue[3].equals("")) {
+                    lengthBeginOutlier = 0;
+                } else {
+                    lengthBeginOutlier = Integer.parseInt(tabValue[3]);
+                }
+                if (tabValue[4].equals("")) {
+                    lengthEndOutlier = 0;
+                } else {
+                    lengthEndOutlier = Integer.parseInt(tabValue[4]);
+                }
 
-            String mainSequenceWithoutOutlier=tabValue[0].substring(lengthBeginOutlier,tabValue[0].length()-lengthEndOutlier);
+                String mainSequenceWithoutOutlier = tabValue[0].substring(lengthBeginOutlier, tabValue[0].length() - lengthEndOutlier);
 
-            if(fastaLeftHash.get(ID)==null){
-                leftSequence="";
-            }else{
-                leftSequence=fastaLeftHash.get(ID);
-            }
-            if(fastaLeftHash.get(ID)==null){
-                rightSequence="";
-            }else{
-                rightSequence=fastaRightHash.get(ID);
-            }
+                if (fastaLeftHash.get(ID) == null) {
+                    leftSequence = "";
+                } else {
+                    leftSequence = fastaLeftHash.get(ID);
+                }
+                if (fastaLeftHash.get(ID) == null) {
+                    rightSequence = "";
+                } else {
+                    rightSequence = fastaRightHash.get(ID);
+                }
 
-            String scoreTrim=tabValue[1].substring(lengthBeginOutlier-leftSequence.length(),(tabValue[1].length()-lengthEndOutlier)+rightSequence.length());
-            String sequenceTrim =leftSequence+mainSequenceWithoutOutlier+rightSequence;
+                String scoreTrim = tabValue[1].substring(lengthBeginOutlier - leftSequence.length(), (tabValue[1].length() - lengthEndOutlier) + rightSequence.length());
+                String sequenceTrim = leftSequence + mainSequenceWithoutOutlier + rightSequence;
 
-            if(sequenceTrim.length()>=this.minLenProcess) {
-                writeFastq(ID, sequenceTrim, scoreTrim, fastqTrimBufferedWritter);
-            }else{
-                countNotWriteFastq++;
-            }
-            if(i==1){
-                shortestFastqSequence=sequenceTrim;
-            }
-            if(shortestFastqSequence.length()>=sequenceTrim.length()){
-                shortestFastqSequence=sequenceTrim;
+                if (sequenceTrim.length() >= this.minLenProcess) {
+                    writeFastq(ID, sequenceTrim, scoreTrim, fastqTrimBufferedWritter);
+                } else {
+                    countNotWriteFastq++;
+                }
+
+                if (i == 1) {
+                    shortestFastqSequence = sequenceTrim;
+                }
+                if (shortestFastqSequence.length() >= sequenceTrim.length()) {
+                    shortestFastqSequence = sequenceTrim;
+                }
             }
 
 
@@ -405,7 +406,7 @@ public class TrimFastq {
             adaptorRT=strand+" RT_adaptor="+adaptorRT;
             adaptorSwithStrand=strand+" Switch_Strand_RT_adaptor="+adaptorSwithStrand;
 
-            ProcessBuilder pb = new ProcessBuilder("/bin/bash", "-c", "cutadapt "+adaptorRT+" "+adaptorSwithStrand+" "+reverseAdaptorRT+" "+reverseAdaptorSwithStrand+" "+complementAdaptorRT+" "+complementAdaptorSwithStrand+" "+reverseComplementAdaptorRT+" "+reverseComplementAdaptorSwithStrand+""+" --quiet --error-rate="+errorRate+" --info-file="+infoTrimPath+" --overlap=6 --times=8 --match-read-wildcards --format=fasta "+pathFastaFileOutlier+" > "+pathOutputTrimFasta);
+            ProcessBuilder pb = new ProcessBuilder("/bin/bash", "-c", "cutadapt "+adaptorRT+" "+adaptorSwithStrand+" "+reverseAdaptorRT+" "+reverseAdaptorSwithStrand+" "+complementAdaptorRT+" "+complementAdaptorSwithStrand+" "+reverseComplementAdaptorRT+" "+reverseComplementAdaptorSwithStrand+""+" --quiet --error-rate="+errorRate+" --info-file="+infoTrimPath+" --overlap=7 --times=8 --match-read-wildcards --format=fasta "+pathFastaFileOutlier+" > "+pathOutputTrimFasta);
 
             //System.out.println(pb.command());
             pb.redirectErrorStream(true);
@@ -676,22 +677,28 @@ public class TrimFastq {
 
             String lengthBeginOutlier="";
             String lengthEndOutlier="";
-            String sequence="";
             String score="";
+            String sequence="";
+
             for (SAMRecord samRecord : inputSam) {
-
-
 
                 String CIGAR=samRecord.getCigarString();
 
                 String QFlag = ""+samRecord.getFlags();
                 String ID =samRecord.getReadName();
+                int cigarLength=samRecord.getCigarLength();
 
 
                 if(this.fastqHash.containsKey(ID)) {
-                    this.fastqHash.put(ID, new String[]{sequence, score, CIGAR, lengthBeginOutlier, lengthEndOutlier, QFlag});
+                    String[] tabvalue= this.fastqHash.get(ID);
+                    if(Integer.parseInt(tabvalue[6])<=cigarLength){
+                        this.fastqHash.put(ID, new String[]{sequence, score, CIGAR, lengthBeginOutlier, lengthEndOutlier, QFlag, ""+cigarLength});
+                    }else{
+                        continue;
+                    }
+
                 }else {
-                    this.fastqHash.put(ID, new String[]{sequence, score, CIGAR, lengthBeginOutlier, lengthEndOutlier, QFlag});
+                    this.fastqHash.put(ID, new String[]{sequence, score, CIGAR, lengthBeginOutlier, lengthEndOutlier, QFlag, ""+cigarLength});
                 }
             }
             inputSam.close();
@@ -716,9 +723,7 @@ public class TrimFastq {
                 String ID = part[0];
                 String sequence = read.getSequence();
                 String score = read.getQuality();
-
                 String[] tabValue = this.fastqHash.get(ID);
-
                 tabValue[0]=sequence;
                 tabValue[1]=score;
             }

@@ -191,4 +191,4 @@ Maven version : '3.2.3'
 REPOSITORY
 -
 
-Currently the Git reference repository is [https://github.com/GenomicParisCentre/Toullig](https://github.com/GenomicParisCentre/Toullig).
+Currently the Git reference repository is [https://github.com/GenomicParisCentre/toullig](https://github.com/GenomicParisCentre/Toullig).
