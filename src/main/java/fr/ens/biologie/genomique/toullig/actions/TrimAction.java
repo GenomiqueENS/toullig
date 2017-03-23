@@ -3,6 +3,7 @@ package fr.ens.biologie.genomique.toullig.actions;
 import java.io.File;
 import java.util.List;
 
+import com.google.common.primitives.Ints;
 import fr.ens.biologie.genomique.eoulsan.actions.AbstractAction;
 import fr.ens.biologie.genomique.toullig.TrimFastq;
 import org.apache.commons.cli.CommandLine;
@@ -52,10 +53,18 @@ public class TrimAction extends AbstractAction {
         String mode="P";
         String stats = "false";
         int minlen = 100;
+        double errorRateCutadapt=0.5;
+        double thresholdSW=0.8;
+        int lengthWindowsSW=15;
+        int seedMismatchesTrimmomatic=17;
+        int palindromeClipThresholdTrimmomatic =30;
+        int simpleClipThreshold=7;
 
         File samFile = new File("");
         File fastqFile=new File("");
         File fastqOutputFile=new File("");
+        File adaptorFile = new File("");
+        File workDir = new File("");
 
         try {
 
@@ -81,15 +90,41 @@ public class TrimAction extends AbstractAction {
             }
 
             if (line.hasOption("minlen")) {
-                stats = line.getOptionValue("minlen").toLowerCase();
+                minlen = Integer.parseInt(line.getOptionValue("minlen").toLowerCase());
+            }
+
+            if (line.hasOption("errorRateCutadapt")) {
+                errorRateCutadapt = Long.parseLong(line.getOptionValue("errorRateCutadapt").toLowerCase());
+            }
+
+            if (line.hasOption("thresholdSW")) {
+                thresholdSW = Long.parseLong(line.getOptionValue("thresholdSW").toLowerCase());
+            }
+
+            if (line.hasOption("lengthWindowsSW")) {
+                lengthWindowsSW = Integer.parseInt(line.getOptionValue("lengthWindowsSW").toLowerCase());
+            }
+
+            if (line.hasOption("seedMismatchesTrimmomatic")) {
+                seedMismatchesTrimmomatic = Integer.parseInt(line.getOptionValue("seedMismatchesTrimmomatic").toLowerCase());
+            }
+
+            if (line.hasOption("palindromeClipThresholdTrimmomatic")) {
+                palindromeClipThresholdTrimmomatic = Integer.parseInt(line.getOptionValue("palindromeClipThresholdTrimmomatic").toLowerCase());
+            }
+
+            if (line.hasOption("simpleClipThreshold")) {
+                simpleClipThreshold = Integer.parseInt(line.getOptionValue("simpleClipThreshold").toLowerCase());
             }
 
             {
                 String[] remainder = line.getArgs();
-                if (remainder.length >= 2) {
+                if (remainder.length >= 4) {
                     samFile = new File(remainder[0]);
                     fastqFile = new File(remainder[1]);
                     fastqOutputFile = new File(remainder[2]);
+                    adaptorFile = new File(remainder[3]);
+                    workDir = new File(remainder[4]);
                 }
             }
 
@@ -98,7 +133,7 @@ public class TrimAction extends AbstractAction {
                     "Error while parsing command line arguments: " + e.getMessage());
         }
         // Execute program in local mode
-        run(trimmer, mode, stats, minlen, samFile, fastqFile, fastqOutputFile);
+        run(trimmer, mode, stats, minlen, errorRateCutadapt, thresholdSW, lengthWindowsSW, seedMismatchesTrimmomatic, palindromeClipThresholdTrimmomatic,  simpleClipThreshold, samFile, fastqFile, fastqOutputFile, adaptorFile, workDir);
     }
 
     //
@@ -138,8 +173,26 @@ public class TrimAction extends AbstractAction {
                 .addOption(OptionBuilder.withArgName("minlen").hasArg()
                         .withDescription("minimum length of trimmed fastq write (default : 100)")
                         .create("minlen"));
-
-
+        options
+                .addOption(OptionBuilder.withArgName("errorRateCutadapt").hasArg()
+                        .withDescription("error rate for cutadapt (default: 0.5")
+                        .create("errorRateCutadapt"));
+        options
+                .addOption(OptionBuilder.withArgName("thresholdSW").hasArg()
+                        .withDescription("threshold for Side-Windows processus (default: 0.8)")
+                        .create("thresholdSW"));
+        options
+                .addOption(OptionBuilder.withArgName("seedMismatchesTrimmomatic").hasArg()
+                        .withDescription("seed mismatches option for Trimmomatic (default: 17)")
+                        .create("seedMismatchesTrimmomatic"));
+        options
+                .addOption(OptionBuilder.withArgName("palindromeClipThresholdTrimmomatic").hasArg()
+                        .withDescription("palindrome clip threshold option for Trimmomatic (default: 30)")
+                        .create("palindromeClipThresholdTrimmomatic"));
+        options
+                .addOption(OptionBuilder.withArgName("simpleClipThreshold").hasArg()
+                        .withDescription("simple clip threshold option for Trimmomatic (default : 7)")
+                        .create("simpleClipThreshold"));
 
         options
                 .addOption(OptionBuilder.withArgName("samFile").hasArg()
@@ -153,6 +206,15 @@ public class TrimAction extends AbstractAction {
         options.addOption(OptionBuilder.withArgName("fastqOutputFile").hasArg()
                 .withDescription("the path to the .fastq file")
                 .create("fastqOutputFile"));
+
+        options.addOption(OptionBuilder.withArgName("adaptorFile").hasArg()
+                .withDescription("the path to the adaptor file")
+                .create("adaptorFile"));
+
+        options.addOption(OptionBuilder.withArgName("workDir").hasArg()
+                .withDescription("the work directory")
+                .create("workDir"));
+
 
         return options;
     }
@@ -184,15 +246,17 @@ public class TrimAction extends AbstractAction {
      * @param fastqFile, a fasqt file
      * @param fastqOutputFile, a fastq trimmed at output
      */
-    private static void run(final String trimmer, final String mode, final String stats, final int minlen, final File samFile, final File fastqFile, final File fastqOutputFile) {
+    private static void run(final String trimmer, final String mode, final String stats, final int minlen, final double errorRateCutadapt, final double thresholdSW, final int lengthWindowsSW, final int seedMismatchesTrimmomatic, final int palindromeClipThresholdTrimmomatic, final int simpleClipThreshold, final File samFile, final File fastqFile, final File fastqOutputFile, final File adaptorFile, final File workDir) {
 
         try {
 
             getLogger().info("Sam File : " + samFile);
             getLogger().info("Fastq File: " + fastqFile);
             getLogger().info("Fastq Trimmed Output File: " + fastqOutputFile);
+            getLogger().info("Adaptor File: " + adaptorFile);
+            getLogger().info("Work Directory: " + workDir);
 
-            TrimFastq trim = new TrimFastq(samFile,fastqFile,fastqOutputFile);
+            TrimFastq trim = new TrimFastq(samFile,fastqFile, adaptorFile, fastqOutputFile, workDir);
 
             if (trimmer.contains("cutadapt")) {
                 trim.setProcessCutadapt(true);
@@ -209,6 +273,18 @@ public class TrimAction extends AbstractAction {
             if (stats.contains("true")) {
                 trim.setProcessStats(true);
             }
+
+            trim.setThresholdSW(thresholdSW);
+
+            trim.setLengthWindowsSW(lengthWindowsSW);
+
+            trim.setErrorRateCutadapt(errorRateCutadapt);
+
+            trim.setSeedMismatchesTrimmomatic(seedMismatchesTrimmomatic);
+
+            trim.setPalindromeClipThresholdTrimmomatic(palindromeClipThresholdTrimmomatic);
+
+            trim.setSimpleClipThreshold(simpleClipThreshold);
 
             trim.setMinimunLengthToWrite(minlen);
 

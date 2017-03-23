@@ -306,14 +306,6 @@
                  </fileset>
                </copy>
 
-               <copy todir="${basedir}/target/dist/galaxytools">
-                 <fileset dir="${basedir}/src/main/galaxytools"/>
-               </copy>
-
-               <copy todir="${basedir}/target/dist/formats">
-                 <fileset dir="${basedir}/src/main/formats"/>
-               </copy>
-
                <copy file="${basedir}/target/${project.artifactId}-${project.version}.jar" todir="${basedir}/target/dist/lib/" />
                <move file="${basedir}/target/dist/" tofile="${basedir}/target/dist/${project.artifactId}-${project.version}"/>
 
