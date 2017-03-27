@@ -55,6 +55,7 @@ Toullig have 2 tools :
 CLASSIFICATION MINION RUN
 -
 
+
 >**Not Barcoded Directories Tree**
 
 ├── downloads <br>
@@ -76,16 +77,13 @@ CLASSIFICATION MINION RUN
 │       └── BC06 <br>
 └── uploaded <br>
 
+
 Chemistry available
 -
 
-
-| Chemistry Kit \Type of sequencing      |  1D               |   2D            | 1D²              |
-| --------------------------------       |: -------------:   |: -------------: |  ---------:      |
-| <p align="center">R7</p>               |  Not tested       |     Tested      |  Not available   |
-| <p align="center">R9</p>               |  Not tested       |     Tested      |  Not available   |
-| <p align="center">R9.4</p>             |  Not tested       |     Tested      |  Not available   |
-| <p align="center">R9.5</p>             |  Not tested       | Not tested      |  Not tested      |
+<p align="center">
+  <img src="images/chemistry_tested.png"/>
+</p>
 
 
 Fast5tofastq
