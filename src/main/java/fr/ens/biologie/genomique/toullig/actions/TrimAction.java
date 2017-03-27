@@ -49,16 +49,15 @@ public class TrimAction extends AbstractAction {
         final Options options = makeOptions();
         final CommandLineParser parser = new GnuParser();
 
-        String trimmer="cutadapt";
-        String mode="P";
-        String stats = "false";
-        int minlen = 100;
-        double errorRateCutadapt=0.5;
-        double thresholdSW=0.8;
-        int lengthWindowsSW=15;
-        int seedMismatchesTrimmomatic=17;
-        int palindromeClipThresholdTrimmomatic =30;
-        int simpleClipThreshold=7;
+        String trimmer="";
+        String mode="";
+        String stats = "";
+        double errorRateCutadapt = 0;
+        double thresholdSW = 0;
+        int lengthWindowsSW = 0;
+        int seedMismatchesTrimmomatic = 0;
+        int palindromeClipThresholdTrimmomatic = 0;
+        int simpleClipThreshold = 0;
 
         File samFile = new File("");
         File fastqFile=new File("");
@@ -87,10 +86,6 @@ public class TrimAction extends AbstractAction {
 
             if (line.hasOption("stats")) {
                 stats = line.getOptionValue("stats").toLowerCase();
-            }
-
-            if (line.hasOption("minlen")) {
-                minlen = Integer.parseInt(line.getOptionValue("minlen").toLowerCase());
             }
 
             if (line.hasOption("errorRateCutadapt")) {
@@ -133,7 +128,7 @@ public class TrimAction extends AbstractAction {
                     "Error while parsing command line arguments: " + e.getMessage());
         }
         // Execute program in local mode
-        run(trimmer, mode, stats, minlen, errorRateCutadapt, thresholdSW, lengthWindowsSW, seedMismatchesTrimmomatic, palindromeClipThresholdTrimmomatic,  simpleClipThreshold, samFile, fastqFile, fastqOutputFile, adaptorFile, workDir);
+        run(trimmer, mode, stats, errorRateCutadapt, thresholdSW, lengthWindowsSW, seedMismatchesTrimmomatic, palindromeClipThresholdTrimmomatic,  simpleClipThreshold, samFile, fastqFile, fastqOutputFile, adaptorFile, workDir);
     }
 
     //
@@ -169,10 +164,6 @@ public class TrimAction extends AbstractAction {
                         .withDescription("make somes stats on the trimming [true | false] (default : false)")
                         .create("stats"));
 
-        options
-                .addOption(OptionBuilder.withArgName("minlen").hasArg()
-                        .withDescription("minimum length of trimmed fastq write (default : 100)")
-                        .create("minlen"));
         options
                 .addOption(OptionBuilder.withArgName("errorRateCutadapt").hasArg()
                         .withDescription("error rate for cutadapt (default: 0.5")
@@ -246,7 +237,7 @@ public class TrimAction extends AbstractAction {
      * @param fastqFile, a fasqt file
      * @param fastqOutputFile, a fastq trimmed at output
      */
-    private static void run(final String trimmer, final String mode, final String stats, final int minlen, final double errorRateCutadapt, final double thresholdSW, final int lengthWindowsSW, final int seedMismatchesTrimmomatic, final int palindromeClipThresholdTrimmomatic, final int simpleClipThreshold, final File samFile, final File fastqFile, final File fastqOutputFile, final File adaptorFile, final File workDir) {
+    private static void run(final String trimmer, final String mode, final String stats, final double errorRateCutadapt, final double thresholdSW, final int lengthWindowsSW, final int seedMismatchesTrimmomatic, final int palindromeClipThresholdTrimmomatic, final int simpleClipThreshold, final File samFile, final File fastqFile, final File fastqOutputFile, final File adaptorFile, final File workDir) {
 
         try {
 
@@ -258,35 +249,39 @@ public class TrimAction extends AbstractAction {
 
             TrimFastq trim = new TrimFastq(samFile,fastqFile, adaptorFile, fastqOutputFile, workDir);
 
-            if (trimmer.contains("cutadapt")) {
-                trim.setProcessCutadapt(true);
-            }
             if (trimmer.contains("trimmomatic")) {
                 trim.setProcessTrimmomatic(true);
             }
-            if (mode.contains("P")) {
-                trim.setProcessPTrim(true);
-            }
+
             if (mode.contains("SW")) {
                 trim.setProcessSWTrim(true);
             }
             if (stats.contains("true")) {
                 trim.setProcessStats(true);
             }
+            if(thresholdSW!=0){
+                trim.setThresholdSW(thresholdSW);
+            }
 
-            trim.setThresholdSW(thresholdSW);
+            if(lengthWindowsSW!=0){
+                trim.setLengthWindowsSW(lengthWindowsSW);
+            }
 
-            trim.setLengthWindowsSW(lengthWindowsSW);
+            if(errorRateCutadapt!=0){
+                trim.setErrorRateCutadapt(errorRateCutadapt);
+            }
 
-            trim.setErrorRateCutadapt(errorRateCutadapt);
+            if(seedMismatchesTrimmomatic!=0){
+                trim.setSeedMismatchesTrimmomatic(seedMismatchesTrimmomatic);
+            }
 
-            trim.setSeedMismatchesTrimmomatic(seedMismatchesTrimmomatic);
+            if(palindromeClipThresholdTrimmomatic!=0){
+                trim.setPalindromeClipThresholdTrimmomatic(palindromeClipThresholdTrimmomatic);
+            }
 
-            trim.setPalindromeClipThresholdTrimmomatic(palindromeClipThresholdTrimmomatic);
-
-            trim.setSimpleClipThreshold(simpleClipThreshold);
-
-            trim.setMinimunLengthToWrite(minlen);
+            if(simpleClipThreshold!=0){
+                trim.setSimpleClipThreshold(simpleClipThreshold);
+            }
 
             trim.execution();
 

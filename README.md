@@ -32,6 +32,18 @@ You just need to have java 8 and maven installed on your computer. This alpha ve
     mvn clean install
 
 
+OPTIONS GENERAL
+-
+
+    #Information
+
+    -help | -h      #display help
+    -version        #display version of toullig
+    -about          #display information of toullig
+    -license        #display license of toullig
+    
+
+
 HOW IT'S WORK
 -
 
@@ -50,7 +62,7 @@ CLASSIFICATION MINION RUN
 │   └── pass <br>
 └── uploaded <br>
 
->**Not Barcoded Directories Tree**
+>**Barcoded Directories Tree (with 6 barcode)**
 
 ├── downloads <br>
 │   ├── fail <br>
@@ -63,6 +75,18 @@ CLASSIFICATION MINION RUN
 │       ├── BC05 <br>
 │       └── BC06 <br>
 └── uploaded <br>
+
+Chemistry available
+-
+
+
+| Chemistry Kit \Type of sequencing      |  1D               |   2D            | 1D²              |
+| --------------------------------       |: -------------:   |: -------------: |  ---------:      |
+| <p align="center">R7</p>               |  Not tested       |     Tested      |  Not available   |
+| <p align="center">R9</p>               |  Not tested       |     Tested      |  Not available   |
+| <p align="center">R9.4</p>             |  Not tested       |     Tested      |  Not available   |
+| <p align="center">R9.5</p>             |  Not tested       | Not tested      |  Not tested      |
+
 
 Fast5tofastq
 -
@@ -109,16 +133,6 @@ The transcript sequence is the sequence result of the consensus sequence (in 2D)
   <img src="images/transcript_sequence.png"/>
 </p>
 
-OPTIONS GENERAL
--
-
-    #Information
-
-    -help | -h      #display help
-    -version        #display version of toullig
-    -about          #display information of toullig
-    -license        #display license of toullig
-    
 
 OPTIONS fast5tofastq
 -
@@ -155,10 +169,19 @@ For enhance the mapping quality, it's important to trim the reads to delete thes
 
 In the execution of toullig Trim, the programm step :
 
- + Repere the index between the outliers and the mRNA.
+ + Repere the index between the outliers and the mRNA (mode P or SW).
+ 
+ For cutadapt:
+ 
  + Write Fasta File for each Outlier.
  + Trim with cutadapt
  + Write the cutadapt output merge.
+ 
+  For trimmomatic:
+ 
+ + Read a sequence fastq.
+ + Trim with trimmomatic
+ + Write the sequence trimmed.
 
 OPTIONS trim
 -
@@ -170,10 +193,10 @@ OPTIONS trim
     -stats true|flase (default : false)                     # If you want somes stats on the trimming
     
     #Options Trimming by Side-window mode
-
+    
     -thresholdSW (default: 15)                              # The threshold for the Side-Window algorithm
     -lengthWindowsSW (default: 0.8)                         # The length for the the Side-Window algorithm
-
+    
     #Options Cutadapt
     
     -errorRateCutadapt (default: 0.5)                       # The error rate for Cutadapt (mismatch + deletion)
@@ -187,7 +210,6 @@ OPTIONS trim
     #Options Post-Process
     
     -minlen (default : 100)                                 # The threshold of minimum length to write trimmed fastq
-
     
     #Arguments
     

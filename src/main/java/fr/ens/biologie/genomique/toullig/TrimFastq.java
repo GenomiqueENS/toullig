@@ -16,7 +16,9 @@ import org.usadellab.trimmomatic.util.Logger;
 
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,21 +42,20 @@ public class TrimFastq {
     private File nameOutputFastq;
     private File adaptorFile;
 
+    private boolean processPTrim=true;
+    private boolean processSWTrim=false;
+    private boolean processCutadapt=true;
+    private boolean processTrimmomatic=false;
+    private boolean processStats=false;
 
-    private boolean processPTrim;
-    private boolean processSWTrim;
-    private boolean processCutadapt;
-    private boolean processTrimmomatic;
-    private boolean processStats;
+    private int minLenProcess=100;
 
-    private int minLenProcess;
-    private int lengthWindowsSW;
-    private double thresholdSW;
-
-    private double errorRateCutadapt;
-    private int seedMismatchesTrimmomatic;
-    private int palindromeClipThresholdTrimmomatic;
-    private int simpleClipThreshold;
+    private int lengthWindowsSW=15;
+    private double thresholdSW=0.8;
+    private double errorRateCutadapt=0.5;
+    private int seedMismatchesTrimmomatic=17;
+    private int palindromeClipThresholdTrimmomatic=30;
+    private int simpleClipThreshold=7;
 
     private BufferedWriter fastaFileLeftOutlier;
     private BufferedWriter fastaFileRightOutlier;
@@ -365,7 +366,7 @@ public class TrimFastq {
                     rightSequence = fastaRightHash.get(ID);
                 }
 
-                String scoreTrim = tabValue[1].substring(lengthBeginOutlier - leftSequence.length(), (tabValue[1].length() - lengthEndOutlier) + rightSequence.length());
+                String scoreTrim = tabValue[1].substring(lengthBeginOutlier-leftSequence.length(), (tabValue[1].length()-lengthEndOutlier) + rightSequence.length());
                 String sequenceTrim = leftSequence + mainSequenceWithoutOutlier + rightSequence;
 
                 if (sequenceTrim.length() >= this.minLenProcess) {
@@ -399,7 +400,7 @@ public class TrimFastq {
      * @throws IOException
      * @throws InterruptedException
      */
-    private void cutadaptTrim(String pathFastaFileOutlier, String strand, String infoTrimPath) throws IOException, InterruptedException {
+    private void cutadaptTrim(String pathFastaFileOutlier, String strand, String infoTrimPath, String pathOutputTrimLeftFasta) throws IOException, InterruptedException {
 
         try {
             String reverseComplementAdaptorRT=strand+" reverse_complement_RT_adaptor="+reverseComplement(this.adaptorRT,this.alphabet);
@@ -413,22 +414,25 @@ public class TrimFastq {
             String reverseAdaptorRT= strand+" reverse_RT_adaptor="+reverseAdaptorRTStringBuffer.reverse().toString();
             String reverseAdaptorSwithStrand= strand+" reverse_Switch_Strand_RT_adaptor="+reverseAdaptorSwithStrandStringBuffer.reverse().toString();
 
-            this.adaptorRT=strand+" RT_adaptor="+this.adaptorRT;
-            this.adaptorStrandSwitching=strand+" Switch_Strand_RT_adaptor="+this.adaptorStrandSwitching;
+            String adaptorRT=strand+" RT_adaptor="+this.adaptorRT;
+            String adaptorStrandSwitching=strand+" Switch_Strand_RT_adaptor="+this.adaptorStrandSwitching;
 
-            ProcessBuilder pb = new ProcessBuilder("/bin/bash", "-c", "cutadapt "+this.adaptorRT+" "+this.adaptorStrandSwitching+" "+reverseAdaptorRT+" "+reverseAdaptorSwithStrand+" "+complementAdaptorRT+" "+complementAdaptorSwithStrand+" "+reverseComplementAdaptorRT+" "+reverseComplementAdaptorSwithStrand+""+" --quiet --error-rate="+this.errorRateCutadapt+" --info-file="+infoTrimPath+" --overlap=7 --times=8 --match-read-wildcards --format=fasta "+pathFastaFileOutlier+" > "+this.pathOutputTrimLeftFasta);
+            String quiet="";
+            //String quiet="--quiet";
+
+            ProcessBuilder pb = new ProcessBuilder("/bin/bash", "-c", "cutadapt "+adaptorRT+" "+adaptorStrandSwitching+" "+reverseAdaptorRT+" "+reverseAdaptorSwithStrand+" "+complementAdaptorRT+" "+complementAdaptorSwithStrand+" "+reverseComplementAdaptorRT+" "+reverseComplementAdaptorSwithStrand+" "+quiet+" --error-rate="+this.errorRateCutadapt+" --info-file="+infoTrimPath+" --overlap=7 --times=8 --match-read-wildcards --format=fasta "+pathFastaFileOutlier+" > "+pathOutputTrimLeftFasta);
 
             //System.out.println(pb.command());
             pb.redirectErrorStream(true);
             Process proc = pb.start(); // Start the process.
 
-            //getLogCutadapt(proc);
+            getLogCutadapt(proc);
 
-            int exitproc=proc.waitFor();
-//            if(!proc.waitFor(1, TimeUnit.MINUTES)) {
-//                //timeout - kill the process.
-//                proc.destroy(); // consider using destroyForcibly instead
-//            }
+           // int exitproc=proc.waitFor();
+            if(!proc.waitFor(1, TimeUnit.MINUTES)) {
+                //timeout - kill the process.
+                proc.destroy(); // consider using destroyForcibly instead
+            }
         }
         catch (IOException e) {
             e.printStackTrace(); // or log it, or otherwise handle it
@@ -772,9 +776,11 @@ public class TrimFastq {
      */
     private void statsLogCutadapt(String infoTrimPath) throws IOException {
 
-        LocalReporter localReporter = new LocalReporter();
+        LocalReporter localReporterNumberTimesAdaptor = new LocalReporter();
         BufferedReader infoTrimLeftFile = new BufferedReader(new FileReader(infoTrimPath));
-        String line = "";
+        String line ;
+        String oldID="";
+        String stackConstructAdaptor="";
 
         while ((line = infoTrimLeftFile.readLine()) != null) {
 
@@ -783,48 +789,53 @@ public class TrimFastq {
             String error = part[1];
 
             if(error.equals("-1")){
-                localReporter.incrCounter(ID, "no_adaptor_found", 1);
+
+                if(localReporterNumberTimesAdaptor.getCounterNames("Construction").contains("no_adaptor_found")){
+
+                    localReporterNumberTimesAdaptor.incrCounter("Construction", "no_adaptor_found", 1);
+                }else{
+                    localReporterNumberTimesAdaptor.setCounter("Construction", "no_adaptor_found", 1);
+                }
                 continue;
             }
 
             String nameAdaptor=part[7];
 
-            if(localReporter.getCounterNames(ID).size()>1){
-                if(localReporter.getCounterNames(ID).contains(nameAdaptor)){
-                    long value=localReporter.getCounterValue(ID, nameAdaptor);
-                    localReporter.incrCounter(ID,nameAdaptor,value+1);
-                }else{
-                    localReporter.setCounter(ID,nameAdaptor,1);
-                }
-            }else{
-                localReporter.setCounter(ID,nameAdaptor,1);
-            }
-        }
+            if(!ID.equals(oldID)){
 
-        int count0=0;
-        HashMap <String,Integer> hashStats = new HashMap<>();
+                if(stackConstructAdaptor.equals("")){
+                    if(localReporterNumberTimesAdaptor.getCounterNames("Construction").contains(nameAdaptor)){
 
-        for ( String ID : localReporter.getCounterGroups()){
+                        localReporterNumberTimesAdaptor.incrCounter("Construction", nameAdaptor, 1);
 
-            if(localReporter.getCounterNames(ID).contains("no_adaptor_found")){
-                count0++;
-                hashStats.put("no_adaptor_found",count0);
-            }else{
-                for(int i=0;i<=8;i++){
-                    if(localReporter.getCounterNames(ID).size()==i){
-                        for(String adaptor : localReporter.getCounterNames(ID)){
-                            if(hashStats.containsKey(adaptor+"_found_"+i+"_time")){
-                                int oldValue=hashStats.get(adaptor+"_found_"+i+"_time");
-                                hashStats.put(adaptor+"_found_"+i+"_time", Ints.checkedCast(localReporter.getCounterValue(ID,adaptor))+oldValue);
-                            }else{
-                                hashStats.put(adaptor+"_found_"+i+"_time", Ints.checkedCast(localReporter.getCounterValue(ID,adaptor)));
-                            }
-                        }
+                    }else{
+                        localReporterNumberTimesAdaptor.setCounter("Construction",nameAdaptor,1);
                     }
+                }else {
+
+                    if (stackConstructAdaptor.contains(" + ")) {
+                        localReporterNumberTimesAdaptor.incrCounter("Construction", stackConstructAdaptor, 1);
+                    }else{
+                        localReporterNumberTimesAdaptor.incrCounter("Construction", stackConstructAdaptor, 1);
+                    }
+                    stackConstructAdaptor = "";
+                }
+
+            }else{
+                if(stackConstructAdaptor.equals("")){
+                    stackConstructAdaptor+=nameAdaptor;
+                }else{
+                    stackConstructAdaptor+=" + "+nameAdaptor;
                 }
             }
+            oldID=ID;
         }
-        System.out.println(hashStats);
+
+        // Analyze counter group Construction
+
+        for(String constructionAdaptor : localReporterNumberTimesAdaptor.getCounterNames("Construction")){
+            System.out.println(constructionAdaptor+" :  "+localReporterNumberTimesAdaptor.getCounterValue("Construction", constructionAdaptor));
+        }
     }
 
 
@@ -988,14 +999,16 @@ public class TrimFastq {
         String strandRight="-a";
 
         // Cutadapt execution
-        cutadaptTrim(pathFastaFileLeftOutlier, strandLeft, infoTrimLeftPath);
-        cutadaptTrim(pathFastaFileRightOutlier, strandRight, infoTrimRightPath);
+        cutadaptTrim(pathFastaFileLeftOutlier, strandLeft, infoTrimLeftPath, this.pathOutputTrimLeftFasta);
+        cutadaptTrim(pathFastaFileRightOutlier, strandRight, infoTrimRightPath, this.pathOutputTrimRightFasta);
 
         // Merge the output form cutadapt
         mergeTrimOutlier();
 
         if(this.processStats){
+            System.out.println("Start stat Left outlier");
             statsLogCutadapt(infoTrimLeftPath);
+            System.out.println("Start stat Right outlier");
             statsLogCutadapt(infoTrimRightPath);
         }
     }
