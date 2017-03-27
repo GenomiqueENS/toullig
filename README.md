@@ -1,29 +1,55 @@
 Toullig 0.2-alpha
 =======
 
-Toullig is (since January 17 2017) a reader, parser of Fast5 files of ONT (basecalled and not basecalled) and a fastq files writer.
+Toullig is (since January 17 2017) a reader, parser of Fast5 files of ONT (basecalled and not basecalled) and a fastq files writer and the first of march Toullig can trim fastq of ONT based on the RT adaptors.
 
 
-AUTHOR
--
+# Author
+
 
 Aurélien Birer, [birer@biologie.ens.fr](birer@biologie.ens.fr)
 
 
-REQUIREMENTS
--
+
+# Table of contents
+
+
+* [Requirements](#requirements)
+* [Installation](#installation)
+    * [To install Maven](#to-install-maven)
+    * [To install Toullig](#to-install-toullig)
+* [General options](#general-options)
+* [How it works](#how-it-works)
+    * [Classification MinION run](#classification-minion-run)
+    * [Chemistry available](#chemistry-available)
+* [Fast5tofastq](#fast5tofastq)
+    * [Understand the type of sequence](#understand-the-type-of-sequence)
+    * [Options Fast5tofastq](#options-fast5tofastq)
+    * [Example](#example)
+* [TrimFastq](#trimFastq)
+    * [Options TrimFastq](#options-trimFastq)
+    * [Example trim](#example-trim)
+* [Developpment environnement](#developpment-environnement)
+* [Repository](#repository)
+* [License](#license)
+
+
+# Requirements
+
 
 You just need to have java 8 and maven installed on your computer. This alpha version work on Ubuntu (Unix distribution).
 
 
-###TO INSTALL MAVEN
+# Installation
 
+
+### To install Maven
 
 
     sudo apt-get install maven
 
 
-###TO INSTALL Toullig
+### To install Toullig
 
 
 
@@ -32,8 +58,8 @@ You just need to have java 8 and maven installed on your computer. This alpha ve
     mvn clean install
 
 
-OPTIONS GENERAL
--
+# General options
+
 
     #Information
 
@@ -44,16 +70,16 @@ OPTIONS GENERAL
     
 
 
-HOW IT'S WORK
--
+# How it works
+
 
 Toullig have 2 tools :
 
 - Fast5tofastq : read the rootDirectory/downloads of your Fast5 run minION after the step of basecalling (metrichor/albacore).
-- Trim : trim the reads of a ONT fastq with a sam file.
+- Trim : trim the reads of a ONT fastq with a sam file, based on the RT adaptors.
 
-CLASSIFICATION MINION RUN
--
+### Classification MinION run
+
 
 
 >**Not Barcoded Directories Tree**
@@ -78,16 +104,16 @@ CLASSIFICATION MINION RUN
 └── uploaded <br>
 
 
-Chemistry available
--
+### Chemistry available
+
 
 <p align="center">
   <img src="images/chemistry_tested.png"/>
 </p>
 
 
-Fast5tofastq
--
+# Fast5tofastq
+
 
 In the execution of toullig Fast5tofastq, the programm step :
 
@@ -96,9 +122,9 @@ In the execution of toullig Fast5tofastq, the programm step :
  + Write the .fastq sequence(s).
  + Make few some log informations.
 
-###UNDERSTAND THE TYPE OF SEQUENCE
+### Understand the type of sequence
 
-Actually, we use in developpement Metrichor for the basecalling of our .fast5 file.
+Actually, we use in developpement Metrichor for the basecalling of our .fast5 files.
 
 But it's important to understand clearly the type of the 4 fastq sequences give by metrichor (in our case in 2D).
 
@@ -132,8 +158,8 @@ The transcript sequence is the sequence result of the consensus sequence (in 2D)
 </p>
 
 
-OPTIONS fast5tofastq
--
+### Options Fast5tofastq
+
 
     
     #Options
@@ -148,7 +174,7 @@ OPTIONS fast5tofastq
     -outputDirectoryFastq /home/user/yourOutputDirectoryFastq
     
     
-###Example
+### Example
 
 
 I have a directory of a minION run in 2D with barcode.
@@ -158,9 +184,9 @@ If i want just get the fastq sequence of the 'template', the 'complement' and th
     bash ./target/dist/toullig-0.2-alpha/toullig.sh Fast5tofastq -status fail -type template,complement,consensus /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq
 
 
-Trim
--
+# TrimFastq
 
+In the case of cDNA protocols like SQK-MAP006.
 One of the problem of the minION reads in the format fastq is that the read is not the transcript as we expected. The read still have the RT adaptor and, in some case, the barcode with adaptors (leader/hairpin).
 
 For enhance the mapping quality, it's important to trim the reads to delete these unwanted sequences.
@@ -181,8 +207,8 @@ In the execution of toullig Trim, the programm step :
  + Trim with trimmomatic
  + Write the sequence trimmed.
 
-OPTIONS trim
--
+### Options TrimFastq
+
     
     #Options
     
@@ -218,14 +244,14 @@ OPTIONS trim
     -workDir            /home/user/yourTmpRepertoryOfWork
 
 
-###Example
+### Example trim
 
 
     bash ./target/dist/toullig-0.2-alpha/toullig.sh Trim /home/user/samFile.sam /home/user/fastqONTFile.fastq /home/user/myFastqTrim.fastq ~/toullig/config_files/adaptor_RT_sequence_modify_for_nanopore.txt /home/user/yourTmpRepertoryOfWork
 
 
-DEVELOPPEMENT ENVIRONNEMENT
--
+# Developpment environnement
+
 
 Ubutun : '16.04.4'
 
@@ -234,7 +260,14 @@ JAVA version : '1.8.0_121'
 Maven version : '3.2.3'
 
 
-REPOSITORY
--
+# Repository
 
 Currently the Git reference repository is [https://github.com/GenomicParisCentre/toullig](https://github.com/GenomicParisCentre/Toullig).
+
+
+# License
+
+[GNU General Public License, version 3](https://www.gnu.org/licenses/gpl-3.0.html)
+[CeCILL](http://www.cecill.info/licences/Licence_CeCILL_V1.1-US.html)
+
+

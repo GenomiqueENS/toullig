@@ -206,7 +206,6 @@ public class TrimAction extends AbstractAction {
                 .withDescription("the work directory")
                 .create("workDir"));
 
-
         return options;
     }
 
