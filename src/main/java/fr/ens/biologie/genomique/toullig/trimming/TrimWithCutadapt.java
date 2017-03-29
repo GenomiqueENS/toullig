@@ -42,7 +42,7 @@ public class TrimWithCutadapt {
     //
 
     /**
-     * Method of the class TrimFastq to merge the results of cutadapt with the trim sequence.
+     * Method of the class TrimWithCutadapt to merge the results of cutadapt with the trim sequence.
      * @throws IOException
      */
     public void mergeTrimOutlier() throws IOException {
@@ -52,6 +52,8 @@ public class TrimWithCutadapt {
         HashMap<String, String> fastaRightHash = new HashMap<String, String>();
         String shortestFastqSequence="";
         int i = 0;
+        int countWrite =0;
+        int countNull=0;
 
         //Read of the left outlier fasta output by cutadapt
         try{
@@ -171,17 +173,23 @@ public class TrimWithCutadapt {
                 if(!sequenceTrim.equals("")){
                     Utils util = new Utils();
                     util.writeFastq(ID, sequenceTrim, scoreTrim, fastqTrimBufferedWritter);
-                }
+                    countWrite++;
 
-                if (i == 1) {
-                    shortestFastqSequence = sequenceTrim;
-                }
-                if (shortestFastqSequence.length() >= sequenceTrim.length()) {
-                    shortestFastqSequence = sequenceTrim;
+                    if (i == 1) {
+                        shortestFastqSequence = sequenceTrim;
+                    }
+                    if (shortestFastqSequence.length() >= sequenceTrim.length()) {
+                        shortestFastqSequence = sequenceTrim;
+                    }
+
+                }else{
+                    countNull++;
                 }
             }
         }
         System.out.println("la séquence trim la plus courte fait : " + shortestFastqSequence.length());
+        System.out.println("Nombre de trimmé séquence ecrite : " + countWrite);
+        System.out.println("Nombre de trimmé séquence null : " + countNull);
         fastqTrimBufferedWritter.close();
     }
 
@@ -190,14 +198,15 @@ public class TrimWithCutadapt {
     //
 
     /**
-     * Method of the class TrimFastq to execute cutadapt.
+     * Method of the class TrimWithCutadapt to execute cutadapt.
      * @param pathFastaFileOutlier, the path of the fasta file with outlier to trim
      * @param strand, the cutadapt strand of the adaptor
      * @param infoTrimPath, path to the output log of cutadapt
+     * @param pathOutputTrimFasta, path to the output of cutadapt
      * @throws IOException
      * @throws InterruptedException
      */
-    public void cutadaptTrim(String pathFastaFileOutlier, String strand, String infoTrimPath, String pathOutputTrimLeftFasta) throws IOException, InterruptedException {
+    public void cutadaptTrim(String pathFastaFileOutlier, String strand, String infoTrimPath, String pathOutputTrimFasta) throws IOException, InterruptedException {
 
         try {
             Utils utils = new Utils();
@@ -218,7 +227,7 @@ public class TrimWithCutadapt {
             String quiet="";
             //String quiet="--quiet";
 
-            ProcessBuilder pb = new ProcessBuilder("/bin/bash", "-c", "cutadapt "+adaptorRT+" "+adaptorStrandSwitching+" "+reverseAdaptorRT+" "+reverseAdaptorSwithStrand+" "+complementAdaptorRT+" "+complementAdaptorSwithStrand+" "+reverseComplementAdaptorRT+" "+reverseComplementAdaptorSwithStrand+" "+quiet+" --error-rate="+this.errorRateCutadapt+" --info-file="+infoTrimPath+" --overlap=7 --times=8 --match-read-wildcards --format=fasta "+pathFastaFileOutlier+" > "+pathOutputTrimLeftFasta);
+            ProcessBuilder pb = new ProcessBuilder("/bin/bash", "-c", "cutadapt "+adaptorRT+" "+adaptorStrandSwitching+" "+reverseAdaptorRT+" "+reverseAdaptorSwithStrand+" "+complementAdaptorRT+" "+complementAdaptorSwithStrand+" "+reverseComplementAdaptorRT+" "+reverseComplementAdaptorSwithStrand+" "+quiet+" --error-rate="+this.errorRateCutadapt+" --info-file="+infoTrimPath+" --overlap=7 --times=8 --match-read-wildcards --format=fasta "+pathFastaFileOutlier+" > "+pathOutputTrimFasta);
 
             //System.out.println(pb.command());
             pb.redirectErrorStream(true);
@@ -241,7 +250,7 @@ public class TrimWithCutadapt {
     }
 
     /**
-     * Method of the class TrimFastq to display log of cutadapt (delete the option --quiet).
+     * Method of the class TrimWithCutadapt to display log of cutadapt (delete the option --quiet).
      * @param proc, a Processus
      * @throws IOException
      */
@@ -269,19 +278,19 @@ public class TrimWithCutadapt {
     }
 
     /**
-     * Method of the class TrimFastq to make some stats of the trimming
+     * Method of the class TrimWithCutadapt to make some stats of the trimming
      * @param infoTrimPath, a path to store stats in a file
      * @throws IOException
      */
     public void statsLogCutadapt(String infoTrimPath) throws IOException {
 
         LocalReporter localReporterNumberTimesAdaptor = new LocalReporter();
-        BufferedReader infoTrimLeftFile = new BufferedReader(new FileReader(infoTrimPath));
+        BufferedReader infoTrimFile = new BufferedReader(new FileReader(infoTrimPath));
         String line ;
         String oldID="";
         String stackConstructAdaptor="";
 
-        while ((line = infoTrimLeftFile.readLine()) != null) {
+        while ((line = infoTrimFile.readLine()) != null) {
 
             String[] part=line.split("\t");
             String ID = part[0];
@@ -306,7 +315,6 @@ public class TrimWithCutadapt {
                     if(localReporterNumberTimesAdaptor.getCounterNames("Construction").contains(nameAdaptor)){
 
                         localReporterNumberTimesAdaptor.incrCounter("Construction", nameAdaptor, 1);
-
                     }else{
                         localReporterNumberTimesAdaptor.setCounter("Construction",nameAdaptor,1);
                     }
@@ -331,12 +339,8 @@ public class TrimWithCutadapt {
         }
 
         // Analyze counter group Construction
-
         for(String constructionAdaptor : localReporterNumberTimesAdaptor.getCounterNames("Construction")){
             System.out.println(constructionAdaptor+" :  "+localReporterNumberTimesAdaptor.getCounterValue("Construction", constructionAdaptor));
         }
     }
-
-
-
 }

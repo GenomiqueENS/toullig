@@ -3,7 +3,6 @@ package fr.ens.biologie.genomique.toullig.actions;
 import java.io.File;
 import java.util.List;
 
-import com.google.common.primitives.Ints;
 import fr.ens.biologie.genomique.eoulsan.actions.AbstractAction;
 import fr.ens.biologie.genomique.toullig.TrimFastq;
 import org.apache.commons.cli.CommandLine;
@@ -58,6 +57,7 @@ public class TrimAction extends AbstractAction {
         int seedMismatchesTrimmomatic = 0;
         int palindromeClipThresholdTrimmomatic = 0;
         int simpleClipThreshold = 0;
+        int addIndexOutlier = 0;
 
         File samFile = new File("");
         File fastqFile=new File("");
@@ -86,6 +86,10 @@ public class TrimAction extends AbstractAction {
 
             if (line.hasOption("stats")) {
                 stats = line.getOptionValue("stats").toLowerCase();
+            }
+
+            if (line.hasOption("addIndexOutlier")) {
+                addIndexOutlier = Integer.parseInt(line.getOptionValue("addIndexOutlier").toLowerCase());
             }
 
             if (line.hasOption("errorRateCutadapt")) {
@@ -128,7 +132,7 @@ public class TrimAction extends AbstractAction {
                     "Error while parsing command line arguments: " + e.getMessage());
         }
         // Execute program in local mode
-        run(trimmer, mode, stats, errorRateCutadapt, thresholdSW, lengthWindowsSW, seedMismatchesTrimmomatic, palindromeClipThresholdTrimmomatic,  simpleClipThreshold, samFile, fastqFile, fastqOutputFile, adaptorFile, workDir);
+        run(trimmer, mode, stats, addIndexOutlier, errorRateCutadapt, thresholdSW, lengthWindowsSW, seedMismatchesTrimmomatic, palindromeClipThresholdTrimmomatic,  simpleClipThreshold, samFile, fastqFile, fastqOutputFile, adaptorFile, workDir);
     }
 
     //
@@ -163,6 +167,11 @@ public class TrimAction extends AbstractAction {
                 .addOption(OptionBuilder.withArgName("stats").hasArg()
                         .withDescription("make somes stats on the trimming [true | false] (default : false)")
                         .create("stats"));
+
+        options
+                .addOption(OptionBuilder.withArgName("addIndexOutlier").hasArg()
+                        .withDescription("add more bases in addition to the outlier for P mode (default: 15")
+                        .create("addIndexOutlier"));
 
         options
                 .addOption(OptionBuilder.withArgName("errorRateCutadapt").hasArg()
@@ -236,7 +245,7 @@ public class TrimAction extends AbstractAction {
      * @param fastqFile, a fasqt file
      * @param fastqOutputFile, a fastq trimmed at output
      */
-    private static void run(final String trimmer, final String mode, final String stats, final double errorRateCutadapt, final double thresholdSW, final int lengthWindowsSW, final int seedMismatchesTrimmomatic, final int palindromeClipThresholdTrimmomatic, final int simpleClipThreshold, final File samFile, final File fastqFile, final File fastqOutputFile, final File adaptorFile, final File workDir) {
+    private static void run(final String trimmer, final String mode, final String stats, final int addIndexOutlier, final double errorRateCutadapt, final double thresholdSW, final int lengthWindowsSW, final int seedMismatchesTrimmomatic, final int palindromeClipThresholdTrimmomatic, final int simpleClipThreshold, final File samFile, final File fastqFile, final File fastqOutputFile, final File adaptorFile, final File workDir) {
 
         try {
 
@@ -263,7 +272,11 @@ public class TrimAction extends AbstractAction {
             }
 
             if(lengthWindowsSW!=0){
-                trim.setLengthWindowsSW(lengthWindowsSW);
+                trim.setLengthWindowSW(lengthWindowsSW);
+            }
+
+            if(addIndexOutlier!=0){
+                trim.setAddIndexOutlier(addIndexOutlier);
             }
 
             if(errorRateCutadapt!=0){

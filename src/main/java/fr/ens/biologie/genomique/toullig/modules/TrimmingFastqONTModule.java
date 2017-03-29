@@ -84,7 +84,11 @@ public class TrimmingFastqONTModule extends AbstractModule {
                 }
 
                 if (this.lengthWindowsSW != 0) {
-                    trim.setLengthWindowsSW(this.lengthWindowsSW);
+                    trim.setLengthWindowSW(this.lengthWindowsSW);
+                }
+
+                if (this.addIndexOutlier != 0) {
+                    trim.setAddIndexOutlier(this.addIndexOutlier);
                 }
 
                 if (this.errorRateCutadapt != 0) {
@@ -155,6 +159,7 @@ public class TrimmingFastqONTModule extends AbstractModule {
     private boolean stats = false;
     private double thresholdSW = 0;
     private int lengthWindowsSW = 0;
+    private int addIndexOutlier = 0 ;
     private double errorRateCutadapt = 0;
     private int seedMismatchesTrimmomatic = 0;
     private int palindromeClipThresholdTrimmomatic = 0;
@@ -198,6 +203,11 @@ public class TrimmingFastqONTModule extends AbstractModule {
 
                 case "SW.lengthWindowsSW":
                     lengthWindowsSW = p.getIntValue();
+                    break;
+
+
+                case "P.addIndexOutlier":
+                    addIndexOutlier = p.getIntValue();
                     break;
 
                 case "cutadapt.errorRateCutadapt":

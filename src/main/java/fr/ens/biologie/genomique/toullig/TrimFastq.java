@@ -1,32 +1,18 @@
 package fr.ens.biologie.genomique.toullig;
 
-import com.google.common.primitives.Ints;
-import fr.ens.biologie.genomique.eoulsan.bio.Alphabet;
 import fr.ens.biologie.genomique.eoulsan.bio.ReadSequence;
 import fr.ens.biologie.genomique.eoulsan.bio.io.FastqReader;
-import fr.ens.biologie.genomique.eoulsan.util.LocalReporter;
-import fr.ens.biologie.genomique.toullig.trimming.TrimModes;
+import fr.ens.biologie.genomique.toullig.trimming.PerfectAlgorithm;
+import fr.ens.biologie.genomique.toullig.trimming.SideWindowAlgorithm;
 import fr.ens.biologie.genomique.toullig.trimming.TrimWithCutadapt;
-import fr.ens.biologie.genomique.toullig.trimming.TrimWithTrimmomatic;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamInputResource;
 import htsjdk.samtools.SamReader;
 import htsjdk.samtools.SamReaderFactory;
-import org.usadellab.trimmomatic.fastq.FastqRecord;
-import org.usadellab.trimmomatic.trim.IlluminaClippingTrimmer;
-import org.usadellab.trimmomatic.trim.Trimmer;
-import org.usadellab.trimmomatic.util.Logger;
 
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static fr.ens.biologie.genomique.eoulsan.bio.Alphabets.*;
-import static fr.ens.biologie.genomique.eoulsan.bio.Sequence.reverseComplement;
 
 /**
  * Created by birer on 24/02/17.
@@ -51,10 +37,10 @@ public class TrimFastq {
     private boolean processTrimmomatic=false;
     private boolean processStats=false;
 
-    private int addIndexOutlier=15;
-    private int lengthWindowsSW=15;
+    private int addIndexOutlier=0;
+    private int lengthWindowSW =15;
     private double thresholdSW=0.8;
-    private double errorRateCutadapt=0.4;
+    private double errorRateCutadapt=0.5;
     private int seedMismatchesTrimmomatic=17;
     private int palindromeClipThresholdTrimmomatic=30;
     private int simpleClipThreshold=7;
@@ -248,26 +234,58 @@ public class TrimFastq {
         this.processStats = processStats;
     }
 
-    public void setLengthWindowsSW(int lengthWindowsSW){
-        this.lengthWindowsSW=lengthWindowsSW;
+    /**
+     * Method of the class TrimFastq to set the number of bases to add for the outliers.
+     * @param addIndexOutlier, a int
+     */
+    public void setAddIndexOutlier(int addIndexOutlier){
+        this.addIndexOutlier=addIndexOutlier;
     }
 
+    /**
+     * Method of the class TrimFastq to set the the length of the SW window.
+     * @param lengthWindowSW, a int
+     */
+    public void setLengthWindowSW(int lengthWindowSW){
+        this.lengthWindowSW =lengthWindowSW;
+    }
+
+    /**
+     * Method of the class TrimFastq to set the treshold of the SW mode.
+     * @param thresholdSW, a double
+     */
     public void setThresholdSW(double thresholdSW){
         this.thresholdSW=thresholdSW;
     }
 
+    /**
+     * Method of the class TrimFastq to set the error rate for cutadapt.
+     * @param errorRateCutadapt, a double
+     */
     public void setErrorRateCutadapt(double errorRateCutadapt){
         this.errorRateCutadapt=errorRateCutadapt;
     }
 
+    /**
+     * Method of the class TrimFastq to set the seed mismatches for trimmomatic.
+     * @param seedMismatchesTrimmomatic, a int
+     */
     public void setSeedMismatchesTrimmomatic(int seedMismatchesTrimmomatic){
         this.seedMismatchesTrimmomatic=seedMismatchesTrimmomatic;
     }
 
+    /**
+     * Method of the class TrimFastq to set the palindrome clip treshold for trimmomatic.
+     * @param palindromeClipThresholdTrimmomatic, a int
+     */
     public void setPalindromeClipThresholdTrimmomatic(int palindromeClipThresholdTrimmomatic){
         this.palindromeClipThresholdTrimmomatic=palindromeClipThresholdTrimmomatic;
     }
 
+    /**
+     * Method of the class TrimFastq to set the simple clip treshold for trimmomatic.
+     * @param simpleClipThreshold, a int
+     */
     public void setSimpleClipThreshold(int simpleClipThreshold){
         this.simpleClipThreshold=simpleClipThreshold;
     }
@@ -297,13 +315,16 @@ public class TrimFastq {
 
         System.out.println("Trim begin !");
 
-        TrimModes trimMode = new TrimModes(this.lengthWindowsSW, this.thresholdSW, this.fastqHash, this.nameOutputFastq, this.addIndexOutlier,this.adaptorFile, this.seedMismatchesTrimmomatic, this.palindromeClipThresholdTrimmomatic, this.simpleClipThreshold, this.processCutadapt, this.processTrimmomatic, pathFastaFileLeftOutlier, pathFastaFileRightOutlier);
 
         if(this.processPTrim){
-            this.fastqHash=trimMode.trimOutlierWithPMethod();
+            PerfectAlgorithm perfectAlgorithm = new PerfectAlgorithm(this.fastqHash, this.nameOutputFastq, this.addIndexOutlier,this.adaptorFile, this.seedMismatchesTrimmomatic, this.palindromeClipThresholdTrimmomatic, this.simpleClipThreshold, this.processCutadapt, this.processTrimmomatic, pathFastaFileLeftOutlier, pathFastaFileRightOutlier);
+
+            this.fastqHash=perfectAlgorithm.trimOutlierWithPMethod();
         }
         if(this.processSWTrim){
-            this.fastqHash=trimMode.trimOutlierWithSWMethod();
+            SideWindowAlgorithm sideWindowAlgorithm = new SideWindowAlgorithm(this.lengthWindowSW, this.thresholdSW, this.fastqHash, this.nameOutputFastq, this.adaptorFile, this.seedMismatchesTrimmomatic, this.palindromeClipThresholdTrimmomatic, this.simpleClipThreshold, this.processCutadapt, this.processTrimmomatic, pathFastaFileLeftOutlier, pathFastaFileRightOutlier);
+
+            this.fastqHash=sideWindowAlgorithm.trimOutlierWithSWMethod();
         }
 
         this.fastaFileRightOutlier.close();
@@ -344,13 +365,15 @@ public class TrimFastq {
 
         System.out.println("Begin use trimmomatic !");
 
-        TrimModes trimMode = new TrimModes(this.lengthWindowsSW, this.thresholdSW, this.fastqHash, this.nameOutputFastq, this.addIndexOutlier,this.adaptorFile, this.seedMismatchesTrimmomatic, this.palindromeClipThresholdTrimmomatic, this.simpleClipThreshold, this.processCutadapt, this.processTrimmomatic, "","");
-
         if(this.processPTrim){
-            this.fastqHash=trimMode.trimOutlierWithPMethod();
+            PerfectAlgorithm perfectAlgorithm = new PerfectAlgorithm(this.fastqHash, this.nameOutputFastq, this.addIndexOutlier,this.adaptorFile, this.seedMismatchesTrimmomatic, this.palindromeClipThresholdTrimmomatic, this.simpleClipThreshold, this.processCutadapt, this.processTrimmomatic, "", "");
+
+            this.fastqHash=perfectAlgorithm.trimOutlierWithPMethod();
         }
         if(this.processSWTrim){
-            this.fastqHash=trimMode.trimOutlierWithSWMethod();
+            SideWindowAlgorithm sideWindowAlgorithm = new SideWindowAlgorithm(this.lengthWindowSW, this.thresholdSW, this.fastqHash, this.nameOutputFastq, this.adaptorFile, this.seedMismatchesTrimmomatic, this.palindromeClipThresholdTrimmomatic, this.simpleClipThreshold, this.processCutadapt, this.processTrimmomatic, "", "");
+
+            this.fastqHash=sideWindowAlgorithm.trimOutlierWithSWMethod();
         }
     }
 

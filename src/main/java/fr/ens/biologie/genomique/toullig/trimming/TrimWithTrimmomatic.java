@@ -26,11 +26,17 @@ public class TrimWithTrimmomatic {
         this.simpleClipThreshold=simpleClipThreshold;
     }
 
-
     //
     // Trimmomatic
     //
 
+    /**
+     * Method of the class TrimWithTrimmomatic to trim a sequence with trimmomatic.
+     * @param sequence, a sequence of DNA
+     * @param score, a q-score of fastq
+     * @return
+     * @throws IOException
+     */
     public String TrimmomaticTrim(String sequence, String score) throws IOException {
 
         System.out.println(this.adaptorFile.getPath()+":"+this.seedMismatchesTrimmomatic+":"+this.palindromeClipThresholdTrimmomatic+":"+this.simpleClipThreshold);
@@ -40,6 +46,4 @@ public class TrimWithTrimmomatic {
         FastqRecord [] result = trimer.processRecords(new FastqRecord[] {record});
         return result[0].getSequence();
     }
-
-
 }

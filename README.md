@@ -218,8 +218,12 @@ In the execution of toullig Trim, the programm step :
     
     #Options Trimming by Side-window mode
     
-    -thresholdSW (default: 15)                              # The threshold for the Side-Window algorithm
-    -lengthWindowsSW (default: 0.8)                         # The length for the the Side-Window algorithm
+    - addIndexOutlier (default: 15)                         # A addition of bases of the outlier to have a better catch of the adaptor
+    
+    #Options Trimming by Side-window mode
+    
+    -thresholdSW (default: 0.8)                             # The threshold for the Side-Window algorithm
+    -lengthWindowsSW (default: 15)                          # The length for the the Side-Window algorithm
     
     #Options Cutadapt
     

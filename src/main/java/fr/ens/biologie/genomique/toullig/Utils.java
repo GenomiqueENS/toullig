@@ -19,10 +19,8 @@ public class Utils {
     //  utils
     //
 
-
-
     /**
-     * Method of the class TrimFastq to reverse sequence.
+     * Method of the class Utils to reverse sequence.
      * @param sequence, a sequence
      * @return a string of a reversed sequence
      */
@@ -73,10 +71,10 @@ public class Utils {
     //
 
     /**
-     * Method of the class TrimFastq to write a sequence to the fasta format.
+     * Method of the class Utils to write a sequence to the fasta format.
      * @param sequence, the sequence of the read
      * @param ID, the ID of the read
-     * @param fastaFile, the file to write fasta sequence
+     * @param fastaFile, the BufferedWriter to write fasta sequence
      * @throws IOException
      */
     public void writeFasta(String sequence, String ID, BufferedWriter fastaFile) throws IOException {
@@ -96,11 +94,11 @@ public class Utils {
     }
 
     /**
-     * Method of the class TrimFastq to write a sequence to the fastq format.
+     * Method of the class Utils to write a sequence to the fastq format.
      * @param ID, the ID of the read
      * @param sequence, the sequence of the read
      * @param score, the score of the read
-     * @param fastqTrimBufferedWritter, the file to write fastq sequence
+     * @param fastqTrimBufferedWritter, the BufferedWriter to write fastq sequence
      * @throws IOException
      */
     public void writeFastq(String ID, String sequence, String score, BufferedWriter fastqTrimBufferedWritter)throws IOException{
