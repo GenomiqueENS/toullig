@@ -57,7 +57,7 @@ public class Fast5 implements AutoCloseable {
    * Values of the variable Type that design the type of experimental design.
    */
   public enum Type {
-    TYPE_1D, TYPE_2D,TYPE_1D2 // Type of the sequencing
+    TYPE_1D, TYPE_2D, TYPE_1D2 // Type of the sequencing
   };
 
   /**
@@ -98,11 +98,11 @@ public class Fast5 implements AutoCloseable {
       return null;
     }
     if (reader
-            .isGroup("/Analyses/Basecall_2D_000/BaseCalled_template") == true) {
+        .isGroup("/Analyses/Basecall_2D_000/BaseCalled_template") == true) {
       return Version.V1_0;
     }
     if (reader
-            .isGroup("/Analyses/Basecall_1D_000/BaseCalled_template") == true) {
+        .isGroup("/Analyses/Basecall_1D_000/BaseCalled_template") == true) {
       return Version.V1_1;
     }
     return null;
@@ -151,30 +151,30 @@ public class Fast5 implements AutoCloseable {
       return ChemistryVersion.R9;
     }
     if (!isBasecalled()
-            && reader.isGroup("/Analyses/EventDetection_000/Reads")) {
+        && reader.isGroup("/Analyses/EventDetection_000/Reads")) {
       return ChemistryVersion.R7_3;
     }
 
     // Case of basecalled fast5 file
 
     if (reader
-            .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
-                    "model_type")
-            .contains("r7.3_")) {
+        .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
+            "model_type")
+        .contains("r7.3_")) {
       return ChemistryVersion.R7_3;
     }
 
     if (reader
-            .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
-                    "model_type")
-            .contains("r9_")) {
+        .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
+            "model_type")
+        .contains("r9_")) {
       return ChemistryVersion.R9;
 
     }
     if (reader
-            .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
-                    "model_type")
-            .contains("r94_")) {
+        .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
+            "model_type")
+        .contains("r94_")) {
       return ChemistryVersion.R9_4;
 
     }
@@ -187,7 +187,7 @@ public class Fast5 implements AutoCloseable {
   //
   //
 
-  public String getNameFast5File(){
+  public String getNameFast5File() {
     return this.fast5File.toString();
   }
 
@@ -275,7 +275,7 @@ public class Fast5 implements AutoCloseable {
   public int[] getElectricalSignal() {
     if (this.chemistryVersion == ChemistryVersion.R9) {
       return reader
-              .readIntArray("/Raw/Reads/Read_" + getNumberRead() + "/Signal");
+          .readIntArray("/Raw/Reads/Read_" + getNumberRead() + "/Signal");
     }
     return null;
   }
@@ -291,7 +291,7 @@ public class Fast5 implements AutoCloseable {
    */
   public String getNumMinION() {
     return reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
-            "device_id");
+        "device_id");
   }
 
   /**
@@ -300,7 +300,7 @@ public class Fast5 implements AutoCloseable {
    */
   public String getFlowcellId() {
     return reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
-            "flow_cell_id");
+        "flow_cell_id");
   }
 
   /**
@@ -318,7 +318,7 @@ public class Fast5 implements AutoCloseable {
    */
   public Date getdDateExp() {
     String dateInt = reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
-            "exp_start_time");
+        "exp_start_time");
     return new Date(Long.parseLong(dateInt) * 1000);
   }
 
@@ -328,7 +328,7 @@ public class Fast5 implements AutoCloseable {
    */
   public String getProtocolRunId() {
     return reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
-            "protocol_run_id");
+        "protocol_run_id");
   }
 
   /**
@@ -338,7 +338,7 @@ public class Fast5 implements AutoCloseable {
    */
   public String getHostname() {
     return reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
-            "hostname");
+        "hostname");
   }
 
   /**
@@ -347,7 +347,7 @@ public class Fast5 implements AutoCloseable {
    */
   public String getOS() {
     return reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
-            "operating_system");
+        "operating_system");
   }
 
   //
@@ -361,7 +361,7 @@ public class Fast5 implements AutoCloseable {
    */
   public String getExperimentKit() {
     return reader.getStringAttribute("/UniqueGlobalKey/context_tags",
-            "experiment_kit");
+        "experiment_kit");
   }
 
   /**
@@ -371,9 +371,9 @@ public class Fast5 implements AutoCloseable {
    */
   public String getExperimentType() {
     if (reader.hasAttribute("/UniqueGlobalKey/context_tags",
-            "experiment_type")) {
+        "experiment_type")) {
       return reader.getStringAttribute("/UniqueGlobalKey/context_tags",
-              "experiment_type");
+          "experiment_type");
     }
     return null;
   }
@@ -385,7 +385,7 @@ public class Fast5 implements AutoCloseable {
    */
   public int getSampleFrequency() {
     return Integer.parseInt(reader.getStringAttribute(
-            "/UniqueGlobalKey/context_tags", "sample_frequency"));
+        "/UniqueGlobalKey/context_tags", "sample_frequency"));
   }
 
   /**
@@ -395,7 +395,7 @@ public class Fast5 implements AutoCloseable {
    */
   public int getChannelNumber() {
     return Integer.parseInt(reader
-            .getStringAttribute("/UniqueGlobalKey/channel_id", "channel_number"));
+        .getStringAttribute("/UniqueGlobalKey/channel_id", "channel_number"));
   }
 
   //
@@ -416,11 +416,11 @@ public class Fast5 implements AutoCloseable {
     }
     if (!isBasecalled() && getChemistryVersion() == ChemistryVersion.R7_3) {
       String s = reader.getAllGroupMembers("/Analyses/EventDetection_000/Reads")
-              .get(0);
+          .get(0);
       return Integer.parseInt(s.substring(s.indexOf('_') + 1));
     }
     return Integer.parseInt(reader.getStringAttribute(
-            "/Analyses/Basecall_1D_000/Configuration/general", "read_id"));
+        "/Analyses/Basecall_1D_000/Configuration/general", "read_id"));
   }
 
   /**
@@ -433,9 +433,9 @@ public class Fast5 implements AutoCloseable {
       return null;
     }
     String chimaeraVersion = reader
-            .getStringAttribute("/Analyses/Basecall_1D_000", "chimaera version");
+        .getStringAttribute("/Analyses/Basecall_1D_000", "chimaera version");
     String dragonetVersion = reader
-            .getStringAttribute("/Analyses/Basecall_1D_000", "dragonet version");
+        .getStringAttribute("/Analyses/Basecall_1D_000", "dragonet version");
     return "chimaera v" + chimaeraVersion + " | dragonet v" + dragonetVersion;
   }
 
@@ -449,7 +449,7 @@ public class Fast5 implements AutoCloseable {
       return null;
     }
     return reader
-            .readString("/Analyses/Basecall_2D_000/BaseCalled_2D/Alignment");
+        .readString("/Analyses/Basecall_2D_000/BaseCalled_2D/Alignment");
   }
 
   /**
@@ -462,8 +462,8 @@ public class Fast5 implements AutoCloseable {
       return 0;
     }
     return reader.getIntAttribute(
-            "/Analyses/Basecall_1D_000/Summary/basecall_1d_template",
-            "sequence_length");
+        "/Analyses/Basecall_1D_000/Summary/basecall_1d_template",
+        "sequence_length");
   }
 
   /**
@@ -476,8 +476,8 @@ public class Fast5 implements AutoCloseable {
       return 0;
     }
     return reader.getIntAttribute(
-            "/Analyses/Basecall_1D_000/Summary/basecall_1d_complement",
-            "sequence_length");
+        "/Analyses/Basecall_1D_000/Summary/basecall_1d_complement",
+        "sequence_length");
   }
 
   /**
@@ -491,7 +491,7 @@ public class Fast5 implements AutoCloseable {
     }
     if (isBarcoded()) {
       return reader.getStringAttribute("/Analyses/Barcoding_000/Barcoding",
-              "barcode_arrangement");
+          "barcode_arrangement");
     }
     return null;
   }
@@ -512,7 +512,7 @@ public class Fast5 implements AutoCloseable {
       return null;
     }
     return fix(reader
-            .readString("/Analyses/Basecall_1D_000/BaseCalled_template/Fastq"));
+        .readString("/Analyses/Basecall_1D_000/BaseCalled_template/Fastq"));
   }
 
   /**
@@ -524,7 +524,8 @@ public class Fast5 implements AutoCloseable {
     if (!is2D() || !isBasecalled()) {
       return null;
     }
-    return fix(reader.readString("/Analyses/Basecall_1D_000/BaseCalled_complement/Fastq"));
+    return fix(reader
+        .readString("/Analyses/Basecall_1D_000/BaseCalled_complement/Fastq"));
   }
 
   /**
@@ -541,14 +542,16 @@ public class Fast5 implements AutoCloseable {
 
   /**
    * Method of the class Fast5 to obtain the sequence fastq + score of the
-   * consensus sequence contains barcodePos0+adaptor5'+transcript-consensus+adaptor3'+barcodePos1.
+   * consensus sequence contains
+   * barcodePos0+adaptor5'+transcript-consensus+adaptor3'+barcodePos1.
    * @return a string with the sequence fastq of the consensus
    */
   public String getConsensusFastq() {
     if (!is2D() || !isBasecalled()) {
       return null;
     }
-    return fix(reader.readString("/Analyses/Basecall_2D_000/BaseCalled_2D/Fastq"));
+    return fix(
+        reader.readString("/Analyses/Basecall_2D_000/BaseCalled_2D/Fastq"));
   }
 
   //
@@ -577,7 +580,7 @@ public class Fast5 implements AutoCloseable {
       return null;
     }
     return getLogFinalStatus(
-            reader.readString("/Analyses/Basecall_1D_000/Log"));
+        reader.readString("/Analyses/Basecall_1D_000/Log"));
   }
 
   /**
@@ -589,7 +592,7 @@ public class Fast5 implements AutoCloseable {
       return null;
     }
     return getLogFinalStatus(
-            reader.readString("/Analyses/Basecall_2D_000/Log"));
+        reader.readString("/Analyses/Basecall_2D_000/Log"));
   }
 
   /**
@@ -602,7 +605,7 @@ public class Fast5 implements AutoCloseable {
       return null;
     }
     return getLogFinalStatus(
-            reader.readString("/Analyses/Calibration_Strand_000/Log"));
+        reader.readString("/Analyses/Calibration_Strand_000/Log"));
   }
 
   /**
@@ -615,7 +618,7 @@ public class Fast5 implements AutoCloseable {
       return null;
     }
     return getLogFinalStatus(
-            reader.readString("/Analyses/EventDetection_000/Log"));
+        reader.readString("/Analyses/EventDetection_000/Log"));
   }
 
   /**
@@ -628,7 +631,7 @@ public class Fast5 implements AutoCloseable {
       return null;
     }
     return getLogFinalStatus(
-            reader.readString("/Analyses/Hairpin_Split_000/Log"));
+        reader.readString("/Analyses/Hairpin_Split_000/Log"));
   }
 
   /**
@@ -654,15 +657,15 @@ public class Fast5 implements AutoCloseable {
    */
   private static String fix(String s) {
 
-    if (s==null) {
+    if (s == null) {
       return null;
     }
 
-    if (s.length()==1) {
+    if (s.length() == 1) {
       return "";
     }
 
-    return s + (s.charAt(s.length()-1) != '\n' ? "\n" : "");
+    return s + (s.charAt(s.length() - 1) != '\n' ? "\n" : "");
 
   }
 

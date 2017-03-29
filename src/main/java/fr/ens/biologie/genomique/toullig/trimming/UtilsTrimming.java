@@ -1,9 +1,9 @@
 package fr.ens.biologie.genomique.toullig.trimming;
 
-import fr.ens.biologie.genomique.toullig.Utils;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
+
+import fr.ens.biologie.genomique.toullig.Utils;
 
 /**
  * Created by birer on 29/03/17.

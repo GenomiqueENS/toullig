@@ -52,7 +52,7 @@ public class Fast5ToFastq {
   private static class SynchronizedWriter extends OutputStreamWriter {
 
     /**
-     *  The constructor of the abstract class SynchronizedWriter.
+     * The constructor of the abstract class SynchronizedWriter.
      * @param file, the file to be compressed
      * @param compress, the type of compression
      * @throws IOException, test if the file can be compress
@@ -62,14 +62,15 @@ public class Fast5ToFastq {
     }
 
     /**
-     * This method of the object of the class SynchronizedWriter compress a file.
+     * This method of the object of the class SynchronizedWriter compress a
+     * file.
      * @param file, the file to be compressed
      * @param compress, the type of compression
      * @return the file compressed
      * @throws IOException, test if the file can be compress
      */
     private static OutputStream getOutputStream(File file, String compress)
-            throws IOException {
+        throws IOException {
       try {
         if (compress.equals("gzip")) {
           return new GZIPOutputStream(new FileOutputStream(file));
@@ -95,20 +96,21 @@ public class Fast5ToFastq {
    * The constructor of the class Fast5ToFastq.
    * @param fast5RunDirectory is the repertory of the ONT run
    * @param repertoryFastqOutput is the repertory to store fastq sequence
-   * @throws IOException, to test if the fast5RunDirectory and repertoryFastqOutput File exist
+   * @throws IOException, to test if the fast5RunDirectory and
+   *           repertoryFastqOutput File exist
    */
   public Fast5ToFastq(File fast5RunDirectory, File repertoryFastqOutput)
-          throws IOException {
+      throws IOException {
 
     if (!fast5RunDirectory.exists()) {
       throw new IOException(
-              "The repertory " + fast5RunDirectory + " dont exist!");
+          "The repertory " + fast5RunDirectory + " dont exist!");
     } else {
       this.fast5RunDirectory = fast5RunDirectory;
     }
     if (!repertoryFastqOutput.exists()) {
       throw new IOException(
-              "The repertory " + repertoryFastqOutput + " dont exist!");
+          "The repertory " + repertoryFastqOutput + " dont exist!");
     } else {
       this.repertoryFastqOutput = repertoryFastqOutput;
     }
@@ -120,7 +122,8 @@ public class Fast5ToFastq {
    */
   public enum SequenceType {
 
-    COMPLEMENT("complement"), TEMPLATE("template"), CONSENSUS("consensus"), TRANSCRIPT("transcript");
+    COMPLEMENT("complement"), TEMPLATE("template"), CONSENSUS("consensus"),
+    TRANSCRIPT("transcript");
 
     private final String name;
 
@@ -151,7 +154,6 @@ public class Fast5ToFastq {
   public String getNameDirectoryRunFast5() {
     return this.fast5RunDirectory.getName();
   }
-
 
   //
   //
@@ -201,7 +203,7 @@ public class Fast5ToFastq {
   private List<File> listAllFast5() {
     List<File> listFast5Files = new ArrayList<File>();
     for (File directory : listSubDir(
-            new File(this.fast5RunDirectory, "downloads"))) {
+        new File(this.fast5RunDirectory, "downloads"))) {
       if (directory.isDirectory()) {
         List<File> subDirectories = listSubDir(directory);
         listFast5Files.addAll(listFast5(directory));
@@ -231,28 +233,28 @@ public class Fast5ToFastq {
    * @throws IOException, test if the compression or the writing is ok
    */
   private Writer createWriterFastq(File fast5File, String typeSequence,
-                                   String status) throws IOException {
+      String status) throws IOException {
     // the substring is done on the string "_ch" who correspond to the channel
     // number
     String preNameFile = fast5File.getName().substring(0,
-            fast5File.getName().indexOf("_ch") + 1);
+        fast5File.getName().indexOf("_ch") + 1);
 
     if (saveCompressBZIP2) {
       return new SynchronizedWriter(
-              new File(this.repertoryFastqOutput
-                      + "/" + preNameFile + status + "_" + typeSequence + ".bzip2"),
-              "bzip2");
+          new File(this.repertoryFastqOutput
+              + "/" + preNameFile + status + "_" + typeSequence + ".bzip2"),
+          "bzip2");
     }
     if (saveCompressGZIP) {
       return new SynchronizedWriter(
-              new File(this.repertoryFastqOutput
-                      + "/" + preNameFile + status + "_" + typeSequence + ".gzip"),
-              "gzip");
+          new File(this.repertoryFastqOutput
+              + "/" + preNameFile + status + "_" + typeSequence + ".gzip"),
+          "gzip");
     } else {
       return new SynchronizedWriter(
-              new File(this.repertoryFastqOutput
-                      + "/" + preNameFile + status + "_" + typeSequence + ".fastq"),
-              "");
+          new File(this.repertoryFastqOutput
+              + "/" + preNameFile + status + "_" + typeSequence + ".fastq"),
+          "");
     }
   }
 
@@ -268,12 +270,10 @@ public class Fast5ToFastq {
    * @return a long of the number of fast5 files
    */
   public long getNumberFast5Files(LocalReporter localReporter) {
-    if(localReporter.getCounterValue("numberFiles",
-            "numberFast5Files")<=0){
-      return       0;
+    if (localReporter.getCounterValue("numberFiles", "numberFast5Files") <= 0) {
+      return 0;
     }
-    return       localReporter.getCounterValue("numberFiles",
-            "numberFast5Files");
+    return localReporter.getCounterValue("numberFiles", "numberFast5Files");
   }
 
   /**
@@ -282,12 +282,11 @@ public class Fast5ToFastq {
    * @return a long of the number of pass files
    */
   public long getNumberPassFast5Files(LocalReporter localReporter) {
-    if(localReporter.getCounterValue("numberFiles",
-            "numberPassFast5Files")<=0){
-      return       0;
+    if (localReporter.getCounterValue("numberFiles",
+        "numberPassFast5Files") <= 0) {
+      return 0;
     }
-    return localReporter.getCounterValue("numberFiles",
-            "numberPassFast5Files");
+    return localReporter.getCounterValue("numberFiles", "numberPassFast5Files");
   }
 
   /**
@@ -296,12 +295,12 @@ public class Fast5ToFastq {
    * @return a long of the number of corrupt files
    */
   public long getNumberCorruptFast5Files(LocalReporter localReporter) {
-    if(localReporter.getCounterValue("numberFiles",
-            "numberCorruptFast5Files")<=0){
-      return       0;
+    if (localReporter.getCounterValue("numberFiles",
+        "numberCorruptFast5Files") <= 0) {
+      return 0;
     }
     return localReporter.getCounterValue("numberFiles",
-            "numberCorruptFast5Files");
+        "numberCorruptFast5Files");
   }
 
   /**
@@ -310,12 +309,11 @@ public class Fast5ToFastq {
    * @return a long of the number of fail files
    */
   public long getNumberFailFast5Files(LocalReporter localReporter) {
-    if(localReporter.getCounterValue("numberFiles",
-            "numberFailFast5Files")<=0){
-      return       0;
+    if (localReporter.getCounterValue("numberFiles",
+        "numberFailFast5Files") <= 0) {
+      return 0;
     }
-    return localReporter.getCounterValue("numberFiles",
-            "numberFailFast5Files");
+    return localReporter.getCounterValue("numberFiles", "numberFailFast5Files");
   }
 
   /**
@@ -324,12 +322,12 @@ public class Fast5ToFastq {
    * @return a long of the number of bad barcoded files
    */
   public long getNumberUnclassifiedFast5Files(LocalReporter localReporter) {
-    if(localReporter.getCounterValue("numberFiles",
-            "numberUnclassifiedFast5Files")<=0){
-      return       0;
+    if (localReporter.getCounterValue("numberFiles",
+        "numberUnclassifiedFast5Files") <= 0) {
+      return 0;
     }
     return localReporter.getCounterValue("numberFiles",
-            "numberUnclassifiedFast5Files");
+        "numberUnclassifiedFast5Files");
   }
 
   /**
@@ -338,33 +336,34 @@ public class Fast5ToFastq {
    * @return a long of the number of barcoded files
    */
   public long getNumberBarcodeFast5Files(LocalReporter localReporter) {
-    if(localReporter.getCounterValue("numberFiles",
-            "numberBarcodeFast5Files")<=0){
-      return       0;
+    if (localReporter.getCounterValue("numberFiles",
+        "numberBarcodeFast5Files") <= 0) {
+      return 0;
     }
     return localReporter.getCounterValue("numberFiles",
-            "numberBarcodeFast5Files");
+        "numberBarcodeFast5Files");
   }
 
   /**
-   * This method of the class Fast5ToFastq get the number of calibrate strand files.
+   * This method of the class Fast5ToFastq get the number of calibrate strand
+   * files.
    * @param localReporter, a localReporter object
    * @return a long of the number of calibrate strand files
    */
   public long getNumberCalibrateStrandFast5Files(LocalReporter localReporter) {
-    if(localReporter.getCounterValue("numberFiles",
-            "numberCalibrateStrandFast5Files")<=0){
-      return       0;
+    if (localReporter.getCounterValue("numberFiles",
+        "numberCalibrateStrandFast5Files") <= 0) {
+      return 0;
     }
     return localReporter.getCounterValue("numberFiles",
-            "numberCalibrateStrandFast5Files");
+        "numberCalibrateStrandFast5Files");
   }
 
   /**
    * This method of the class Fast5ToFastq get a localReporter object.
    * @return a LocalReporter object
    */
-  public LocalReporter getLocalReporter(){
+  public LocalReporter getLocalReporter() {
     return this.localReporter;
   }
 
@@ -378,7 +377,7 @@ public class Fast5ToFastq {
    * This method of the class Fast5ToFastq get the list of corrupt Fast5.
    * @return a list of corrupt files
    */
-  public List<File> getListCorruptFast5Files(){
+  public List<File> getListCorruptFast5Files() {
     return this.listCorruptFast5Files;
   }
 
@@ -391,8 +390,8 @@ public class Fast5ToFastq {
   /**
    * This method of the class Fast5ToFastq set the differenciation of the type
    * fast5 on process.
-   * @param processMergeStatus, a boolean to process separately the types of fast5
-   *          file
+   * @param processMergeStatus, a boolean to process separately the types of
+   *          fast5 file
    */
   public void setMergeAllStatusFast5(boolean processMergeStatus) {
     this.processMergeStatus = processMergeStatus;
@@ -467,8 +466,8 @@ public class Fast5ToFastq {
   }
 
   /**
-   * This method of the class Fast5ToFastq set the type of transcript sequence on
-   * process.
+   * This method of the class Fast5ToFastq set the type of transcript sequence
+   * on process.
    * @param saveTranscriptSequence, a boolean to process the type of barcode
    *          sequences
    */
@@ -476,13 +475,13 @@ public class Fast5ToFastq {
     this.saveTranscriptSequence = saveTranscriptSequence;
   }
 
-
   //
   // Compression format setters
   //
 
   /**
-   * This method of the class Fast5ToFastq set the type of compression of fastq output to gzip.
+   * This method of the class Fast5ToFastq set the type of compression of fastq
+   * output to gzip.
    * @param saveCompressGZIP, boolean to process the type of compression
    */
   public void setGzipCompression(boolean saveCompressGZIP) {
@@ -490,7 +489,8 @@ public class Fast5ToFastq {
   }
 
   /**
-   * This method of the class Fast5ToFastq set the type of compression of fastq output to bzip2.
+   * This method of the class Fast5ToFastq set the type of compression of fastq
+   * output to bzip2.
    * @param saveCompressBZIP2, boolean to process the type of compression
    */
   public void setBZip2Compression(boolean saveCompressBZIP2) {
@@ -512,7 +512,7 @@ public class Fast5ToFastq {
    * @throws IOException, test the read of the file
    */
   private int processDirectory(String fast5SubdirName, String status,
-                               LocalReporter localReporter) throws IOException {
+      LocalReporter localReporter) throws IOException {
 
     List<File> list = listFast5(fast5SubdirName);
     processDirectory(list, status, localReporter);
@@ -527,7 +527,7 @@ public class Fast5ToFastq {
    * @throws IOException, test the read of the file
    */
   private void processDirectory(List<File> listFast5Files, String status,
-                                LocalReporter localReporter) throws IOException {
+      LocalReporter localReporter) throws IOException {
 
     if (listFast5Files.isEmpty()) {
       return;
@@ -540,64 +540,64 @@ public class Fast5ToFastq {
 
     if (this.saveComplementSequence) {
       complementWriter =
-              createWriterFastq(listFast5Files.get(0), "complement", status);
+          createWriterFastq(listFast5Files.get(0), "complement", status);
     }
     if (this.saveTemplateSequence) {
       templateWriter =
-              createWriterFastq(listFast5Files.get(0), "template", status);
+          createWriterFastq(listFast5Files.get(0), "template", status);
     }
     if (this.saveConsensusSequence) {
       consensusWriter =
-              createWriterFastq(listFast5Files.get(0), "consensus", status);
+          createWriterFastq(listFast5Files.get(0), "consensus", status);
     }
     if (this.saveTranscriptSequence) {
       transcriptWriter =
-              createWriterFastq(listFast5Files.get(0), "transcript", status);
+          createWriterFastq(listFast5Files.get(0), "transcript", status);
     }
-
 
     // Read all Fast5 files
 
     long start1 = System.currentTimeMillis();
 
     readFast5WriteFastq(listFast5Files, complementWriter, templateWriter,
-            consensusWriter, transcriptWriter, status, localReporter);
+        consensusWriter, transcriptWriter, status, localReporter);
 
     long end1 = System.currentTimeMillis();
     System.out.println("Time exe 1 thread:"
-            + (end1 - start1) / 1000 + "s for a " + listFast5Files.size()
-            + " number of fast5");
+        + (end1 - start1) / 1000 + "s for a " + listFast5Files.size()
+        + " number of fast5");
 
-
-//    for (int i = 0; i <= listFast5Files.size(); i += 50000) {
-//
-//     long start2 = System.currentTimeMillis();
-//     multiThreadReadFast5WriteFastq(listFast5Files.subList(0, i),
-//     complementWriter, templateWriter, consensusWriter, transcriptWriter, status, localReporter);
-//
-//     long end2 = System.currentTimeMillis();
-//
-//     System.out.println("Time exe multi thread :"
-//     + (end2 - start2) / 1000 + "s for a " + i + " number of fast5");
-//     }
-//     long start3 = System.currentTimeMillis();
-//     multiThreadReadFast5WriteFastq(listFast5Files, complementWriter,
-//     templateWriter, consensusWriter, transcriptWriter, status, localReporter);
-//
-//     long end3 = System.currentTimeMillis();
-//
-//     System.out
-//     .println("Time exe multi thread :" + (end3 - start3) / 1000 + "s");
-//
-//    long start4 = System.currentTimeMillis();
-//
-//    readFast5WriteFastq(listFast5Files, complementWriter, templateWriter,
-//            consensusWriter, transcriptWriter, status, localReporter);
-//
-//    long end4 = System.currentTimeMillis();
-//    System.out.println("Time exe 1 thread:"
-//            + (end4 - start4) / 1000 + "s for a " + listFast5Files.size()
-//            + " number of fast5");
+    // for (int i = 0; i <= listFast5Files.size(); i += 50000) {
+    //
+    // long start2 = System.currentTimeMillis();
+    // multiThreadReadFast5WriteFastq(listFast5Files.subList(0, i),
+    // complementWriter, templateWriter, consensusWriter, transcriptWriter,
+    // status, localReporter);
+    //
+    // long end2 = System.currentTimeMillis();
+    //
+    // System.out.println("Time exe multi thread :"
+    // + (end2 - start2) / 1000 + "s for a " + i + " number of fast5");
+    // }
+    // long start3 = System.currentTimeMillis();
+    // multiThreadReadFast5WriteFastq(listFast5Files, complementWriter,
+    // templateWriter, consensusWriter, transcriptWriter, status,
+    // localReporter);
+    //
+    // long end3 = System.currentTimeMillis();
+    //
+    // System.out
+    // .println("Time exe multi thread :" + (end3 - start3) / 1000 + "s");
+    //
+    // long start4 = System.currentTimeMillis();
+    //
+    // readFast5WriteFastq(listFast5Files, complementWriter, templateWriter,
+    // consensusWriter, transcriptWriter, status, localReporter);
+    //
+    // long end4 = System.currentTimeMillis();
+    // System.out.println("Time exe 1 thread:"
+    // + (end4 - start4) / 1000 + "s for a " + listFast5Files.size()
+    // + " number of fast5");
 
     // Close writters
     if (this.saveComplementSequence) {
@@ -622,21 +622,22 @@ public class Fast5ToFastq {
    * @throws IOException, test the read of the file
    */
   private void processDirectories(List<File> listBarcodeDir,
-                                  LocalReporter localReporter) throws IOException {
+      LocalReporter localReporter) throws IOException {
     for (File barcodeDirectory : listBarcodeDir) {
       List<File> listBarcodeFast5Files = listFast5(barcodeDirectory);
       processDirectory(listBarcodeFast5Files, barcodeDirectory.getName(),
-              localReporter);
+          localReporter);
 
-      localReporter.incrCounter("numberFiles",
-              "numberBarcodeFast5Files", listBarcodeFast5Files.size());
-      localReporter.incrCounter("numberFiles",
-              "numberFast5Files", listBarcodeFast5Files.size());
+      localReporter.incrCounter("numberFiles", "numberBarcodeFast5Files",
+          listBarcodeFast5Files.size());
+      localReporter.incrCounter("numberFiles", "numberFast5Files",
+          listBarcodeFast5Files.size());
     }
   }
 
   /**
-   * This method of the class Fast5ToFastq read the fast5 file and write in the fastq file.
+   * This method of the class Fast5ToFastq read the fast5 file and write in the
+   * fastq file.
    * @param fast5File, the fast5 file to be read
    * @param complementWriter, a fastq output file
    * @param templateWriter, a fastq output file
@@ -647,73 +648,64 @@ public class Fast5ToFastq {
    * @throws IOException, test the read of the file
    */
   private void readFast5WriteFastq(File fast5File, Writer complementWriter,
-                                   Writer templateWriter, Writer consensusWriter, Writer transcriptWriter, String status,
-                                   LocalReporter localReporter) throws IOException {
+      Writer templateWriter, Writer consensusWriter, Writer transcriptWriter,
+      String status, LocalReporter localReporter) throws IOException {
 
     try (Fast5 f5 = new Fast5(fast5File)) {
 
-
       if (complementWriter != null && f5.getComplementFastq() != null) {
 
-        String sequence=f5.getComplementFastq();
+        String sequence = f5.getComplementFastq();
         String[] part = sequence.split("\n");
-        if (part[1].equals("")){
-          String counterName = status+"_numberSequenceComplementNull";
-          localReporter.incrCounter("numberSequenceWrite",
-                  counterName, 1);
-        }else{
+        if (part[1].equals("")) {
+          String counterName = status + "_numberSequenceComplementNull";
+          localReporter.incrCounter("numberSequenceWrite", counterName, 1);
+        } else {
           complementWriter.write(sequence);
-          String counterName = status+"_numberSequenceComplementWrite";
-          localReporter.incrCounter("numberSequenceWrite",
-                  counterName, 1);
+          String counterName = status + "_numberSequenceComplementWrite";
+          localReporter.incrCounter("numberSequenceWrite", counterName, 1);
         }
 
       }
       if (templateWriter != null && f5.getTemplateFastq() != null) {
 
-        String sequence=f5.getTemplateFastq();
+        String sequence = f5.getTemplateFastq();
         String[] part = sequence.split("\n");
-        if (part[1].equals("")){
-          String counterName = status+"_numberSequenceTemplateNull";
-          localReporter.incrCounter("numberSequenceWrite",
-                  counterName, 1);
-        }else{
+        if (part[1].equals("")) {
+          String counterName = status + "_numberSequenceTemplateNull";
+          localReporter.incrCounter("numberSequenceWrite", counterName, 1);
+        } else {
           templateWriter.write(sequence);
-          String counterName = status+"_numberSequenceTemplateWrite";
-          localReporter.incrCounter("numberSequenceWrite",
-                  counterName, 1);
+          String counterName = status + "_numberSequenceTemplateWrite";
+          localReporter.incrCounter("numberSequenceWrite", counterName, 1);
         }
 
       }
       if (consensusWriter != null && f5.getConsensusFastq() != null) {
 
-        String sequence=f5.getConsensusFastq();
+        String sequence = f5.getConsensusFastq();
         String[] part = sequence.split("\n");
-        if (part[1].equals("")){
-          String counterName = status+"_numberSequenceConsensusNull";
-          localReporter.incrCounter("numberSequenceWrite",
-                  counterName, 1);
-        }else{
+        if (part[1].equals("")) {
+          String counterName = status + "_numberSequenceConsensusNull";
+          localReporter.incrCounter("numberSequenceWrite", counterName, 1);
+        } else {
           consensusWriter.write(sequence);
-          String counterName = status+"_numberSequenceConsensusWrite";
-          localReporter.incrCounter("numberSequenceWrite",
-                  counterName, 1);
+          String counterName = status + "_numberSequenceConsensusWrite";
+          localReporter.incrCounter("numberSequenceWrite", counterName, 1);
         }
 
       }
       if (transcriptWriter != null && f5.getTranscriptFastq() != null) {
 
-        String sequence=f5.getTranscriptFastq();
+        String sequence = f5.getTranscriptFastq();
         String[] part = sequence.split("\n");
-        if (part[1].equals("")){
-          String counterName = status+"_numberSequenceTranscriptNull";
-          localReporter.incrCounter("numberSequenceWrite",
-                  counterName, 1);
-        }else{
+        if (part[1].equals("")) {
+          String counterName = status + "_numberSequenceTranscriptNull";
+          localReporter.incrCounter("numberSequenceWrite", counterName, 1);
+        } else {
           transcriptWriter.write(sequence);
-          String counterName = status+"_numberSequenceTranscriptWrite";
-          localReporter.incrCounter("numberSequenceWrite",
-                  counterName, 1);
+          String counterName = status + "_numberSequenceTranscriptWrite";
+          localReporter.incrCounter("numberSequenceWrite", counterName, 1);
         }
 
       }
@@ -725,78 +717,80 @@ public class Fast5ToFastq {
 
       // Barcode Workflow
       //
-      String counterNameBarcode = status+"_barcodeWorkflow";
+      String counterNameBarcode = status + "_barcodeWorkflow";
       if (localReporter.getCounterNames(counterNameBarcode)
-              .contains(f5.getBarcodindFinalStatus())) {
-        localReporter.incrCounter(counterNameBarcode, f5.getBarcodindFinalStatus(),
-                1);
+          .contains(f5.getBarcodindFinalStatus())) {
+        localReporter.incrCounter(counterNameBarcode,
+            f5.getBarcodindFinalStatus(), 1);
       } else {
-        localReporter.setCounter(counterNameBarcode, f5.getBarcodindFinalStatus(),
-                1);
+        localReporter.setCounter(counterNameBarcode,
+            f5.getBarcodindFinalStatus(), 1);
       }
 
       // Basecall_1D Workflow
       //
-      String counterNameBasecall1D = status+"_basecall1DWorkflow";
+      String counterNameBasecall1D = status + "_basecall1DWorkflow";
       if (localReporter.getCounterNames(counterNameBasecall1D)
-              .contains(f5.getBaseCall1DFinalStatus())) {
+          .contains(f5.getBaseCall1DFinalStatus())) {
         localReporter.incrCounter(counterNameBasecall1D,
-                f5.getBaseCall1DFinalStatus(), 1);
+            f5.getBaseCall1DFinalStatus(), 1);
       } else {
-        localReporter.setCounter(counterNameBasecall1D, f5.getBaseCall1DFinalStatus(),
-                1);
+        localReporter.setCounter(counterNameBasecall1D,
+            f5.getBaseCall1DFinalStatus(), 1);
       }
 
       // Basecall_2D Workflow
       //
-      String counterNameBasecall2D = status+"_basecall2DWorkflow";
+      String counterNameBasecall2D = status + "_basecall2DWorkflow";
       if (localReporter.getCounterNames(counterNameBasecall2D)
-              .contains(f5.getBaseCall2DFinalStatus())) {
+          .contains(f5.getBaseCall2DFinalStatus())) {
         localReporter.incrCounter(counterNameBasecall2D,
-                f5.getBaseCall2DFinalStatus(), 1);
+            f5.getBaseCall2DFinalStatus(), 1);
       } else {
-        localReporter.setCounter(counterNameBasecall2D, f5.getBaseCall2DFinalStatus(),
-                1);
+        localReporter.setCounter(counterNameBasecall2D,
+            f5.getBaseCall2DFinalStatus(), 1);
       }
 
       // Calibration Strand Workflow
       //
-      String counterNameCalibrationStrand = status+"_calibrationStrandWorkflow";
+      String counterNameCalibrationStrand =
+          status + "_calibrationStrandWorkflow";
       if (localReporter.getCounterNames(counterNameCalibrationStrand)
-              .contains(f5.getCalibrationStrandFinalStatus())) {
+          .contains(f5.getCalibrationStrandFinalStatus())) {
         localReporter.incrCounter(counterNameCalibrationStrand,
-                f5.getCalibrationStrandFinalStatus(), 1);
-        if(f5.getCalibrationStrandFinalStatus().contains("Calibration strand detected")){
+            f5.getCalibrationStrandFinalStatus(), 1);
+        if (f5.getCalibrationStrandFinalStatus()
+            .contains("Calibration strand detected")) {
           localReporter.incrCounter("numberFiles",
-                  "numberCalibrateStrandFast5Files", 1);
+              "numberCalibrateStrandFast5Files", 1);
         }
       } else {
         localReporter.setCounter(counterNameCalibrationStrand,
-                f5.getCalibrationStrandFinalStatus(), 1);
+            f5.getCalibrationStrandFinalStatus(), 1);
       }
 
       // Event Detection Workflow
       //
-      String counterNameEventDetection = status+"_eventDetectionWorkflow";
+      String counterNameEventDetection = status + "_eventDetectionWorkflow";
       if (localReporter.getCounterNames(counterNameEventDetection)
-              .contains(f5.getEventDetectionFinalStatus())) {
+          .contains(f5.getEventDetectionFinalStatus())) {
         localReporter.incrCounter(counterNameEventDetection,
-                f5.getEventDetectionFinalStatus(), 1);
+            f5.getEventDetectionFinalStatus(), 1);
       } else {
         localReporter.setCounter(counterNameEventDetection,
-                f5.getEventDetectionFinalStatus(), 1);
+            f5.getEventDetectionFinalStatus(), 1);
       }
 
       // Hairpin Split Workflow
       //
-      String counterNameHairpinSplit = status+"_hairpinSplitWorkflow";
+      String counterNameHairpinSplit = status + "_hairpinSplitWorkflow";
       if (localReporter.getCounterNames(counterNameHairpinSplit)
-              .contains(f5.getHairpinSplitFinalStatus())) {
+          .contains(f5.getHairpinSplitFinalStatus())) {
         localReporter.incrCounter(counterNameHairpinSplit,
-                f5.getHairpinSplitFinalStatus(), 1);
+            f5.getHairpinSplitFinalStatus(), 1);
       } else {
         localReporter.setCounter(counterNameHairpinSplit,
-                f5.getHairpinSplitFinalStatus(), 1);
+            f5.getHairpinSplitFinalStatus(), 1);
       }
 
       //
@@ -804,14 +798,14 @@ public class Fast5ToFastq {
       //
 
     } catch (HDF5Exception e) {
-      localReporter.incrCounter("numberFiles",
-              "numberCorruptFast5Files", 1);
+      localReporter.incrCounter("numberFiles", "numberCorruptFast5Files", 1);
       this.listCorruptFast5Files.add(fast5File);
     }
   }
 
   /**
-   * This method of the class Fast5ToFastq read the fast5 file and write in the fastq file in multi-threading.
+   * This method of the class Fast5ToFastq read the fast5 file and write in the
+   * fastq file in multi-threading.
    * @param listFast5Files, the fast5 file to be read
    * @param complementWriter, a fastq output file
    * @param templateWriter, a fastq output file
@@ -822,12 +816,13 @@ public class Fast5ToFastq {
    * @throws IOException, test the read of the file
    */
   private void multiThreadReadFast5WriteFastq(List<File> listFast5Files,
-                                              final Writer complementWriter, final Writer templateWriter,
-                                              final Writer consensusWriter, final Writer transcriptWriter, final String status,
-                                              final LocalReporter localReporter) throws IOException {
+      final Writer complementWriter, final Writer templateWriter,
+      final Writer consensusWriter, final Writer transcriptWriter,
+      final String status, final LocalReporter localReporter)
+      throws IOException {
 
     ExecutorService executor = Executors
-            .newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        .newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     for (final File fast5File : listFast5Files) {
       executor.submit(new Runnable() {
@@ -836,7 +831,7 @@ public class Fast5ToFastq {
         public void run() {
           try {
             readFast5WriteFastq(fast5File, complementWriter, templateWriter,
-                    consensusWriter, transcriptWriter, status, localReporter);
+                consensusWriter, transcriptWriter, status, localReporter);
           } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -868,12 +863,13 @@ public class Fast5ToFastq {
    * @throws IOException, test the read of the file
    */
   private void readFast5WriteFastq(List<File> listFast5Files,
-                                   Writer complementWriter, Writer templateWriter, Writer consensusWriter, Writer transcriptWriter,
-                                   String status, LocalReporter localReporter) throws IOException {
+      Writer complementWriter, Writer templateWriter, Writer consensusWriter,
+      Writer transcriptWriter, String status, LocalReporter localReporter)
+      throws IOException {
 
     for (File fast5File : listFast5Files) {
       readFast5WriteFastq(fast5File, complementWriter, templateWriter,
-              consensusWriter, transcriptWriter, status, localReporter);
+          consensusWriter, transcriptWriter, status, localReporter);
     }
   }
 
@@ -897,31 +893,31 @@ public class Fast5ToFastq {
 
     if (this.processFail) {
       int numberFailFast5Files =
-              processDirectory("downloads/fail", "fail", this.localReporter);
-      this.localReporter.incrCounter("numberFiles",
-              "numberFailFast5Files", numberFailFast5Files);
-      this.localReporter.incrCounter("numberFiles",
-              "numberFast5Files", numberFailFast5Files);
+          processDirectory("downloads/fail", "fail", this.localReporter);
+      this.localReporter.incrCounter("numberFiles", "numberFailFast5Files",
+          numberFailFast5Files);
+      this.localReporter.incrCounter("numberFiles", "numberFast5Files",
+          numberFailFast5Files);
     }
     if (this.processPass) {
       int numberPassFast5Files =
-              processDirectory("downloads/pass", "pass", this.localReporter);
-      this.localReporter.incrCounter("numberFiles",
-              "numberPassFast5Files", numberPassFast5Files);
-      this.localReporter.incrCounter("numberFiles",
-              "numberFast5Files", numberPassFast5Files);
+          processDirectory("downloads/pass", "pass", this.localReporter);
+      this.localReporter.incrCounter("numberFiles", "numberPassFast5Files",
+          numberPassFast5Files);
+      this.localReporter.incrCounter("numberFiles", "numberFast5Files",
+          numberPassFast5Files);
     }
     if (this.processUnclassified) {
       int numberUnclassifiedFast5Files = processDirectory(
-              "downloads/fail/unclassified", "unclassified", this.localReporter);
+          "downloads/fail/unclassified", "unclassified", this.localReporter);
       this.localReporter.incrCounter("numberFiles",
-              "numberUnclassifiedFast5Files", numberUnclassifiedFast5Files);
-      this.localReporter.incrCounter("numberFiles",
-              "numberFast5Files", numberUnclassifiedFast5Files);
+          "numberUnclassifiedFast5Files", numberUnclassifiedFast5Files);
+      this.localReporter.incrCounter("numberFiles", "numberFast5Files",
+          numberUnclassifiedFast5Files);
     }
     if (this.processPassBarcode) {
       List<File> listBarcodeFast5Dir =
-              listSubDir(new File(this.fast5RunDirectory, "downloads/pass"));
+          listSubDir(new File(this.fast5RunDirectory, "downloads/pass"));
       processDirectories(listBarcodeFast5Dir, this.localReporter);
     }
   }

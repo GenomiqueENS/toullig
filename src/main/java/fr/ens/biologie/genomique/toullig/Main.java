@@ -9,7 +9,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-
 /**
  * Main class of nanoporetools
  * @author birer
@@ -56,20 +55,18 @@ public abstract class Main {
     final Options options = new Options();
 
     //
-    //General
+    // General
     //
 
     options.addOption("version", false, "show version of the software");
     options.addOption("about", false,
-            "display information about this software");
+        "display information about this software");
     options.addOption("h", "help", false, "display this help");
     options.addOption("license", false,
-            "display information about the license of this software");
+        "display information about the license of this software");
 
-    options
-            .addOption(OptionBuilder.withArgName("mode").hasArg()
-                    .withDescription("mode of toullig [fast5tofastq|trim]")
-                    .create("mode"));
+    options.addOption(OptionBuilder.withArgName("mode").hasArg()
+        .withDescription("mode of toullig [fast5tofastq|trim]").create("mode"));
 
     return options;
   }
@@ -80,21 +77,23 @@ public abstract class Main {
    */
   public static void main(String[] args) {
 
-    String mode=args[0];
+    String mode = args[0];
 
-    switch(mode){
+    switch (mode) {
 
-      case "Fast5tofastq":
-        new Fast5tofastqAction().action(new ArrayList<String>(Arrays.asList(args)).subList(1,args.length));
-        break;
+    case "Fast5tofastq":
+      new Fast5tofastqAction().action(
+          new ArrayList<String>(Arrays.asList(args)).subList(1, args.length));
+      break;
 
-      default :
-        help(args);
-        break;
+    default:
+      help(args);
+      break;
 
-      case "Trim":
-        new TrimAction().action(new ArrayList<String>(Arrays.asList(args)).subList(1,args.length));
-        break;
+    case "Trim":
+      new TrimAction().action(
+          new ArrayList<String>(Arrays.asList(args)).subList(1, args.length));
+      break;
 
     }
   }
@@ -106,12 +105,11 @@ public abstract class Main {
   private static void help(final String[] args) {
 
     // Show help message
-    System.out.println(Globals.APP_NAME_LOWER_CASE
-            + ".sh tool [options tool] "+
-            args);
-    System.out.println("Toullig have 2 tools : \n" +
-            "\t\t - Fast5tofastq : Tool for read Fast5 files of minION and create the fastq.\n" +
-            "\t\t - Trim : Tool for trim adaptor in the fasqt of ONT.\n");
+    System.out.println(
+        Globals.APP_NAME_LOWER_CASE + ".sh tool [options tool] " + args);
+    System.out.println("Toullig have 2 tools : \n"
+        + "\t\t - Fast5tofastq : Tool for read Fast5 files of minION and create the fastq.\n"
+        + "\t\t - Trim : Tool for trim adaptor in the fasqt of ONT.\n");
 
     Common.exit(0);
   }
