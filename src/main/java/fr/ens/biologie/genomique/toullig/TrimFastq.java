@@ -45,10 +45,6 @@ public class TrimFastq {
     private int palindromeClipThresholdTrimmomatic=30;
     private int simpleClipThreshold=7;
 
-    private BufferedWriter fastaFileLeftOutlier;
-    private BufferedWriter fastaFileRightOutlier;
-
-
     public TrimFastq(File samFile, File fastqFile, File adaptorFile, File nameOutputFastq, File workDir) throws IOException, InterruptedException {
 
         if (!samFile.exists()) {
@@ -142,7 +138,6 @@ public class TrimFastq {
                 String QFlag = ""+samRecord.getFlags();
                 String ID =samRecord.getReadName();
                 int cigarLength=samRecord.getCigarLength();
-
 
                 if(this.fastqHash.containsKey(ID)) {
                     fastqHashMultimapped.put(ID,"");
@@ -310,11 +305,7 @@ public class TrimFastq {
 
         readFastqFile(fastqFile);
 
-        this.fastaFileLeftOutlier= new BufferedWriter(new FileWriter(pathFastaFileLeftOutlier));
-        this.fastaFileRightOutlier= new BufferedWriter(new FileWriter(pathFastaFileRightOutlier));
-
         System.out.println("Trim begin !");
-
 
         if(this.processPTrim){
             PerfectAlgorithm perfectAlgorithm = new PerfectAlgorithm(this.fastqHash, this.nameOutputFastq, this.addIndexOutlier,this.adaptorFile, this.seedMismatchesTrimmomatic, this.palindromeClipThresholdTrimmomatic, this.simpleClipThreshold, this.processCutadapt, this.processTrimmomatic, pathFastaFileLeftOutlier, pathFastaFileRightOutlier);
@@ -326,9 +317,6 @@ public class TrimFastq {
 
             this.fastqHash=sideWindowAlgorithm.trimOutlierWithSWMethod();
         }
-
-        this.fastaFileRightOutlier.close();
-        this.fastaFileLeftOutlier.close();
 
         TrimWithCutadapt trimmingCutadapt = new TrimWithCutadapt(this.fastqHash, this.nameOutputFastq, this.pathOutputTrimLeftFasta, this.pathOutputTrimRightFasta, this.adaptorRT, this.adaptorStrandSwitching, this.errorRateCutadapt);
 

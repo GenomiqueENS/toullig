@@ -38,8 +38,6 @@ public class PerfectAlgorithm {
         this.processTrimmomatic=processTrimmomatic;
         this.fastaFileLeftOutlier= new BufferedWriter(new FileWriter(pathFastaFileLeftOutlier));
         this.fastaFileRightOutlier= new BufferedWriter(new FileWriter(pathFastaFileRightOutlier));
-
-
     }
 
     /**
@@ -154,10 +152,8 @@ public class PerfectAlgorithm {
             }
         }
 
-
         this.fastaFileLeftOutlier.close();
         this.fastaFileRightOutlier.close();
-
 
         System.out.println("Nombre total de sequence dans le SAM : "+count1);
         System.out.println("Nombre de sequence CIGAR '*': "+count4);
