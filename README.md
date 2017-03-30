@@ -75,8 +75,8 @@ You just need to have java 8 and maven installed on your computer. This alpha ve
 
 Toullig have 2 tools :
 
-- Fast5tofastq : read the rootDirectory/downloads of your Fast5 run minION after the step of basecalling (metrichor/albacore).
-- Trim : trim the reads of a ONT fastq with a sam file, based on the RT adaptors.
+- fast5tofastq : read the rootDirectory/downloads of your Fast5 run minION after the step of basecalling (metrichor/albacore).
+- trim : trim the reads of a ONT fastq with a sam file, based on the RT adaptors.
 
 ### Classification MinION run
 
@@ -164,12 +164,12 @@ The transcript sequence is the sequence result of the consensus sequence (in 2D)
     
     #Options
     
-    -status pass|fail|unclassified|passbarcode (default : pass)                 # The status of fast5 file
     -type template|complement|consensus|transcript (default : transcript)       # The type of sequence
     -mergeSequence true|false (default : false)                                 # If you want merge all type of sequence whatever the status
+    -compress GZIP|BZIP2 (default: none)                                        # Set the type of compression for the output fastq
     
     #Arguments
-    
+    -status pass|fail|unclassified|passbarcode (default : none)                 # The status of fast5 file
     -rootDirectoryFast5run /home/user/yourRootDirectoryFast5run
     -outputDirectoryFastq /home/user/yourOutputDirectoryFastq
     
@@ -181,7 +181,7 @@ I have a directory of a minION run in 2D with barcode.
 If i want just get the fastq sequence of the 'template', the 'complement' and the 'consensus' for the fast5 files in the status/repertory 'fail'.
 
 
-    bash ./target/dist/toullig-0.2-alpha/toullig.sh Fast5tofastq -status fail -type template,complement,consensus /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq
+    bash ./target/dist/toullig-0.2-alpha/toullig.sh fast5tofastq -status fail -type template,complement,consensus /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq
 
 
 # TrimFastq
@@ -251,7 +251,7 @@ In the execution of toullig Trim, the programm step :
 ### Example trim
 
 
-    bash ./target/dist/toullig-0.2-alpha/toullig.sh Trim /home/user/samFile.sam /home/user/fastqONTFile.fastq /home/user/myFastqTrim.fastq ~/toullig/config_files/adaptor_RT_sequence_modify_for_nanopore.txt /home/user/yourTmpRepertoryOfWork
+    bash ./target/dist/toullig-0.2-alpha/toullig.sh trim /home/user/samFile.sam /home/user/fastqONTFile.fastq /home/user/myFastqTrim.fastq ~/toullig/config_files/adaptor_RT_sequence_modify_for_nanopore.txt /home/user/yourTmpRepertoryOfWork
 
 
 # Developpment environnement

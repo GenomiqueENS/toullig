@@ -44,7 +44,7 @@ public class Fast5tofastqAction extends AbstractAction {
     final Options options = makeOptions();
     final CommandLineParser parser = new GnuParser();
 
-    String status = "pass";
+    String status = "";
     String type = "transcript";
     String compress = "";
     File dirFast5 = null;
@@ -64,13 +64,17 @@ public class Fast5tofastqAction extends AbstractAction {
       // Display help
       if (line.getArgs().length == 0) {
         System.out.println(
-            "ERROR : Enter the two obligatory arguments of the directory of the basecalled run and the output directory for fastq !\n\n");
+            "ERROR: No argument! Please enter the two obligatory arguments\n\n");
         help(options);
       }
 
       // Set status
       if (line.hasOption("status")) {
         status = line.getOptionValue("status").toLowerCase();
+      } else {
+        System.out.println(
+            "ERROR: -status is an obligatory argument! Please enter a define value for this argument!\n\n");
+        help(options);
       }
       // Set type
       if (line.hasOption("type")) {
@@ -87,7 +91,7 @@ public class Fast5tofastqAction extends AbstractAction {
           dirOutputFastq = new File(remainder[1]);
         } else {
           System.out.println(
-              "ERROR : Enter the two obligatory arguments of the directory of the basecalled run and the output directory for fastq !\n\n");
+              "ERROR: Enter the two obligatory arguments of the directory of the basecalled run and the output directory for fastq!\n\n");
           help(options);
         }
       }
@@ -129,16 +133,17 @@ public class Fast5tofastqAction extends AbstractAction {
 
     options.addOption(OptionBuilder.withArgName("status").hasArg()
         .withDescription(
-            "set a status of the fast5 file [pass|fail|unclassified|passbarcode] to process;(default : pass)")
+            "set a status of the fast5 file [pass|fail|unclassified|passbarcode] to process;(default: none)")
         .create("status"));
 
     options.addOption(OptionBuilder.withArgName("type").hasArg()
         .withDescription(
-            "set a type of sequence [template|complement|consensus|transcript] to obtain ;(default : transcript)")
+            "set a type of sequence [template|complement|consensus|transcript] to obtain;(default: transcript)")
         .create("type"));
 
     options.addOption(OptionBuilder.withArgName("compress").hasArg()
-        .withDescription("set a compression for the output fastq [GZIP|BZIP2]")
+        .withDescription(
+            "set a compression for the output fastq [GZIP|BZIP2] (default: none)")
         .create("compress"));
 
     options
@@ -152,7 +157,7 @@ public class Fast5tofastqAction extends AbstractAction {
 
     options.addOption(OptionBuilder.withArgName("mergeSequence").hasArg()
         .withDescription(
-            "merge the sequence of status choose [true/false];(default : false)")
+            "merge the sequence of status choose [true/false];(default: false)")
         .create("merge"));
 
     return options;
@@ -166,8 +171,11 @@ public class Fast5tofastqAction extends AbstractAction {
 
     // Show help message
     final HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp(Globals.APP_NAME_LOWER_CASE
-        + ".sh " + ACTION_NAME + " [options] arguments\n", options);
+    formatter.printHelp(
+        Globals.APP_NAME_LOWER_CASE
+            + ".sh " + ACTION_NAME
+            + " -Status (pass|fail|unclassified|passbarcode) [options] FAST5_DIR FASTQ_OUTPUT_DIR\n",
+        options);
 
     System.exit(0);
   }
@@ -231,7 +239,7 @@ public class Fast5tofastqAction extends AbstractAction {
         if5.setBZip2Compression(true);
       }
 
-      getLogger().info("Fast5 Run Directory : " + dirFast5);
+      getLogger().info("Fast5 Run Directory: " + dirFast5);
       getLogger().info("Fastq Output Directory: " + dirOutputFastq);
 
       // Execution to the read of fast5 to fastq

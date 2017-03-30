@@ -72,7 +72,7 @@ public class TrimAction extends AbstractAction {
       // Display help
       if (line.getArgs().length == 0) {
         System.out.println(
-            "ERROR : Enter the five obligatory arguments of the trim module !\n\n");
+            "ERROR:  No argument! Please enter the five obligatory arguments of the trim module!\n\n");
         help(options);
       }
 
@@ -134,7 +134,7 @@ public class TrimAction extends AbstractAction {
           workDir = new File(remainder[4]);
         } else {
           System.out.println(
-              "ERROR : Enter the five obligatory arguments of the trim module !\n\n");
+              "ERROR: Enter the five obligatory arguments of the trim module!\n\n");
           help(options);
         }
       }
@@ -235,8 +235,11 @@ public class TrimAction extends AbstractAction {
 
     // Show help message
     final HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp(Globals.APP_NAME_LOWER_CASE
-        + ".sh " + ACTION_NAME + " [options] arguments \n", options);
+    formatter.printHelp(
+        Globals.APP_NAME_LOWER_CASE
+            + ".sh " + ACTION_NAME
+            + " [options] SAMFILE FASTQ_DIR FASTQ_OUTPUT_DIR ADAPTOR_FILE WORK_DIR \n",
+        options);
 
     System.exit(0);
   }

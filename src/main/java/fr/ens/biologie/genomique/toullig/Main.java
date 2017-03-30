@@ -79,7 +79,7 @@ public abstract class Main {
 
     if (args.length == 0) {
       System.out.println(
-          "ERROR : Toullig need in the first argument the tool what you want use !");
+          "ERROR: Toullig need in the first argument the tool what you want use!");
       System.out.println("See the help with "
           + Globals.APP_NAME_LOWER_CASE + ".sh -h, --help\n");
       exit(1);
@@ -94,18 +94,18 @@ public abstract class Main {
 
     switch (mode) {
 
-    case "Fast5tofastq":
+    case "fast5tofastq":
       new Fast5tofastqAction().action(
           new ArrayList<String>(Arrays.asList(args)).subList(1, args.length));
       break;
 
     default:
-      System.out.println("ERROR : The name of the tool is not correct !");
+      System.out.println("ERROR: The name of the tool is not correct!");
       System.out.println("See the help with "
           + Globals.APP_NAME_LOWER_CASE + ".sh -h, --help\n");
       break;
 
-    case "Trim":
+    case "trim":
       new TrimAction().action(
           new ArrayList<String>(Arrays.asList(args)).subList(1, args.length));
       break;
@@ -122,8 +122,8 @@ public abstract class Main {
     System.out.println(
         Globals.APP_NAME_LOWER_CASE + ".sh tool [options_tool] arguments_tool");
     System.out.println("Toullig have 2 tools : \n"
-        + "\t\t - Fast5tofastq : Tool for read Fast5 files of minION and create the fastq.\n"
-        + "\t\t - Trim : Tool for trim adaptor in the fasqt of ONT.\n\n");
+        + "\t\t - fast5tofastq : Tool for read Fast5 files of minION and create the fastq.\n"
+        + "\t\t - trim : Tool for trim adaptor in the fasqt of ONT.\n\n");
 
     exit(0);
   }
