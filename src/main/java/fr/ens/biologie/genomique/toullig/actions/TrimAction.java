@@ -1,22 +1,16 @@
 package fr.ens.biologie.genomique.toullig.actions;
 
+import static fr.ens.biologie.genomique.eoulsan.EoulsanLogger.getLogger;
+
 import java.io.File;
 import java.util.List;
 
-import fr.ens.biologie.genomique.eoulsan.actions.AbstractAction;
-import fr.ens.biologie.genomique.toullig.TrimFastq;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 
 import fr.ens.biologie.genomique.eoulsan.Common;
+import fr.ens.biologie.genomique.eoulsan.actions.AbstractAction;
 import fr.ens.biologie.genomique.toullig.Globals;
-
-import static fr.ens.biologie.genomique.eoulsan.EoulsanLogger.getLogger;
+import fr.ens.biologie.genomique.toullig.TrimFastq;
 
 /**
  * This class define the Local exec Action.
@@ -67,12 +61,18 @@ public class TrimAction extends AbstractAction {
 
     try {
 
+      if (arguments.contains("-help") || arguments.contains("-h")) {
+        help(options);
+      }
+
       // parse the command line arguments
       final CommandLine line = parser.parse(options,
           arguments.toArray(new String[arguments.size()]), true);
 
       // Display help
-      if (line.hasOption("help")) {
+      if (line.getArgs().length == 0) {
+        System.out.println(
+            "ERROR : Enter the five obligatory arguments of the trim module !\n\n");
         help(options);
       }
 
@@ -132,6 +132,10 @@ public class TrimAction extends AbstractAction {
           fastqOutputFile = new File(remainder[2]);
           adaptorFile = new File(remainder[3]);
           workDir = new File(remainder[4]);
+        } else {
+          System.out.println(
+              "ERROR : Enter the five obligatory arguments of the trim module !\n\n");
+          help(options);
         }
       }
 
@@ -161,6 +165,9 @@ public class TrimAction extends AbstractAction {
     final Options options = new Options();
 
     options.addOption(OptionBuilder.withArgName("help").hasArg()
+        .withDescription("display help").create("help"));
+
+    options.addOption(OptionBuilder.withArgName("h").hasArg()
         .withDescription("display help").create("help"));
 
     options.addOption(OptionBuilder.withArgName("trimmer").hasArg()
@@ -230,7 +237,8 @@ public class TrimAction extends AbstractAction {
     final HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp(
         Globals.APP_NAME_LOWER_CASE
-            + ".sh " + ACTION_NAME + " [options] workflow.xml design.txt",
+            + ".sh " + ACTION_NAME
+            + " [options] ../samFile.sam ../fastqFile.fastq ../fastqTrimmedOutputFile.fastq ../adaptorFile.txt ../workDir \n",
         options);
 
     Common.exit(0);

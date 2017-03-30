@@ -6,18 +6,12 @@ import java.io.File;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.cli.*;
+
+import fr.ens.biologie.genomique.eoulsan.Common;
 import fr.ens.biologie.genomique.eoulsan.actions.AbstractAction;
 import fr.ens.biologie.genomique.toullig.Fast5ToFastq;
 import fr.ens.biologie.genomique.toullig.Fast5ToFastqLogger;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-
-import fr.ens.biologie.genomique.eoulsan.Common;
 import fr.ens.biologie.genomique.toullig.Globals;
 
 /**
@@ -59,12 +53,18 @@ public class Fast5tofastqAction extends AbstractAction {
 
     try {
 
+      if (arguments.contains("-help") || arguments.contains("-h")) {
+        help(options);
+      }
+
       // parse the command line arguments
       final CommandLine line = parser.parse(options,
           arguments.toArray(new String[arguments.size()]), true);
 
       // Display help
-      if (line.hasOption("help")) {
+      if (line.getArgs().length == 0) {
+        System.out.println(
+            "ERROR : Enter the two obligatory arguments of the directory of the basecalled run and the output directory for fastq !\n\n");
         help(options);
       }
 
@@ -85,6 +85,10 @@ public class Fast5tofastqAction extends AbstractAction {
         if (remainder.length >= 2) {
           dirFast5 = new File(remainder[0]);
           dirOutputFastq = new File(remainder[1]);
+        } else {
+          System.out.println(
+              "ERROR : Enter the two obligatory arguments of the directory of the basecalled run and the output directory for fastq !\n\n");
+          help(options);
         }
       }
 
@@ -118,6 +122,9 @@ public class Fast5tofastqAction extends AbstractAction {
     final Options options = new Options();
 
     options.addOption(OptionBuilder.withArgName("help").hasArg()
+        .withDescription("display help").create("help"));
+
+    options.addOption(OptionBuilder.withArgName("h").hasArg()
         .withDescription("display help").create("help"));
 
     options.addOption(OptionBuilder.withArgName("status").hasArg()
@@ -159,9 +166,8 @@ public class Fast5tofastqAction extends AbstractAction {
 
     // Show help message
     final HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp(
-        Globals.APP_NAME_LOWER_CASE
-            + ".sh " + ACTION_NAME + " [options] workflow.xml design.txt",
+    formatter.printHelp(Globals.APP_NAME_LOWER_CASE
+        + ".sh " + ACTION_NAME + " [options] ../dirFast5 ../dirOutputFastq\n",
         options);
 
     Common.exit(0);

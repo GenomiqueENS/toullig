@@ -36,7 +36,7 @@ public class TrimFastq {
   private boolean processTrimmomatic = false;
   private boolean processStats = false;
 
-  private int addIndexOutlier = 0;
+  private int addIndexOutlier = 15;
   private int lengthWindowSW = 15;
   private double thresholdSW = 0.8;
   private double errorRateCutadapt = 0.5;

@@ -3,11 +3,11 @@ package fr.ens.biologie.genomique.toullig;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-import java.util.Set;
-import java.util.Collections;
 
 public class Globals {
 
@@ -15,7 +15,7 @@ public class Globals {
   private static final String MANIFEST_FILE = "/META-INF/MANIFEST.MF";
 
   /** The name of the application. */
-  public static final String APP_NAME = "Nanoporetools";
+  public static final String APP_NAME = "toullig";
 
   /** The version of the application. */
   public static final String APP_VERSION_STRING = getVersion();
