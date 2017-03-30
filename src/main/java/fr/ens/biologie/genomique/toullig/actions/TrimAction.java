@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.apache.commons.cli.*;
 
-import fr.ens.biologie.genomique.eoulsan.Common;
 import fr.ens.biologie.genomique.eoulsan.actions.AbstractAction;
 import fr.ens.biologie.genomique.toullig.Globals;
 import fr.ens.biologie.genomique.toullig.TrimFastq;
@@ -207,22 +206,6 @@ public class TrimAction extends AbstractAction {
         .withDescription(
             "simple clip threshold option for Trimmomatic (default : 7)")
         .create("simpleClipThreshold"));
-
-    options.addOption(OptionBuilder.withArgName("samFile").hasArg()
-        .withDescription("the path to the .sam file").create("samFile"));
-
-    options.addOption(OptionBuilder.withArgName("fastqFile").hasArg()
-        .withDescription("the path to the .fastq file").create("fastqFile"));
-
-    options.addOption(OptionBuilder.withArgName("fastqOutputFile").hasArg()
-        .withDescription("the path to the .fastq file")
-        .create("fastqOutputFile"));
-
-    options.addOption(OptionBuilder.withArgName("adaptorFile").hasArg()
-        .withDescription("the path to the adaptor file").create("adaptorFile"));
-
-    options.addOption(OptionBuilder.withArgName("workDir").hasArg()
-        .withDescription("the work directory").create("workDir"));
 
     return options;
   }

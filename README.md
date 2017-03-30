@@ -164,12 +164,13 @@ The transcript sequence is the sequence result of the consensus sequence (in 2D)
     
     #Options
     
-    -type template|complement|consensus|transcript (default : transcript)       # The type of sequence
-    -mergeSequence true|false (default : false)                                 # If you want merge all type of sequence whatever the status
-    -compress GZIP|BZIP2 (default: none)                                        # Set the type of compression for the output fastq
+    -status pass|fail|unclassified (default: pass)                                  # The status of fast5 file
+    -type template|complement|consensus|transcript (default: transcript)            # The type of sequence
+    -mergeSequence true|false (default: false)                                      # If you want merge all type of sequence whatever the status
+    -compress GZIP|BZIP2 (default: none)                                            # Set the type of compression for the output fastq
     
     #Arguments
-    -status pass|fail|unclassified|passbarcode (default : none)                 # The status of fast5 file
+
     -rootDirectoryFast5run /home/user/yourRootDirectoryFast5run
     -outputDirectoryFastq /home/user/yourOutputDirectoryFastq
     
@@ -212,9 +213,9 @@ In the execution of toullig Trim, the programm step :
     
     #Options
     
-    -trimmer cutadapt|trimmomatic (default : cutadapt)      # The trimmer tool use for trimming
-    -mode P | SW (default : P)                              # The type of trimming the transcripts reads
-    -stats true|flase (default : false)                     # If you want somes stats on the trimming
+    -trimmer cutadapt|trimmomatic (default: cutadapt)       # The trimmer tool use for trimming
+    -mode P | SW (default: P)                               # The type of trimming the transcripts reads
+    -stats true|flase (default: false)                      # If you want somes stats on the trimming
     
     #Options Trimming by Side-window mode
     

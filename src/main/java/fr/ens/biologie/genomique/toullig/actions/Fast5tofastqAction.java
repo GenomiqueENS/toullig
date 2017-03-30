@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.apache.commons.cli.*;
 
-import fr.ens.biologie.genomique.eoulsan.Common;
 import fr.ens.biologie.genomique.eoulsan.actions.AbstractAction;
 import fr.ens.biologie.genomique.toullig.Fast5ToFastq;
 import fr.ens.biologie.genomique.toullig.Fast5ToFastqLogger;
@@ -44,7 +43,7 @@ public class Fast5tofastqAction extends AbstractAction {
     final Options options = makeOptions();
     final CommandLineParser parser = new GnuParser();
 
-    String status = "";
+    String status = "pass";
     String type = "transcript";
     String compress = "";
     File dirFast5 = null;
@@ -71,11 +70,8 @@ public class Fast5tofastqAction extends AbstractAction {
       // Set status
       if (line.hasOption("status")) {
         status = line.getOptionValue("status").toLowerCase();
-      } else {
-        System.out.println(
-            "ERROR: -status is an obligatory argument! Please enter a define value for this argument!\n\n");
-        help(options);
       }
+
       // Set type
       if (line.hasOption("type")) {
         type = line.getOptionValue("type").toLowerCase();
@@ -133,7 +129,7 @@ public class Fast5tofastqAction extends AbstractAction {
 
     options.addOption(OptionBuilder.withArgName("status").hasArg()
         .withDescription(
-            "set a status of the fast5 file [pass|fail|unclassified|passbarcode] to process;(default: none)")
+            "set a status of the fast5 file [pass|fail|unclassified] to process;(default: none)")
         .create("status"));
 
     options.addOption(OptionBuilder.withArgName("type").hasArg()
@@ -145,15 +141,6 @@ public class Fast5tofastqAction extends AbstractAction {
         .withDescription(
             "set a compression for the output fastq [GZIP|BZIP2] (default: none)")
         .create("compress"));
-
-    options
-        .addOption(OptionBuilder.withArgName("rootDirectoryFast5run").hasArg()
-            .withDescription("the path to the main directory of the minION run")
-            .create("dirFast5"));
-
-    options.addOption(OptionBuilder.withArgName("outputDirectoryFastq").hasArg()
-        .withDescription("the path to the output of Fastq sequences")
-        .create("dirOutputFastq"));
 
     options.addOption(OptionBuilder.withArgName("mergeSequence").hasArg()
         .withDescription(
@@ -173,8 +160,7 @@ public class Fast5tofastqAction extends AbstractAction {
     final HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp(
         Globals.APP_NAME_LOWER_CASE
-            + ".sh " + ACTION_NAME
-            + " -Status (pass|fail|unclassified|passbarcode) [options] FAST5_DIR FASTQ_OUTPUT_DIR\n",
+            + ".sh " + ACTION_NAME + "[options] FAST5_DIR FASTQ_OUTPUT_DIR\n",
         options);
 
     System.exit(0);
@@ -208,15 +194,12 @@ public class Fast5tofastqAction extends AbstractAction {
       if (status.contains("fail")) {
         if5.setProcessFail(true);
       }
-      if (status.contains("pass") && !status.contains("passbarcode")) {
+      if (status.contains("pass")) {
         if5.setProcessPass(true);
       }
       // If the Experimental protocol is barcoded
       if (status.contains("unclassified")) {
         if5.setProcessUnclassified(true);
-      }
-      if (status.contains("passbarcode")) {
-        if5.setProcessPassBarcode(true);
       }
       // List of sequences :
       if (type.contains("template")) {

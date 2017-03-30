@@ -34,7 +34,6 @@ public class Fast5ToFastq {
   private boolean processFail;
   private boolean processPass;
   private boolean processUnclassified;
-  private boolean processPassBarcode;
 
   private boolean saveComplementSequence;
   private boolean saveTemplateSequence;
@@ -331,20 +330,6 @@ public class Fast5ToFastq {
   }
 
   /**
-   * This method of the class Fast5ToFastq get the number of barcoded files.
-   * @param localReporter, a localReporter object
-   * @return a long of the number of barcoded files
-   */
-  public long getNumberBarcodeFast5Files(LocalReporter localReporter) {
-    if (localReporter.getCounterValue("numberFiles",
-        "numberBarcodeFast5Files") <= 0) {
-      return 0;
-    }
-    return localReporter.getCounterValue("numberFiles",
-        "numberBarcodeFast5Files");
-  }
-
-  /**
    * This method of the class Fast5ToFastq get the number of calibrate strand
    * files.
    * @param localReporter, a localReporter object
@@ -423,16 +408,6 @@ public class Fast5ToFastq {
    */
   public void setProcessUnclassified(boolean processUnclassified) {
     this.processUnclassified = processUnclassified;
-  }
-
-  /**
-   * This method of the class Fast5ToFastq set the type of files Pass Barcoded
-   * on process.
-   * @param processPassBarcode, a boolean to process the type of files Pass
-   *          Barcoded
-   */
-  public void setProcessPassBarcode(boolean processPassBarcode) {
-    this.processPassBarcode = processPassBarcode;
   }
 
   /**
@@ -628,7 +603,7 @@ public class Fast5ToFastq {
       processDirectory(listBarcodeFast5Files, barcodeDirectory.getName(),
           localReporter);
 
-      localReporter.incrCounter("numberFiles", "numberBarcodeFast5Files",
+      localReporter.incrCounter("numberFiles", "numberPassFast5Files",
           listBarcodeFast5Files.size());
       localReporter.incrCounter("numberFiles", "numberFast5Files",
           listBarcodeFast5Files.size());
@@ -902,10 +877,17 @@ public class Fast5ToFastq {
     if (this.processPass) {
       int numberPassFast5Files =
           processDirectory("downloads/pass", "pass", this.localReporter);
-      this.localReporter.incrCounter("numberFiles", "numberPassFast5Files",
-          numberPassFast5Files);
-      this.localReporter.incrCounter("numberFiles", "numberFast5Files",
-          numberPassFast5Files);
+      if (numberPassFast5Files != 0) {
+        this.localReporter.incrCounter("numberFiles", "numberPassFast5Files",
+            numberPassFast5Files);
+        this.localReporter.incrCounter("numberFiles", "numberFast5Files",
+            numberPassFast5Files);
+      } else {
+        List<File> listBarcodeFast5Dir =
+            listSubDir(new File(this.fast5RunDirectory, "downloads/pass"));
+        processDirectories(listBarcodeFast5Dir, this.localReporter);
+      }
+
     }
     if (this.processUnclassified) {
       int numberUnclassifiedFast5Files = processDirectory(
@@ -914,11 +896,6 @@ public class Fast5ToFastq {
           "numberUnclassifiedFast5Files", numberUnclassifiedFast5Files);
       this.localReporter.incrCounter("numberFiles", "numberFast5Files",
           numberUnclassifiedFast5Files);
-    }
-    if (this.processPassBarcode) {
-      List<File> listBarcodeFast5Dir =
-          listSubDir(new File(this.fast5RunDirectory, "downloads/pass"));
-      processDirectories(listBarcodeFast5Dir, this.localReporter);
     }
   }
 }

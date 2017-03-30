@@ -129,8 +129,6 @@ public class Fast5ToFastqLogger {
     listLog.add("Number of pass files read "
         + this.f5.getNumberPassFast5Files(this.localReporter));
 
-    listLog.add("Number of pass barcode file "
-        + this.f5.getNumberBarcodeFast5Files(this.localReporter) + "\n");
     for (String element : this.listWriteSequenceLog) {
       listLog.add(element);
     }
