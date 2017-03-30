@@ -6,7 +6,6 @@ import java.util.Arrays;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 
-import fr.ens.biologie.genomique.eoulsan.Common;
 import fr.ens.biologie.genomique.toullig.actions.Fast5tofastqAction;
 import fr.ens.biologie.genomique.toullig.actions.TrimAction;
 
@@ -83,6 +82,12 @@ public abstract class Main {
           "ERROR : Toullig need in the first argument the tool what you want use !");
       System.out.println("See the help with "
           + Globals.APP_NAME_LOWER_CASE + ".sh -h, --help\n");
+      exit(1);
+
+    }
+
+    if (args[0].contains("-help") || args[0].contains("-h")) {
+      help();
     }
 
     String mode = args[0];
@@ -114,12 +119,12 @@ public abstract class Main {
   private static void help() {
 
     // Show help message
-    System.out
-        .println(Globals.APP_NAME_LOWER_CASE + ".sh tool [options tool] ");
+    System.out.println(
+        Globals.APP_NAME_LOWER_CASE + ".sh tool [options_tool] arguments_tool");
     System.out.println("Toullig have 2 tools : \n"
         + "\t\t - Fast5tofastq : Tool for read Fast5 files of minION and create the fastq.\n"
         + "\t\t - Trim : Tool for trim adaptor in the fasqt of ONT.\n\n");
 
-    Common.exit(0);
+    exit(0);
   }
 }

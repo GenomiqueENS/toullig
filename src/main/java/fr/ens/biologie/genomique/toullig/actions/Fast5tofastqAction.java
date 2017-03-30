@@ -99,7 +99,7 @@ public class Fast5tofastqAction extends AbstractAction {
       }
 
     } catch (ParseException e) {
-      Common.errorExit(e,
+      System.out.println(
           "Error while parsing command line arguments: " + e.getMessage());
     }
 
@@ -167,10 +167,9 @@ public class Fast5tofastqAction extends AbstractAction {
     // Show help message
     final HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp(Globals.APP_NAME_LOWER_CASE
-        + ".sh " + ACTION_NAME + " [options] ../dirFast5 ../dirOutputFastq\n",
-        options);
+        + ".sh " + ACTION_NAME + " [options] arguments\n", options);
 
-    Common.exit(0);
+    System.exit(0);
   }
 
   //
