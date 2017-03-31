@@ -51,14 +51,14 @@ public class Fast5 implements AutoCloseable {
    */
   public enum Version {
     V1_0, V1_1 // The version of the fast5 file ( 1.1 is here since 11/2015)
-  };
+  }
 
   /**
    * Values of the variable Type that design the type of experimental design.
    */
   public enum Type {
     TYPE_1D, TYPE_2D, TYPE_1D2 // Type of the sequencing
-  };
+  }
 
   /**
    * Values of the variable Status that design the state of the fast5 file (if
@@ -66,14 +66,14 @@ public class Fast5 implements AutoCloseable {
    */
   public enum Status {
     PRE_BASECALLING, AFTER_BASECALLING // The status of the fast5 file
-  };
+  }
 
   /**
    * Values of the variable RVersion that design the chemical kit use.
    */
   public enum ChemistryVersion {
     R7_3, R9, R9_4, R9_5 // Chemical version of the kit
-  };
+  }
 
   //
   // read files
@@ -97,12 +97,10 @@ public class Fast5 implements AutoCloseable {
     if (!isBasecalled()) {
       return null;
     }
-    if (reader
-        .isGroup("/Analyses/Basecall_2D_000/BaseCalled_template") == true) {
+    if (reader.isGroup("/Analyses/Basecall_2D_000/BaseCalled_template")) {
       return Version.V1_0;
     }
-    if (reader
-        .isGroup("/Analyses/Basecall_1D_000/BaseCalled_template") == true) {
+    if (reader.isGroup("/Analyses/Basecall_1D_000/BaseCalled_template")) {
       return Version.V1_1;
     }
     return null;
@@ -116,7 +114,7 @@ public class Fast5 implements AutoCloseable {
     if (!isBasecalled()) {
       return null;
     }
-    if (reader.isGroup("/Analyses/Basecall_2D_000") == true) {
+    if (reader.isGroup("/Analyses/Basecall_2D_000")) {
       return Type.TYPE_2D;
     } else {
       return Type.TYPE_1D;
@@ -132,7 +130,7 @@ public class Fast5 implements AutoCloseable {
     if (this.reader.getFile() == null) {
       throw new IllegalStateException("The file is closed");
     }
-    if (reader.isGroup("/Analyses/Basecall_1D_000") == true) {
+    if (reader.isGroup("/Analyses/Basecall_1D_000")) {
       return Status.AFTER_BASECALLING;
     } else {
       return Status.PRE_BASECALLING;
@@ -639,7 +637,7 @@ public class Fast5 implements AutoCloseable {
    * @param log of a workflow
    * @return a string of the status of the Hairpin split workflow
    */
-  public String getLogFinalStatus(String log) {
+  private String getLogFinalStatus(String log) {
     String[] work = log.split("[\n]");
     String[] work2 = work[work.length - 2].split("\\s");
     String Status = "";

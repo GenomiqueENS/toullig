@@ -223,7 +223,7 @@ In the execution of toullig Trim, the programm step :
     
     #Options Trimming by Side-window mode
     
-    -thresholdSW (default: 0.8)                             # The threshold for the Side-Window algorithm
+    -thresholdSideWindow (default: 0.8)                             # The threshold for the Side-Window algorithm
     -lengthWindowsSW (default: 15)                          # The length for the the Side-Window algorithm
     
     #Options Cutadapt

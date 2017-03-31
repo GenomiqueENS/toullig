@@ -1,78 +1,97 @@
 package fr.ens.biologie.genomique.toullig.trimming;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 
-import fr.ens.biologie.genomique.toullig.Utils;
+import fr.ens.biologie.genomique.eoulsan.bio.Sequence;
+import fr.ens.biologie.genomique.eoulsan.bio.io.FastaWriter;
 
 /**
- * Created by birer on 29/03/17.
+ * Class of somes utils methods for trimming. Created by birer on 29/03/17.
  */
-public class UtilsTrimming {
+class UtilsTrimming {
 
-    public UtilsTrimming(){
+  UtilsTrimming() {
 
+  }
+
+  /**
+   * Method of the class TrimModes to obtain the sequence of the left outlier.
+   * @param lengthOutlierBegin, the length of the outlier
+   * @param sequence, the sequence of the read
+   * @return the sequence of the left outlier
+   */
+  static String getOutlierLeftSequence(int lengthOutlierBegin,
+      String sequence) {
+    return sequence.substring(0, lengthOutlierBegin);
+  }
+
+  /**
+   * Method of the class TrimModes to obtain the sequence of the right outlier.
+   * @param lengthOutlierEnd, the length of the outlier
+   * @param sequence, the sequence of the read
+   * @return the sequence of the right outlier
+   */
+  static String getOutlierRightSequence(int lengthOutlierEnd, String sequence) {
+
+    return sequence.substring(sequence.length() - lengthOutlierEnd,
+        sequence.length());
+  }
+
+  /**
+   * Method of the class TrimModes to obtain the score of the left outlier.
+   * @param lengthOutlierBegin, the length of the outlier
+   * @param score, the score of the read
+   * @return , a string of quality
+   */
+  static String getOutlierLeftQuality(int lengthOutlierBegin, String score) {
+    return score.substring(0, lengthOutlierBegin);
+  }
+
+  /**
+   * Method of the class TrimModes to obtain the score of the right outlier.
+   * @param lengthOutlierEnd, the length of the outlier
+   * @param score, the score of the read
+   * @return , a string of quality
+   */
+  static String getOutlierRightQuality(int lengthOutlierEnd, String score) {
+    return score.substring(score.length() - lengthOutlierEnd, score.length());
+  }
+
+  //
+  // get Outlier
+  //
+
+  /**
+   * Method of the class TrimModes to write the outliers (3' and 5') in fasta
+   * files.
+   * @param leftLengthOutlier, the length of the outlier right
+   * @param rightLengthOutlier, the length of the outlier left
+   * @param sequence, the sequence of the read
+   * @param id, the id of the read
+   */
+  static void writeOutliers(int leftLengthOutlier, int rightLengthOutlier,
+      String sequence, String id, FastaWriter leftFastaWriter,
+      FastaWriter rightFastaWriter) {
+
+    String leftOutlierSequence =
+        getOutlierLeftSequence(leftLengthOutlier, sequence);
+    String rightOutlierSequence =
+        getOutlierRightSequence(rightLengthOutlier, sequence);
+
+    try {
+
+      Sequence leftFasta = new Sequence();
+      leftFasta.setName(id);
+      leftFasta.setSequence(leftOutlierSequence);
+      leftFastaWriter.write(leftFasta);
+
+      Sequence rightFasta = new Sequence();
+      rightFasta.setName(id);
+      rightFasta.setSequence(rightOutlierSequence);
+      rightFastaWriter.write(rightFasta);
+
+    } catch (IOException e) {
+      e.printStackTrace();
     }
-
-    /**
-     * Method of the class TrimModes to obtain the sequence of the left outlier.
-     * @param lengthOutlierBegin, the length of the outlier
-     * @param sequence, the sequence of the read
-     * @return the sequence of the left outlier
-     */
-    public String getOutlierLeftSequence(int lengthOutlierBegin, String sequence){
-        return sequence.substring(0,lengthOutlierBegin);
-    }
-
-    /**
-     * Method of the class TrimModes to obtain the sequence of the right outlier.
-     * @param lengthOutlierEnd, the length of the outlier
-     * @param sequence, the sequence of the read
-     * @return the sequence of the right outlier
-     */
-    public String getOutlierRightSequence(int lengthOutlierEnd, String sequence){
-
-        return sequence.substring(sequence.length()-lengthOutlierEnd,sequence.length());
-    }
-
-    /**
-     * Method of the class TrimModes to obtain the score of the left outlier.
-     * @param lengthOutlierBegin, the length of the outlier
-     * @param score, the score of the read
-     * @return
-     */
-    public String getOutlierLeftScore(int lengthOutlierBegin, String score){
-        return score.substring(0,lengthOutlierBegin);
-    }
-
-    /**
-     * Method of the class TrimModes to obtain the score of the right outlier.
-     * @param lengthOutlierEnd, the length of the outlier
-     * @param score, the score of the read
-     * @return
-     */
-    public String getOutlierRightScore(int lengthOutlierEnd, String score){
-        return score.substring(score.length()-lengthOutlierEnd,score.length());
-    }
-
-    //
-    // get Outlier
-    //
-
-    /**
-     * Method of the class TrimModes to write the outliers (3' and 5') in fasta files.
-     * @param lengthOutlierBegin, the length of the outlier right
-     * @param lengthOutlierEnd, the length of the outlier left
-     * @param sequence, the sequence of the read
-     * @param ID, the ID of the read
-     * @param utils, a utils object
-     * @throws IOException
-     */
-    public void writeOutliers(int lengthOutlierBegin, int lengthOutlierEnd, String sequence, String ID, Utils utils, BufferedWriter fastaFileLeftOutlier, BufferedWriter fastaFileRightOutlier) throws IOException {
-
-        String leftOutlierSequence= getOutlierLeftSequence(lengthOutlierBegin,sequence);
-        String rightOutlierSequence= getOutlierRightSequence(lengthOutlierEnd,sequence);
-        utils.writeFasta(leftOutlierSequence,ID,fastaFileLeftOutlier);
-        utils.writeFasta(rightOutlierSequence,ID,fastaFileRightOutlier);
-    }
+  }
 }

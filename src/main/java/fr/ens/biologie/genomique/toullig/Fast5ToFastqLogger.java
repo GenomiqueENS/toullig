@@ -114,7 +114,7 @@ public class Fast5ToFastqLogger {
    * files.
    * @return a list of string
    */
-  public List<String> getListLog() {
+  private List<String> getListLog() {
     List<String> listLog = new ArrayList<String>();
     listLog.add("Number of fast5 files read "
         + this.f5.getNumberFast5Files(this.localReporter));
@@ -140,7 +140,7 @@ public class Fast5ToFastqLogger {
    * the workflows.
    * @return a list of string
    */
-  public List<String> getListLogStatusWorkflow() {
+  private List<String> getListLogStatusWorkflow() {
     return this.listWorkflowStatusLog;
   }
 

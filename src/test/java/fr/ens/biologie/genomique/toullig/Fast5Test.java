@@ -23,13 +23,13 @@ import fr.ens.biologie.genomique.toullig.Fast5.Type;
 import fr.ens.biologie.genomique.toullig.Fast5.Version;
 
 public class Fast5Test {
-  String file1 = "/alexander_PC_20161027_R9-4_1D.fast5";
-  String file2 = "/dnacpc14_20160617_R7_2D_prebasecalling.fast5";
-  String file3 = "/dnacpc14_20160617_R7_2D.fast5";
-  String file4 = "/dnacpc14_20161011_R9_2D_prebasecalling.fast5";
-  String file5 = "/dnacpc14_20161011_R9_2D.fast5";
-  String file6 = "/dnacpc14_20170124_R9-4_2D_prebasecalling.fast5";
-  String file7 = "/dnacpc14_20170124_R9-4_2D.fast5";
+  private String file1 = "/alexander_PC_20161027_R9-4_1D.fast5";
+  private String file2 = "/dnacpc14_20160617_R7_2D_prebasecalling.fast5";
+  private String file3 = "/dnacpc14_20160617_R7_2D.fast5";
+  private String file4 = "/dnacpc14_20161011_R9_2D_prebasecalling.fast5";
+  private String file5 = "/dnacpc14_20161011_R9_2D.fast5";
+  private String file6 = "/dnacpc14_20170124_R9-4_2D_prebasecalling.fast5";
+  private String file7 = "/dnacpc14_20170124_R9-4_2D.fast5";
 
   /**
    * Read an input stream.

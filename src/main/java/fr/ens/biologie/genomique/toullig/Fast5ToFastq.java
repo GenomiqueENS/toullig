@@ -385,69 +385,57 @@ public class Fast5ToFastq {
   /**
    * This method of the class Fast5ToFastq set the type of files Fail on
    * process.
-   * @param processFail, a boolean to process the type of files Fail
    */
-  public void setProcessFail(boolean processFail) {
-    this.processFail = processFail;
+  public void setProcessFail() {
+    this.processFail = true;
   }
 
   /**
    * This method of the class Fast5ToFastq set the type of files Pass on
    * process.
-   * @param processPass, a boolean to process the type of files Pass
    */
-  public void setProcessPass(boolean processPass) {
-    this.processPass = processPass;
+  public void setProcessPass() {
+    this.processPass = true;
   }
 
   /**
    * This method of the class Fast5ToFastq set the type of files Fail Barcoded
    * on process. files to process.
-   * @param processUnclassified, a boolean to process the type of files Fail
-   *          Barcoded
    */
-  public void setProcessUnclassified(boolean processUnclassified) {
-    this.processUnclassified = processUnclassified;
+  public void setProcessUnclassified() {
+    this.processUnclassified = true;
   }
 
   /**
    * This method of the class Fast5ToFastq set the type of complement sequence
    * on process.
-   * @param saveComplementSequence, a boolean to process the type of complement
-   *          sequences
    */
-  public void setSaveComplementSequence(boolean saveComplementSequence) {
-    this.saveComplementSequence = saveComplementSequence;
+  public void setSaveComplementSequence() {
+    this.saveComplementSequence = true;
   }
 
   /**
    * This method of the class Fast5ToFastq set the type of template sequence on
    * process.
-   * @param saveTemplateSequence, a boolean to process the type of template
-   *          sequences
    */
-  public void setSaveTemplateSequence(boolean saveTemplateSequence) {
-    this.saveTemplateSequence = saveTemplateSequence;
+  public void setSaveTemplateSequence() {
+    this.saveTemplateSequence = true;
   }
 
   /**
    * This method of the class Fast5ToFastq set the type of consensus sequence on
    * process.
-   * @param saveConsensusSequence, a boolean to process the type of barcode
-   *          sequences
    */
-  public void setSaveConsensusSequence(boolean saveConsensusSequence) {
-    this.saveConsensusSequence = saveConsensusSequence;
+  public void setSaveConsensusSequence() {
+    this.saveConsensusSequence = true;
   }
 
   /**
    * This method of the class Fast5ToFastq set the type of transcript sequence
    * on process.
-   * @param saveTranscriptSequence, a boolean to process the type of barcode
-   *          sequences
    */
-  public void setSaveTranscriptSequence(boolean saveTranscriptSequence) {
-    this.saveTranscriptSequence = saveTranscriptSequence;
+  public void setSaveTranscriptSequence() {
+    this.saveTranscriptSequence = true;
   }
 
   //
@@ -457,19 +445,17 @@ public class Fast5ToFastq {
   /**
    * This method of the class Fast5ToFastq set the type of compression of fastq
    * output to gzip.
-   * @param saveCompressGZIP, boolean to process the type of compression
    */
-  public void setGzipCompression(boolean saveCompressGZIP) {
-    this.saveCompressGZIP = saveCompressGZIP;
+  public void setGzipCompression() {
+    this.saveCompressGZIP = true;
   }
 
   /**
    * This method of the class Fast5ToFastq set the type of compression of fastq
    * output to bzip2.
-   * @param saveCompressBZIP2, boolean to process the type of compression
    */
-  public void setBZip2Compression(boolean saveCompressBZIP2) {
-    this.saveCompressBZIP2 = saveCompressBZIP2;
+  public void setBZip2Compression() {
+    this.saveCompressBZIP2 = true;
   }
 
   //

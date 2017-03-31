@@ -1,7 +1,4 @@
 
-/**
- * Created by birer on 23/03/17.
- */
 package fr.ens.biologie.genomique.toullig.modules;
 
 import fr.ens.biologie.genomique.eoulsan.EoulsanException;
@@ -68,23 +65,23 @@ public class TrimmingFastqONTModule extends AbstractModule {
             fastqOutputFile, workDir);
 
         if (this.trimmer.contains("trimmomatic")) {
-          trim.setProcessTrimmomatic(true);
+          trim.setProcessTrimmomatic();
         }
 
         if (this.mode.contains("SW")) {
-          trim.setProcessSWTrim(true);
+          trim.setProcessSideWindowTrim();
         }
 
         if (this.stats) {
-          trim.setProcessStats(true);
+          trim.setProcessStats();
         }
 
         if (this.thresholdSW != 0) {
-          trim.setThresholdSW(this.thresholdSW);
+          trim.setThresholdSideWindow(this.thresholdSW);
         }
 
         if (this.lengthWindowsSW != 0) {
-          trim.setLengthWindowSW(this.lengthWindowsSW);
+          trim.setLengthWindowSideWindow(this.lengthWindowsSW);
         }
 
         if (this.addIndexOutlier != 0) {

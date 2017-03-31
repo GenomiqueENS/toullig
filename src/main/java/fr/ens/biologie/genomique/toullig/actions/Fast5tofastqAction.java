@@ -21,7 +21,7 @@ import fr.ens.biologie.genomique.toullig.Globals;
 public class Fast5tofastqAction extends AbstractAction {
 
   /** Name of this action. */
-  public static final String ACTION_NAME = "Fast5tofastq";
+  private static final String ACTION_NAME = "Fast5tofastq";
 
   //
   // Action methods
@@ -192,34 +192,34 @@ public class Fast5tofastqAction extends AbstractAction {
       if5.setMergeAllStatusFast5(merge);
       // If the Experimental protocol is not barcoded
       if (status.contains("fail")) {
-        if5.setProcessFail(true);
+        if5.setProcessFail();
       }
       if (status.contains("pass")) {
-        if5.setProcessPass(true);
+        if5.setProcessPass();
       }
       // If the Experimental protocol is barcoded
       if (status.contains("unclassified")) {
-        if5.setProcessUnclassified(true);
+        if5.setProcessUnclassified();
       }
       // List of sequences :
       if (type.contains("template")) {
-        if5.setSaveTemplateSequence(true);
+        if5.setSaveTemplateSequence();
       }
       if (type.contains("complement")) {
-        if5.setSaveComplementSequence(true);
+        if5.setSaveComplementSequence();
       }
       if (type.contains("consensus")) {
-        if5.setSaveConsensusSequence(true);
+        if5.setSaveConsensusSequence();
       }
       if (type.contains("transcript")) {
-        if5.setSaveTranscriptSequence(true);
+        if5.setSaveTranscriptSequence();
       }
       // Compress format
       if (compress.contains("gzip")) {
-        if5.setGzipCompression(true);
+        if5.setGzipCompression();
       }
       if (compress.contains("bzip2")) {
-        if5.setBZip2Compression(true);
+        if5.setBZip2Compression();
       }
 
       getLogger().info("Fast5 Run Directory: " + dirFast5);

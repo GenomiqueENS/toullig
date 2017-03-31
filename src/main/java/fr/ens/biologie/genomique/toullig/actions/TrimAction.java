@@ -19,7 +19,7 @@ import fr.ens.biologie.genomique.toullig.TrimFastq;
 public class TrimAction extends AbstractAction {
 
   /** Name of this action. */
-  public static final String ACTION_NAME = "Trim";
+  private static final String ACTION_NAME = "Trim";
 
   //
   // Action methods
@@ -257,21 +257,21 @@ public class TrimAction extends AbstractAction {
           fastqOutputFile, workDir);
 
       if (trimmer.contains("trimmomatic")) {
-        trim.setProcessTrimmomatic(true);
+        trim.setProcessTrimmomatic();
       }
 
       if (mode.contains("SW")) {
-        trim.setProcessSWTrim(true);
+        trim.setProcessSideWindowTrim();
       }
       if (stats.contains("true")) {
-        trim.setProcessStats(true);
+        trim.setProcessStats();
       }
       if (thresholdSW != 0) {
-        trim.setThresholdSW(thresholdSW);
+        trim.setThresholdSideWindow(thresholdSW);
       }
 
       if (lengthWindowsSW != 0) {
-        trim.setLengthWindowSW(lengthWindowsSW);
+        trim.setLengthWindowSideWindow(lengthWindowsSW);
       }
 
       if (addIndexOutlier != 0) {

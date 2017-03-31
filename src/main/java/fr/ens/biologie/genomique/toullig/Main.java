@@ -13,13 +13,13 @@ import fr.ens.biologie.genomique.toullig.actions.TrimAction;
  * Main class of nanoporetools
  * @author birer
  */
-public abstract class Main {
+abstract class Main {
 
   /**
    * Exit the application.
    * @param exitCode exit code
    */
-  public static void exit(final int exitCode) {
+  private static void exit(final int exitCode) {
 
     System.exit(exitCode);
   }
