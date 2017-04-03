@@ -1,22 +1,13 @@
-// package fr.ens.biologie.genomique.toullig.trimming;
-//
-/// **
-// * Created by birer on 31/03/17.
-// */
-// public interface OutlierPositionFinder extends O{
-//
-//
-//
-// if(algoChoose.equals("perfectAlgorithm")){
-// PerfectOutlierPositionFinder perfectOutlierPositionFinder = new
-// PerfectOutlierPositionFinder();
-//
-// }else{
-//
-// SideWindowOutlierPositionFinder sideWindowAlgorithmOutlierPositionFinder =
-// new SideWindowOutlierPositionFinder();
-//
-// }
-//
-//
-// }
+package fr.ens.biologie.genomique.toullig.trimming;
+
+import java.io.File;
+
+/**
+ * Interface for Outlier position finder Created by birer on 31/03/17.
+ */
+public interface OutlierPositionFinder {
+  // Method to find Outlier in ONT data
+  void findOutliers(File fastaLeftOutlierFile, File fastaRightOutlierFile,
+      Trimmer trimmer);
+
+}

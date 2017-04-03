@@ -14,12 +14,12 @@ import java.util.*;
  */
 public class Fast5ToFastqLogger {
 
-  private List<String> listWriteSequenceLog = new ArrayList<String>();
-  private List<String> listWorkflowStatusLog = new ArrayList<String>();
+  private final List<String> listWriteSequenceLog = new ArrayList<>();
+  private final List<String> listWorkflowStatusLog = new ArrayList<>();
 
   private LocalReporter localReporter = new LocalReporter();
 
-  private Fast5ToFastq f5;
+  private final Fast5ToFastq f5;
   private Writer logWriter;
   private Writer logCorruptWriter;
   private Writer logWorkflowWriter;
@@ -28,7 +28,7 @@ public class Fast5ToFastqLogger {
    * Constructor of the Fast5ToFastqLogger class.
    * @param runConversionFastq, the run directory of fast5
    * @param fastqDir, the output directory of fastq
-   * @throws IOException
+   * @throws IOException if an IO error occur
    */
   public Fast5ToFastqLogger(Fast5ToFastq runConversionFastq, File fastqDir)
       throws IOException {
@@ -47,7 +47,7 @@ public class Fast5ToFastqLogger {
   /**
    * Method to create a log about the number fastq sequence reads and write in
    * all differents status of fast5 files.
-   * @throws IOException
+   * @throws IOException if an IO error occur
    */
   public void createLogConversionFastq(Date dateDeb, Date dateEnd)
       throws IOException {
@@ -69,7 +69,7 @@ public class Fast5ToFastqLogger {
   /**
    * Method to create a log about the final message status of each common
    * workflows made by the basecalling.
-   * @throws IOException
+   * @throws IOException if an IO error occur
    */
   public void createLogWorkflow() throws IOException {
     try {
@@ -90,7 +90,7 @@ public class Fast5ToFastqLogger {
   /**
    * Method to create a log about the complète list of fast5 files corromp find
    * in the analysis.
-   * @throws IOException
+   * @throws IOException if an IO error occur
    */
   public void createLogCorruptFile() throws IOException {
     try {
@@ -115,18 +115,18 @@ public class Fast5ToFastqLogger {
    * @return a list of string
    */
   private List<String> getListLog() {
-    List<String> listLog = new ArrayList<String>();
-    listLog.add("Number of fast5 files read "
+    List<String> listLog = new ArrayList<>();
+    listLog.add("Input fast5 files read: "
         + this.f5.getNumberFast5Files(this.localReporter));
-    listLog.add("Number of corrupt files "
+    listLog.add("Input corrupt files: "
         + this.f5.getNumberCorruptFast5Files(this.localReporter));
-    listLog.add("Number of calibrate strand files read "
+    listLog.add("Input calibrate strand files read: "
         + this.f5.getNumberCalibrateStrandFast5Files(this.localReporter));
-    listLog.add("Number of unclassified files read "
+    listLog.add("Input unclassified files read: "
         + this.f5.getNumberUnclassifiedFast5Files(this.localReporter));
-    listLog.add("Number of fail files read "
+    listLog.add("Input fail files read: "
         + this.f5.getNumberFailFast5Files(this.localReporter));
-    listLog.add("Number of pass files read "
+    listLog.add("Input pass files read: "
         + this.f5.getNumberPassFast5Files(this.localReporter));
 
     for (String element : this.listWriteSequenceLog) {
@@ -172,11 +172,18 @@ public class Fast5ToFastqLogger {
       String[] typeSequence = element.split("Sequence")[1].split("Write");
       String[] partSplit = element.split("_");
       if (!oldStatusWrite.equals(partSplit[0])) {
-        this.listWriteSequenceLog.add("\n");
+        this.listWriteSequenceLog.add("");
       }
-      this.listWriteSequenceLog.add("In the file "
-          + partSplit[0] + " " + typeSequence[0]
-          + " the number of total sequence write " + numberSequence);
+      if (typeSequence[0].contains("Null")) {
+        String[] partSplitNull = element.split("Nu");
+        this.listWriteSequenceLog.add("Barcode "
+            + partSplit[0] + ", " + partSplitNull[0]
+            + " empty sequence(s) found: " + numberSequence);
+      } else {
+        this.listWriteSequenceLog.add("Barcode "
+            + partSplit[0] + ", " + typeSequence[0] + " sequence(s) writted: "
+            + numberSequence);
+      }
       oldStatusWrite = partSplit[0];
     }
     List<String> groupName = new ArrayList<>();

@@ -175,11 +175,11 @@ public class TrimAction extends AbstractAction {
         .create("trimmer"));
 
     options.addOption(OptionBuilder.withArgName("mode").hasArg()
-        .withDescription("mode of trimming use [P | SW] (default : P)")
+        .withDescription("mode of cutadaptTrimming use [P | SW] (default : P)")
         .create("mode"));
     options.addOption(OptionBuilder.withArgName("stats").hasArg()
         .withDescription(
-            "make somes stats on the trimming [true | false] (default : false)")
+            "make somes stats on the cutadaptTrimming [true | false] (default : false)")
         .create("stats"));
 
     options.addOption(OptionBuilder.withArgName("addIndexOutlier").hasArg()

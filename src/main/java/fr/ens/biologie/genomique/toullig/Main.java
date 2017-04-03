@@ -3,8 +3,8 @@ package fr.ens.biologie.genomique.toullig;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
+import fr.ens.biologie.genomique.eoulsan.Common;
+import org.apache.commons.cli.*;
 
 import fr.ens.biologie.genomique.toullig.actions.Fast5tofastqAction;
 import fr.ens.biologie.genomique.toullig.actions.TrimAction;
@@ -48,7 +48,6 @@ abstract class Main {
    * Create options for command line
    * @return an Options object
    */
-  @SuppressWarnings("static-access")
   private static Options makeOptions() {
 
     // create Options object
@@ -73,43 +72,68 @@ abstract class Main {
 
   /**
    * The main function parse the options of the command line
-   * @return the number of options argument in the command line
    */
   public static void main(String[] args) {
 
-    if (args.length == 0) {
-      System.out.println(
-          "ERROR: Toullig need in the first argument the tool what you want use!");
-      System.out.println("See the help with "
-          + Globals.APP_NAME_LOWER_CASE + ".sh -h, --help\n");
-      exit(1);
+    final Options options = makeOptions();
+    final CommandLineParser parser = new GnuParser();
 
-    }
+    try {
 
-    if (args[0].contains("-help") || args[0].contains("-h")) {
-      help();
-    }
+      // parse the command line arguments
+      final CommandLine line = parser.parse(options, args, true);
 
-    String mode = args[0];
+      if (args.length == 0) {
+        System.out.println(
+            "ERROR: Toullig need in the first argument the tool what you want use!");
+        System.out.println("See the help with "
+            + Globals.APP_NAME_LOWER_CASE + ".sh -h, --help\n");
+        exit(1);
 
-    switch (mode) {
+      }
 
-    case "fast5tofastq":
-      new Fast5tofastqAction().action(
-          new ArrayList<String>(Arrays.asList(args)).subList(1, args.length));
-      break;
+      if (line.hasOption("help")) {
+        help();
+      }
 
-    default:
-      System.out.println("ERROR: The name of the tool is not correct!");
-      System.out.println("See the help with "
-          + Globals.APP_NAME_LOWER_CASE + ".sh -h, --help\n");
-      break;
+      // About option
+      if (line.hasOption("about")) {
+        Common.showMessageAndExit(Globals.ABOUT_TXT);
+      }
 
-    case "trim":
-      new TrimAction().action(
-          new ArrayList<String>(Arrays.asList(args)).subList(1, args.length));
-      break;
+      // Version option
+      if (line.hasOption("version")) {
+        Common.showMessageAndExit(Globals.WELCOME_MSG);
+      }
 
+      // Licence option
+      if (line.hasOption("license")) {
+        Common.showMessageAndExit(Globals.LICENSE_TXT);
+      }
+
+      String mode = args[0];
+
+      switch (mode) {
+
+      case "fast5tofastq":
+        new Fast5tofastqAction().action(
+            new ArrayList<>(Arrays.asList(args)).subList(1, args.length));
+        break;
+
+      default:
+        System.out.println("ERROR: The name of the tool is not correct!");
+        System.out.println("See the help with "
+            + Globals.APP_NAME_LOWER_CASE + ".sh -h, --help\n");
+        break;
+
+      case "trim":
+        new TrimAction().action(
+            new ArrayList<>(Arrays.asList(args)).subList(1, args.length));
+        break;
+
+      }
+    } catch (ParseException e) {
+      e.printStackTrace();
     }
   }
 

@@ -6,7 +6,8 @@ import fr.ens.biologie.genomique.eoulsan.bio.Sequence;
 import fr.ens.biologie.genomique.eoulsan.bio.io.FastaWriter;
 
 /**
- * Class of somes utils methods for trimming. Created by birer on 29/03/17.
+ * Class of somes utils methods for cutadaptTrimming. Created by birer on
+ * 29/03/17.
  */
 class UtilsTrimming {
 

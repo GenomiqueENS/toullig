@@ -171,6 +171,7 @@ public class Globals {
       manifestAttributes = manifest.getMainAttributes();
 
     } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 

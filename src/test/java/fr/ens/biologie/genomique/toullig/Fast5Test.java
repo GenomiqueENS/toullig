@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
@@ -23,20 +22,18 @@ import fr.ens.biologie.genomique.toullig.Fast5.Type;
 import fr.ens.biologie.genomique.toullig.Fast5.Version;
 
 public class Fast5Test {
-  private String file1 = "/alexander_PC_20161027_R9-4_1D.fast5";
-  private String file2 = "/dnacpc14_20160617_R7_2D_prebasecalling.fast5";
-  private String file3 = "/dnacpc14_20160617_R7_2D.fast5";
-  private String file4 = "/dnacpc14_20161011_R9_2D_prebasecalling.fast5";
-  private String file5 = "/dnacpc14_20161011_R9_2D.fast5";
-  private String file6 = "/dnacpc14_20170124_R9-4_2D_prebasecalling.fast5";
-  private String file7 = "/dnacpc14_20170124_R9-4_2D.fast5";
+  private final String file1 = "/alexander_PC_20161027_R9-4_1D.fast5";
+  private final String file2 = "/dnacpc14_20160617_R7_2D_prebasecalling.fast5";
+  private final String file3 = "/dnacpc14_20160617_R7_2D.fast5";
+  private final String file4 = "/dnacpc14_20161011_R9_2D_prebasecalling.fast5";
+  private final String file5 = "/dnacpc14_20161011_R9_2D.fast5";
+  private final String file6 = "/dnacpc14_20170124_R9-4_2D_prebasecalling.fast5";
+  private final String file7 = "/dnacpc14_20170124_R9-4_2D.fast5";
 
   /**
    * Read an input stream.
-   * @throws MalformedURLException
-   * @throws IOException
    */
-  private static String readInputStream(String path) throws IOException {
+  private static String readInputStream(String path) {
 
     InputStream is = Fast5Test.class.getResourceAsStream(path);
     StringBuilder sb = new StringBuilder();
@@ -988,7 +985,7 @@ public class Fast5Test {
   //
 
   @Test
-  public void testGetTemplateFastq() throws MalformedURLException, IOException {
+  public void testGetTemplateFastq() throws IOException {
     Fast5 testf1 = new Fast5(getResourceAsFile(file1));
     String sequence1 =
         readInputStream("/alexander_PC_20161027_R9-4_1D_template.fastq");
@@ -1028,7 +1025,7 @@ public class Fast5Test {
 
   @Test
   public void testGetComplementFastq()
-      throws MalformedURLException, IOException {
+      throws IOException {
     Fast5 testf1 = new Fast5(getResourceAsFile(file1));
     assertEquals(null, testf1.getComplementFastq());
     testf1.close();

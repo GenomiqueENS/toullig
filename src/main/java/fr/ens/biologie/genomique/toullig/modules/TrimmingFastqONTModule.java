@@ -110,7 +110,7 @@ public class TrimmingFastqONTModule extends AbstractModule {
         // workflow
         return status.createTaskResult();
 
-      } catch (IOException | InterruptedException e) {
+      } catch (IOException e) {
 
         // If an exception occurs while running Gsnap, return a error TaskResult
         // object with the exception that cause the error

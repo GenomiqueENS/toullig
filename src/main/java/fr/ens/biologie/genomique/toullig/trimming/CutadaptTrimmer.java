@@ -5,9 +5,9 @@ import fr.ens.biologie.genomique.eoulsan.bio.Alphabet;
 import fr.ens.biologie.genomique.eoulsan.bio.ReadSequence;
 import fr.ens.biologie.genomique.eoulsan.bio.Sequence;
 import fr.ens.biologie.genomique.eoulsan.bio.io.FastaReader;
+import fr.ens.biologie.genomique.eoulsan.bio.io.FastaWriter;
 import fr.ens.biologie.genomique.eoulsan.bio.io.FastqWriter;
 import fr.ens.biologie.genomique.eoulsan.util.LocalReporter;
-import fr.ens.biologie.genomique.toullig.Utils;
 
 import java.io.*;
 import java.util.HashMap;
@@ -20,21 +20,30 @@ import static fr.ens.biologie.genomique.toullig.Utils.complement;
 /**
  * Class to execute the Cutadapt trimmer. Created by birer on 27/03/17.
  */
-public class CutadaptTrimmer {
+public class CutadaptTrimmer implements Trimmer {
 
-  private Map<String, String[]> workTrimmingMap;
-  private File nameOutputFastq;
-  private File outputTrimLeftFastaFile;
-  private File outputTrimRightFastaFile;
-  private String adaptorRetroTranscritpion;
-  private String adaptorStrandSwitching;
-  private Alphabet alphabet = AMBIGUOUS_DNA_ALPHABET;
-  private double errorRateCutadapt;
+  private final Map<String, String[]> workTrimmingMap;
+  private final File nameOutputFastq;
+  private final File outputTrimLeftFastaFile;
+  private final File outputTrimRightFastaFile;
+
+  private final File fastaLeftOutlierFile;
+  private final File fastaRightOutlierFile;
+
+  private final File infoTrimLeftFile;
+  private final File infoTrimRightFile;
+
+  private final String adaptorRetroTranscritpion;
+  private final String adaptorStrandSwitching;
+  private final Alphabet alphabet = AMBIGUOUS_DNA_ALPHABET;
+  private final double errorRateCutadapt;
 
   public CutadaptTrimmer(Map<String, String[]> workTrimmingMap,
       File nameOutputFastq, File outputTrimLeftFastaFile,
       File outputTrimRightFastaFile, String adaptorRetroTranscritpion,
-      String adaptorStrandSwitching, double errorRateCutadapt) {
+      String adaptorStrandSwitching, double errorRateCutadapt,
+      File fastaLeftOutlierFile, File fastaRightOutlierFile,
+      File infoTrimLeftFile, File infoTrimRightFile) {
 
     this.workTrimmingMap = workTrimmingMap;
     this.nameOutputFastq = nameOutputFastq;
@@ -43,6 +52,10 @@ public class CutadaptTrimmer {
     this.adaptorRetroTranscritpion = adaptorRetroTranscritpion;
     this.adaptorStrandSwitching = adaptorStrandSwitching;
     this.errorRateCutadapt = errorRateCutadapt;
+    this.fastaLeftOutlierFile = fastaLeftOutlierFile;
+    this.fastaRightOutlierFile = fastaRightOutlierFile;
+    this.infoTrimLeftFile = infoTrimLeftFile;
+    this.infoTrimRightFile = infoTrimRightFile;
   }
 
   //
@@ -52,12 +65,11 @@ public class CutadaptTrimmer {
   /**
    * Method of the class CutadaptTrimmer to merge the results of cutadapt with
    * the trim sequence.
-   * @throws IOException
    */
-  public void mergeTrimOutlier() throws IOException {
+  public void mergeTrimOutlier() {
 
-    HashMap<String, String> fastaLeftHash = new HashMap<String, String>();
-    HashMap<String, String> fastaRightHash = new HashMap<String, String>();
+    HashMap<String, String> fastaLeftHash = new HashMap<>();
+    HashMap<String, String> fastaRightHash = new HashMap<>();
 
     String shortestFastqSequence = "";
     int i = 0;
@@ -223,15 +235,11 @@ public class CutadaptTrimmer {
    * @param strand, the cutadapt strand of the adaptor
    * @param infoTrimFile, path to the output log of cutadapt
    * @param pathOutputTrimFasta, path to the output of cutadapt
-   * @throws IOException
-   * @throws InterruptedException
    */
-  public void cutadaptTrim(File fastaOutlierFile, String strand,
-      File infoTrimFile, File pathOutputTrimFasta)
-      throws IOException, InterruptedException {
+  public void cutadaptTrimming(File fastaOutlierFile, String strand,
+      File infoTrimFile, File pathOutputTrimFasta) {
 
     try {
-      Utils utils = new Utils();
       String reverseComplementAdaptorRT = strand
           + " reverse_complement_RT_adaptor="
           + reverseComplement(this.adaptorRetroTranscritpion, this.alphabet);
@@ -246,10 +254,10 @@ public class CutadaptTrimmer {
           + " complement_Switch_Strand_RT_adaptor="
           + complement(this.adaptorStrandSwitching, this.alphabet);
 
-      StringBuffer reverseAdaptorRTStringBuffer =
-          new StringBuffer(this.adaptorRetroTranscritpion);
-      StringBuffer reverseAdaptorSwithStrandStringBuffer =
-          new StringBuffer(this.adaptorStrandSwitching);
+      StringBuilder reverseAdaptorRTStringBuffer =
+          new StringBuilder(this.adaptorRetroTranscritpion);
+      StringBuilder reverseAdaptorSwithStrandStringBuffer =
+          new StringBuilder(this.adaptorStrandSwitching);
       String reverseAdaptorRT = strand
           + " reverse_RT_adaptor="
           + reverseAdaptorRTStringBuffer.reverse().toString();
@@ -282,14 +290,9 @@ public class CutadaptTrimmer {
       getLogCutadapt(proc);
 
       int exitproc = proc.waitFor();
-      // if(!proc.waitFor(1, TimeUnit.MINUTES)) {
-      // //timeout - kill the process.
-      // proc.destroy(); // consider using destroyForcibly instead
-      // }
-    } catch (IOException e) {
+
+    } catch (IOException | InterruptedException e) {
       e.printStackTrace(); // or log it, or otherwise handle it
-    } catch (InterruptedException ie) {
-      ie.printStackTrace(); // or log it, or otherwise handle it
     }
   }
 
@@ -297,7 +300,7 @@ public class CutadaptTrimmer {
    * Method of the class CutadaptTrimmer to display log of cutadapt (delete the
    * option --quiet).
    * @param proc, a Processus
-   * @throws IOException
+   * @throws IOException if an IO error occur
    */
   private void getLogCutadapt(Process proc) throws IOException {
 
@@ -308,7 +311,7 @@ public class CutadaptTrimmer {
 
     // read the output from the command
     System.out.println("Here is the standard output of the command:\n");
-    String s = null;
+    String s;
     while ((s = stdInput.readLine()) != null) {
       System.out.println(s);
     }
@@ -323,9 +326,10 @@ public class CutadaptTrimmer {
   }
 
   /**
-   * Method of the class CutadaptTrimmer to make some stats of the trimming
+   * Method of the class CutadaptTrimmer to make some stats of the
+   * cutadaptTrimming
    * @param infoTrimFile, a path to store stats in a file
-   * @throws IOException
+   * @throws IOException if an IO error occur
    */
   public void statsLogCutadapt(File infoTrimFile) throws IOException {
 
@@ -399,5 +403,55 @@ public class CutadaptTrimmer {
           + " :  " + localReporterNumberTimesAdaptor
               .getCounterValue("Construction", constructionAdaptor));
     }
+  }
+
+  //
+  // Main execution
+  //
+
+  /**
+   * Method of the class TrimmomaticTrimmer to trimming with the Trimmer
+   * interface.
+   * @param leftLengthOutlier , the length of the left outlier
+   * @param rightLengthOutlier , the length of the left outlier
+   * @param sequence, the sequence of the read
+   * @param id , the id of the read
+   * @param quality , the quality of the read
+   */
+  public void preProcessTrimming(int leftLengthOutlier, int rightLengthOutlier,
+      String sequence, String id, String quality) {
+    try (
+        FastaWriter leftFastaWriter =
+            new FastaWriter(this.fastaLeftOutlierFile);
+        FastaWriter rightFastaWriter =
+            new FastaWriter(this.fastaRightOutlierFile)) {
+
+      UtilsTrimming.writeOutliers(leftLengthOutlier, rightLengthOutlier,
+          sequence, id, leftFastaWriter, rightFastaWriter);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * Method of the class TrimmomaticTrimmer to trimming with the Trimmer
+   * interface
+   */
+  public void trimming() {
+
+    System.out.println("Begin use cutadapt !");
+
+    String strandLeft = "-g";
+    String strandRight = "-a";
+
+    // Cutadapt execution
+    cutadaptTrimming(this.fastaLeftOutlierFile, strandLeft,
+        this.infoTrimLeftFile, this.outputTrimLeftFastaFile);
+    cutadaptTrimming(this.fastaRightOutlierFile, strandRight,
+        this.infoTrimRightFile, this.outputTrimRightFastaFile);
+
+    // Merge the output form cutadapt
+    mergeTrimOutlier();
+
   }
 }

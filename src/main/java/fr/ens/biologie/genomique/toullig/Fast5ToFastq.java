@@ -10,8 +10,6 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.zip.GZIPOutputStream;
 
 import fr.ens.biologie.genomique.eoulsan.util.LocalReporter;
@@ -28,7 +26,7 @@ public class Fast5ToFastq {
   private File fast5RunDirectory;
   private File repertoryFastqOutput;
 
-  private List<File> listCorruptFast5Files = new ArrayList<>();
+  private final List<File> listCorruptFast5Files = new ArrayList<>();
 
   private boolean processMergeStatus;
   private boolean processFail;
@@ -43,7 +41,7 @@ public class Fast5ToFastq {
   private boolean saveCompressGZIP;
   private boolean saveCompressBZIP2;
 
-  private LocalReporter localReporter = new LocalReporter();
+  private final LocalReporter localReporter = new LocalReporter();
 
   /**
    * This class implement the compression of the fastq output.
@@ -200,7 +198,7 @@ public class Fast5ToFastq {
    * @return a list of all fast5 file
    */
   private List<File> listAllFast5() {
-    List<File> listFast5Files = new ArrayList<File>();
+    List<File> listFast5Files = new ArrayList<>();
     for (File directory : listSubDir(
         new File(this.fast5RunDirectory, "downloads"))) {
       if (directory.isDirectory()) {
@@ -494,6 +492,7 @@ public class Fast5ToFastq {
       return;
     }
     // Create writters
+
     Writer complementWriter = null;
     Writer templateWriter = null;
     Writer consensusWriter = null;
@@ -528,52 +527,25 @@ public class Fast5ToFastq {
         + (end1 - start1) / 1000 + "s for a " + listFast5Files.size()
         + " number of fast5");
 
-    // for (int i = 0; i <= listFast5Files.size(); i += 50000) {
-    //
-    // long start2 = System.currentTimeMillis();
-    // multiThreadReadFast5WriteFastq(listFast5Files.subList(0, i),
-    // complementWriter, templateWriter, consensusWriter, transcriptWriter,
-    // status, localReporter);
-    //
-    // long end2 = System.currentTimeMillis();
-    //
-    // System.out.println("Time exe multi thread :"
-    // + (end2 - start2) / 1000 + "s for a " + i + " number of fast5");
-    // }
-    // long start3 = System.currentTimeMillis();
-    // multiThreadReadFast5WriteFastq(listFast5Files, complementWriter,
-    // templateWriter, consensusWriter, transcriptWriter, status,
-    // localReporter);
-    //
-    // long end3 = System.currentTimeMillis();
-    //
-    // System.out
-    // .println("Time exe multi thread :" + (end3 - start3) / 1000 + "s");
-    //
-    // long start4 = System.currentTimeMillis();
-    //
-    // readFast5WriteFastq(listFast5Files, complementWriter, templateWriter,
-    // consensusWriter, transcriptWriter, status, localReporter);
-    //
-    // long end4 = System.currentTimeMillis();
-    // System.out.println("Time exe 1 thread:"
-    // + (end4 - start4) / 1000 + "s for a " + listFast5Files.size()
-    // + " number of fast5");
-
     // Close writters
     if (this.saveComplementSequence) {
+      assert complementWriter != null;
       complementWriter.close();
     }
     if (this.saveTemplateSequence) {
+      assert templateWriter != null;
       templateWriter.close();
     }
     if (this.saveConsensusSequence) {
+      assert consensusWriter != null;
       consensusWriter.close();
     }
 
     if (this.saveTranscriptSequence) {
+      assert transcriptWriter != null;
       transcriptWriter.close();
     }
+
   }
 
   /**
@@ -761,54 +733,6 @@ public class Fast5ToFastq {
     } catch (HDF5Exception e) {
       localReporter.incrCounter("numberFiles", "numberCorruptFast5Files", 1);
       this.listCorruptFast5Files.add(fast5File);
-    }
-  }
-
-  /**
-   * This method of the class Fast5ToFastq read the fast5 file and write in the
-   * fastq file in multi-threading.
-   * @param listFast5Files, the fast5 file to be read
-   * @param complementWriter, a fastq output file
-   * @param templateWriter, a fastq output file
-   * @param consensusWriter, a fastq output file
-   * @param transcriptWriter, a fastq output file
-   * @param status, the name of the root classification of a minion run
-   * @param localReporter, the object who stores log information
-   * @throws IOException, test the read of the file
-   */
-  private void multiThreadReadFast5WriteFastq(List<File> listFast5Files,
-      final Writer complementWriter, final Writer templateWriter,
-      final Writer consensusWriter, final Writer transcriptWriter,
-      final String status, final LocalReporter localReporter)
-      throws IOException {
-
-    ExecutorService executor = Executors
-        .newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
-    for (final File fast5File : listFast5Files) {
-      executor.submit(new Runnable() {
-
-        @Override
-        public void run() {
-          try {
-            readFast5WriteFastq(fast5File, complementWriter, templateWriter,
-                consensusWriter, transcriptWriter, status, localReporter);
-          } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
-        }
-      });
-    }
-
-    executor.shutdown();
-    while (!executor.isTerminated()) {
-      try {
-        Thread.sleep(2000);
-      } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
     }
   }
 
