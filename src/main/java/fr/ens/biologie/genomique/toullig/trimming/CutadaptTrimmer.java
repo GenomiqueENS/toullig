@@ -22,13 +22,10 @@ import static fr.ens.biologie.genomique.toullig.Utils.complement;
  */
 public class CutadaptTrimmer implements Trimmer {
 
-  private final Map<String, String[]> workTrimmingMap;
+  private final Map<String, InformationRead> workTrimmingMap;
   private final File nameOutputFastq;
   private final File outputTrimLeftFastaFile;
   private final File outputTrimRightFastaFile;
-
-  private final File fastaLeftOutlierFile;
-  private final File fastaRightOutlierFile;
 
   private final File infoTrimLeftFile;
   private final File infoTrimRightFile;
@@ -38,12 +35,18 @@ public class CutadaptTrimmer implements Trimmer {
   private final Alphabet alphabet = AMBIGUOUS_DNA_ALPHABET;
   private final double errorRateCutadapt;
 
-  public CutadaptTrimmer(Map<String, String[]> workTrimmingMap,
+  private File fastaLeftOutlierFile;
+  private File fastaRightOutlierFile;
+
+  private FastaWriter leftFastaWriter;
+  private FastaWriter rightFastaWriter;
+
+  public CutadaptTrimmer(Map<String, InformationRead> workTrimmingMap,
       File nameOutputFastq, File outputTrimLeftFastaFile,
       File outputTrimRightFastaFile, String adaptorRetroTranscritpion,
       String adaptorStrandSwitching, double errorRateCutadapt,
       File fastaLeftOutlierFile, File fastaRightOutlierFile,
-      File infoTrimLeftFile, File infoTrimRightFile) {
+      File infoTrimLeftFile, File infoTrimRightFile) throws IOException {
 
     this.workTrimmingMap = workTrimmingMap;
     this.nameOutputFastq = nameOutputFastq;
@@ -52,10 +55,14 @@ public class CutadaptTrimmer implements Trimmer {
     this.adaptorRetroTranscritpion = adaptorRetroTranscritpion;
     this.adaptorStrandSwitching = adaptorStrandSwitching;
     this.errorRateCutadapt = errorRateCutadapt;
-    this.fastaLeftOutlierFile = fastaLeftOutlierFile;
-    this.fastaRightOutlierFile = fastaRightOutlierFile;
     this.infoTrimLeftFile = infoTrimLeftFile;
     this.infoTrimRightFile = infoTrimRightFile;
+    this.fastaLeftOutlierFile = fastaLeftOutlierFile;
+    this.fastaRightOutlierFile = fastaRightOutlierFile;
+
+    this.leftFastaWriter = new FastaWriter(fastaLeftOutlierFile);
+    this.rightFastaWriter = new FastaWriter(fastaRightOutlierFile);
+
   }
 
   //
@@ -111,40 +118,27 @@ public class CutadaptTrimmer implements Trimmer {
         i++;
         String leftSequence;
         String rightSequence;
-        int lengthBeginOutlier;
-        int lengthEndOutlier;
-        String[] tabValue = this.workTrimmingMap.get(id);
-        String cigar = tabValue[2];
-        String score = tabValue[1];
-        String sequence = tabValue[0];
-        String beginOutlier = tabValue[3];
-        String endOutlier = tabValue[4];
+        InformationRead informationRead = this.workTrimmingMap.get(id);
+        String cigar = informationRead.cigar;
+        String quality = informationRead.quality;
+        String sequence = informationRead.sequence;
+        int leftLengthOutlier = informationRead.leftLengthOutlier;
+        int rightLengthOutlier = informationRead.rightLengthOutlier;
 
         if (!cigar.equals("*")) {
 
-          if (beginOutlier.equals("")) {
-            lengthBeginOutlier = 0;
-          } else {
-            lengthBeginOutlier = Integer.parseInt(beginOutlier);
+          if (leftLengthOutlier < 0) {
+            leftLengthOutlier = 0;
           }
-          if (endOutlier.equals("")) {
-            lengthEndOutlier = 0;
-          } else {
-            lengthEndOutlier = Integer.parseInt(endOutlier);
-          }
-
-          if (lengthBeginOutlier < 0) {
-            lengthBeginOutlier = 0;
-          }
-          if (lengthEndOutlier < 0) {
-            lengthEndOutlier = 0;
+          if (rightLengthOutlier < 0) {
+            rightLengthOutlier = 0;
           }
 
           String mainSequenceWithoutOutlier = "";
 
-          if ((lengthBeginOutlier + lengthEndOutlier) < sequence.length()) {
-            mainSequenceWithoutOutlier = sequence.substring(lengthBeginOutlier,
-                sequence.length() - lengthEndOutlier);
+          if ((leftLengthOutlier + rightLengthOutlier) < sequence.length()) {
+            mainSequenceWithoutOutlier = sequence.substring(leftLengthOutlier,
+                sequence.length() - rightLengthOutlier);
           }
 
           if (fastaLeftHash.containsKey(id)) {
@@ -163,16 +157,16 @@ public class CutadaptTrimmer implements Trimmer {
 
           leftSequence = Strings.nullToEmpty(leftSequence);
 
-          int leftLength = lengthBeginOutlier - leftSequence.length();
+          int leftLength = leftLengthOutlier - leftSequence.length();
           int rightLength =
-              (sequence.length() - lengthEndOutlier) + rightSequence.length();
+              (sequence.length() - rightLengthOutlier) + rightSequence.length();
 
-          if (lengthBeginOutlier - leftSequence.length() < 0) {
+          if (leftLengthOutlier - leftSequence.length() < 0) {
             leftLength = 0;
           }
 
-          if (rightLength > score.length()) {
-            rightLength = score.length();
+          if (rightLength > quality.length()) {
+            rightLength = quality.length();
           }
 
           // case with the addition of index (>0)
@@ -182,7 +176,7 @@ public class CutadaptTrimmer implements Trimmer {
 
           String sequenceTrim = sequence.substring(leftLength, rightLength);
 
-          String scoreTrim = score.substring(leftLength, rightLength);
+          String scoreTrim = quality.substring(leftLength, rightLength);
 
           if (scoreTrim.length() != sequenceTrim.length()) {
             System.out.println("problem :  "
@@ -289,7 +283,7 @@ public class CutadaptTrimmer implements Trimmer {
 
       getLogCutadapt(proc);
 
-      int exitproc = proc.waitFor();
+      proc.waitFor();
 
     } catch (IOException | InterruptedException e) {
       e.printStackTrace(); // or log it, or otherwise handle it
@@ -420,17 +414,10 @@ public class CutadaptTrimmer implements Trimmer {
    */
   public void preProcessTrimming(int leftLengthOutlier, int rightLengthOutlier,
       String sequence, String id, String quality) {
-    try (
-        FastaWriter leftFastaWriter =
-            new FastaWriter(this.fastaLeftOutlierFile);
-        FastaWriter rightFastaWriter =
-            new FastaWriter(this.fastaRightOutlierFile)) {
 
-      UtilsTrimming.writeOutliers(leftLengthOutlier, rightLengthOutlier,
-          sequence, id, leftFastaWriter, rightFastaWriter);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    UtilsTrimming.writeOutliers(leftLengthOutlier, rightLengthOutlier, sequence,
+        id, this.leftFastaWriter, this.rightFastaWriter);
+
   }
 
   /**

@@ -9,11 +9,11 @@ import java.util.Map;
  */
 public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
 
-  private final Map<String, String[]> workTrimmingMap;
+  private final Map<String, InformationRead> workTrimmingMap;
   private final int addIndexOutlier;
 
-  public PerfectOutlierPositionFinder(Map<String, String[]> workTrimmingMap,
-      int addIndexOutlier) {
+  public PerfectOutlierPositionFinder(
+          Map<String, InformationRead> workTrimmingMap, int addIndexOutlier) {
 
     this.workTrimmingMap = workTrimmingMap;
     this.addIndexOutlier = addIndexOutlier;
@@ -42,11 +42,11 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
       int leftLengthOutlier = 0;
       int rightLengthOutlier = 0;
       countSamReads++;
-      String[] tabValue = this.workTrimmingMap.get(id);
-      String sequence = tabValue[0];
-      String quality = tabValue[1];
-      String cigar = tabValue[2];
-      int qFlag = Integer.parseInt(tabValue[5]);
+      InformationRead informationRead = this.workTrimmingMap.get(id);
+      String sequence = informationRead.sequence;
+      String quality = informationRead.quality;
+      String cigar = informationRead.cigar;
+      int qFlag = informationRead.qFlag;
 
       // trim by CIGAR
       if (!"*".equals(cigar)) {
@@ -65,7 +65,7 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
           leftLengthOutlier =
               Integer.parseInt(cigar.substring(0, leftIndexOutlier))
                   + this.addIndexOutlier;
-          tabValue[3] = "" + leftLengthOutlier;
+          informationRead.leftLengthOutlier = leftLengthOutlier;
 
           countLeftOutlierFind++;
         } else {
@@ -88,7 +88,7 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
           rightLengthOutlier = Integer.parseInt(
               cigar.substring(cigar.lastIndexOf("M") + 1, rightIndexOutlier))
               + this.addIndexOutlier;
-          tabValue[4] = "" + rightLengthOutlier;
+          informationRead.rightLengthOutlier = rightLengthOutlier;
           countRightOutlierFind++;
         } else {
           leftLengthOutlier = 0;

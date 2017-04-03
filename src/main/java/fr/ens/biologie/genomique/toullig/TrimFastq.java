@@ -19,7 +19,7 @@ import htsjdk.samtools.SamReaderFactory;
  */
 public class TrimFastq implements AutoCloseable {
 
-  private final Map<String, String[]> workTrimmingMap = new HashMap<>();
+  private final Map<String, InformationRead> workTrimmingMap = new HashMap<>();
   private String adaptorRT;
   private String adaptorStrandSwitching;
 
@@ -136,8 +136,8 @@ public class TrimFastq implements AutoCloseable {
     try (final SamReader inputSam = SamReaderFactory.makeDefault()
         .open(SamInputResource.of(samInputStream))) {
 
-      String lengthBeginOutlier = "";
-      String lengthEndOutlier = "";
+      int lengthBeginOutlier = 0;
+      int lengthEndOutlier = 0;
       String quality = "";
       String sequence = "";
 
@@ -153,17 +153,18 @@ public class TrimFastq implements AutoCloseable {
 
         if (this.workTrimmingMap.containsKey(id)) {
           fastqHashMultimapped.add(id);
-          String[] tabvalue = this.workTrimmingMap.get(id);
-          if (Integer.parseInt(tabvalue[6]) <= cigarLength) {
+          InformationRead informationRead = this.workTrimmingMap.get(id);
+
+          // Select the largest alignement for a multi-mapped read
+          if (informationRead.cigarLength <= cigarLength) {
             this.workTrimmingMap.put(id,
-                new String[] {sequence, quality, cigar, lengthBeginOutlier,
-                    lengthEndOutlier, "" + qFlag, "" + cigarLength});
+                new InformationRead(sequence, quality, cigar, lengthBeginOutlier,
+                    lengthEndOutlier, qFlag, cigarLength));
           }
 
         } else {
-          this.workTrimmingMap.put(id,
-              new String[] {sequence, quality, cigar, lengthBeginOutlier,
-                  lengthEndOutlier, "" + qFlag, "" + cigarLength});
+          this.workTrimmingMap.put(id, new InformationRead(sequence, quality,
+              cigar, lengthBeginOutlier, lengthEndOutlier, qFlag, cigarLength));
         }
       }
       System.out.println(
@@ -188,9 +189,9 @@ public class TrimFastq implements AutoCloseable {
         String ID = part[0];
         String sequence = read.getSequence();
         String quality = read.getQuality();
-        String[] tabValue = this.workTrimmingMap.get(ID);
-        tabValue[0] = sequence;
-        tabValue[1] = quality;
+        InformationRead informationRead = this.workTrimmingMap.get(ID);
+        informationRead.sequence = sequence;
+        informationRead.quality = quality;
       }
       reader.close();
     } catch (IOException e) {

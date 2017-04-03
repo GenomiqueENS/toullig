@@ -13,10 +13,10 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
 
   private final int lengthWindowsSideWindow;
   private final double thresholdSideWindow;
-  private final Map<String, String[]> workTrimmingMap;
+  private final Map<String, InformationRead> workTrimmingMap;
 
   public SideWindowOutlierPositionFinder(int lengthWindowsSideWindow,
-      double thresholdSideWindow, Map<String, String[]> workTrimmingMap) {
+      double thresholdSideWindow, Map<String, InformationRead> workTrimmingMap) {
 
     this.lengthWindowsSideWindow = lengthWindowsSideWindow;
     this.thresholdSideWindow = thresholdSideWindow;
@@ -40,10 +40,10 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
     for (String id : this.workTrimmingMap.keySet()) {
 
       String sequenceCigarBinary = "";
-      String[] tabValue = this.workTrimmingMap.get(id);
-      String sequence = tabValue[0];
-      String cigar = tabValue[2];
-      String quality = tabValue[1];
+      InformationRead informationRead = this.workTrimmingMap.get(id);
+      String sequence = informationRead.sequence;
+      String cigar = informationRead.cigar;
+      String quality = informationRead.quality;
 
       if (!"*".equals(cigar)) {
 
@@ -88,8 +88,8 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
 
         int leftLengthOutlier = sideWindowsLeft(sequenceCigarBinary);
         int rightLengthOutlier = sideWindowsRight(sequenceCigarBinary);
-        tabValue[3] = "" + leftLengthOutlier;
-        tabValue[4] = "" + rightLengthOutlier;
+        informationRead.leftLengthOutlier = leftLengthOutlier;
+        informationRead.rightLengthOutlier = rightLengthOutlier;
 
         System.out.println(leftLengthOutlier
             + "    " + rightLengthOutlier + "     " + sequence.length());
