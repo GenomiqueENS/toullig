@@ -44,68 +44,94 @@ public class TrimmingFastqONTModule extends AbstractModule {
 
     try {
 
+      // Get the sam Data
       final Data samData = context.getInputData(DataFormats.MAPPER_RESULTS_SAM);
+
+      // Get the fastq Data
       final Data fastqData = context.getInputData(DataFormats.READS_FASTQ);
+
+      // Get the adaptor Data
       final Data adaptorData = context.getInputData(DataFormatRegistry
           .getInstance().getDataFormatFromName("cutadapt_adapter"));
 
+      // Get the sam File
       final File samFile = samData.getDataFile().toFile();
+
+      // Get the fasqt File
       final File fastqFile = fastqData.getDataFile().toFile();
+
+      // Get the adaptor File
       final File adaptorFile = adaptorData.getDataFile().toFile();
 
+      // Get the fastq output File
       final File fastqOutputFile =
           context.getOutputData(DataFormats.READS_FASTQ, fastqData)
               .getDataFile().toFile();
 
+      // Get the fastq output File
       final File workDir = samData.getDataFile().toFile().getParentFile();
 
       try {
 
+        // call the constructor with the arguments
         TrimFastq trim = new TrimFastq(samFile, fastqFile, adaptorFile,
             fastqOutputFile, workDir);
 
+        // Set the trimmer at trimmomatic (default: cutadapt)
         if (this.trimmer.contains("trimmomatic")) {
           trim.setProcessTrimmomatic();
         }
 
+        // Set the oultier finder at Side-window method (default: Perfect
+        // method)
         if (this.mode.contains("SW")) {
           trim.setProcessSideWindowTrim();
         }
 
+        // Set the stats for cutadapt to display
         if (this.stats) {
           trim.setProcessStats();
         }
 
+        // Set the threshold for Side-Window method
         if (this.thresholdSW != 0) {
           trim.setThresholdSideWindow(this.thresholdSW);
         }
 
+        // Set the length window for Side-Window method
         if (this.lengthWindowsSW != 0) {
           trim.setLengthWindowSideWindow(this.lengthWindowsSW);
         }
 
+        // Set the number of add index outlier for Perfect method
         if (this.addIndexOutlier != 0) {
           trim.setAddIndexOutlier(this.addIndexOutlier);
         }
 
+        // Set the error rate for Cutadapt trimmer
         if (this.errorRateCutadapt != 0) {
           trim.setErrorRateCutadapt(this.errorRateCutadapt);
         }
 
+        // Set the seed Mismatches for Trimmomatic trimmer
         if (this.seedMismatchesTrimmomatic != 0) {
           trim.setSeedMismatchesTrimmomatic(this.seedMismatchesTrimmomatic);
         }
 
+        // Set the palindrome Clip Threshold for Trimmomatic trimmer
         if (this.palindromeClipThresholdTrimmomatic != 0) {
           trim.setPalindromeClipThresholdTrimmomatic(
               this.palindromeClipThresholdTrimmomatic);
         }
 
+        // Set the simple Clip Threshold for Trimmomatic trimmer
         if (this.simpleClipThreshold != 0) {
           trim.setSimpleClipThreshold(this.simpleClipThreshold);
         }
 
+        // execution
         trim.execution();
+
         // Create a success TaskResult object and return this object to the
         // workflow
         return status.createTaskResult();

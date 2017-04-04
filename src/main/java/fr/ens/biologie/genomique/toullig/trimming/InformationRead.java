@@ -15,9 +15,19 @@ public class InformationRead {
   public final int qFlag;
   public final int cigarLength;
 
+  /**
+   * Constructor of the InformationRead class.
+   * @param sequence, a string sequence of the fastq
+   * @param quality, a string quality of the fastq
+   * @param cigar, a string cigar of a sam file
+   * @param leftLengthOutlier, an int length of the left outlier
+   * @param rightLengthOutlier, an int length of the right outlier
+   * @param qFlag, an int of the qFlag of a sam file
+   * @param cigarLength, an int of the length of the cigar of a sam
+   */
   public InformationRead(String sequence, String quality, String cigar,
-                         int leftLengthOutlier, int rightLengthOutlier, int qFlag,
-                         int cigarLength) {
+      int leftLengthOutlier, int rightLengthOutlier, int qFlag,
+      int cigarLength) {
 
     this.sequence = sequence;
     this.quality = quality;
@@ -29,6 +39,10 @@ public class InformationRead {
 
   }
 
+  /**
+   * Method of the InformationRead class to get the hashCode.
+   * @return , an int of the hashCode
+   */
   @Override
   public int hashCode() {
     return Objects.hash(this.sequence, this.quality, this.cigar,
@@ -36,6 +50,9 @@ public class InformationRead {
         this.cigarLength);
   }
 
+  /**
+   * @return , a string of the InformationRead Object.
+   */
   @Override
   public String toString() {
     return this.sequence

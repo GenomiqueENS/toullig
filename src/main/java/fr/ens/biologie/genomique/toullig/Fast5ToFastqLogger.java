@@ -33,8 +33,13 @@ public class Fast5ToFastqLogger {
   public Fast5ToFastqLogger(Fast5ToFastq runConversionFastq, File fastqDir)
       throws IOException {
 
+    // get the localReporter of the run of fast5tofastq
     this.localReporter = runConversionFastq.getLocalReporter();
+
+    // get all the info in the list of localReporter
     getAllListForLog(localReporter);
+
+    // get the object of the run of fast5tofastq
     this.f5 = runConversionFastq;
     this.logWriter =
         new FileWriter(new File(fastqDir + "/logConversionFastq.txt"));
@@ -49,17 +54,23 @@ public class Fast5ToFastqLogger {
    * all differents status of fast5 files.
    * @throws IOException if an IO error occur
    */
-  public void createLogConversionFastq(Date dateDeb, Date dateEnd)
+  public void createLogConversionFastq(Date beginDate, Date endDate)
       throws IOException {
     try {
-      this.logWriter.write(dateDeb + "\n\n");
+
+      // write the begin date of the fast5tofastq execution
+      this.logWriter.write(beginDate + "\n\n");
       this.logWriter.write("Log of the fast5 run "
           + this.f5.getNameDirectoryRunFast5()
           + " to extract fastq sequences\n\n");
+
+      // list the element of the conversion fast5 to fastq
       for (String element : getListLog()) {
         this.logWriter.write(element + "\n");
       }
-      this.logWriter.write("\n" + dateEnd);
+
+      // write the end date of the fast5tofastq execution
+      this.logWriter.write("\n" + endDate);
       this.logWriter.close();
     } catch (Exception e) {
       throw new IOException(e);
@@ -78,6 +89,8 @@ public class Fast5ToFastqLogger {
               + " - eventDetectionWorkflow \n" + " - hairpinSplitWorkflow \n"
               + " - basecall1DWorkflow \n" + " - basecall2DWorkflow \n"
               + " - calibrationStrandWorkflow \n" + " - barcodeWorkflow \n");
+
+      // list the element of the workflow
       for (String element : getListLogStatusWorkflow()) {
         this.logWorkflowWriter.write(element + "\n");
       }
@@ -94,6 +107,8 @@ public class Fast5ToFastqLogger {
    */
   public void createLogCorruptFile() throws IOException {
     try {
+
+      // write the path of corrupt fast5 file
       for (File file : this.f5.getListCorruptFast5Files()) {
         this.logCorruptWriter.write(file.toString() + "\n");
       }
@@ -129,6 +144,7 @@ public class Fast5ToFastqLogger {
     listLog.add("Input pass files read: "
         + this.f5.getNumberPassFast5Files(this.localReporter));
 
+    // add to the list log the write file per type
     for (String element : this.listWriteSequenceLog) {
       listLog.add(element);
     }
@@ -155,25 +171,36 @@ public class Fast5ToFastqLogger {
     // Count of write sequence in fastq file
     //
     List<String> groupNameWrite = new ArrayList<>();
+
+    // get the number of sequence write per type
     for (String element : localReporter
         .getCounterNames("numberSequenceWrite")) {
       groupNameWrite.add(element);
     }
 
+    // sort by name
     Collections.sort(groupNameWrite);
     String oldStatusWrite = "";
+
+    // get the element on the group name type
     for (String element : groupNameWrite) {
 
       long numberSequence =
           localReporter.getCounterValue("numberSequenceWrite", element);
+
+      // test if the number of sequence equal -1 (eoulsan local reporter return)
       if (numberSequence == -1) {
         numberSequence = 0;
       }
       String[] typeSequence = element.split("Sequence")[1].split("Write");
       String[] partSplit = element.split("_");
+
+      // test if the status is already write
       if (!oldStatusWrite.equals(partSplit[0])) {
         this.listWriteSequenceLog.add("");
       }
+
+      // test if the status the sequence is null
       if (typeSequence[0].contains("Null")) {
         String[] partSplitNull = element.split("Nu");
         this.listWriteSequenceLog.add("Barcode "
@@ -186,18 +213,29 @@ public class Fast5ToFastqLogger {
       }
       oldStatusWrite = partSplit[0];
     }
+
+    // create a list of type
     List<String> groupName = new ArrayList<>();
+
+    // get the list of type
     for (String element : localReporter.getCounterGroups()) {
       groupName.add(element);
     }
 
+    // sort by name
     Collections.sort(groupName);
     String oldStatus = "";
+
+    // get the element on the group name type
     for (String element : groupName) {
 
       String[] part = element.split("_");
+
+      // test if the element contains a separator '_'
       if (element.contains("_")) {
         String status = part[0];
+
+        // test if the status is not already write
         if (!oldStatus.equals(status)) {
           this.listWorkflowStatusLog
               .add("\n###################################\n"
@@ -224,9 +262,14 @@ public class Fast5ToFastqLogger {
       String status) {
     Set<String> keys = localReporter.getCounterNames(group);
 
+    // test if the number of keys is not null
     if (keys.size() >= 1) {
+
+      // get all key
       for (String key : keys) {
 
+        // test if the status is fail and the key contains"Calibration strand
+        // detected."
         if (status.equals("fail")
             && key.contains("Calibration strand detected.")) {
           localReporter.incrCounter("numberFiles",

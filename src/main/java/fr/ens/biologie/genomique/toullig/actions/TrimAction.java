@@ -25,20 +25,34 @@ public class TrimAction extends AbstractAction {
   // Action methods
   //
 
+  /**
+   * Method of TrimAction class to get the name of the action.
+   * @return , a string
+   */
   @Override
   public String getName() {
     return ACTION_NAME;
   }
 
+  /**
+   * Method of TrimAction class to get the desription of the action.
+   * @return , a string
+   */
   @Override
   public String getDescription() {
-    return "execute " + Globals.APP_NAME + " in local mode.";
+    return "execute Trim module of" + Globals.APP_NAME + " in local mode.";
   }
 
+  /**
+   * Method of TrimAction class to make the action.
+   */
   @Override
   public void action(final List<String> arguments) {
 
+    // options of the command line
     final Options options = makeOptions();
+
+    // parser of the command line
     final CommandLineParser parser = new GnuParser();
 
     String trimmer = "";
@@ -59,81 +73,105 @@ public class TrimAction extends AbstractAction {
     File workDir = new File("");
 
     try {
-
+      // Display help
       if (arguments.contains("-help") || arguments.contains("-h")) {
         help(options);
       }
 
-      // parse the command line arguments
+      // Parse the command line arguments
       final CommandLine line = parser.parse(options,
           arguments.toArray(new String[arguments.size()]), true);
 
-      // Display help
+      // Display help if no arguments
       if (line.getArgs().length == 0) {
         System.out.println(
             "ERROR:  No argument! Please enter the five obligatory arguments of the trim module!\n\n");
         help(options);
       }
 
+      // Get trimmer
       if (line.hasOption("trimmer")) {
         trimmer = line.getOptionValue("trimmer").toLowerCase();
       }
 
+      // Get mode
       if (line.hasOption("mode")) {
         mode = line.getOptionValue("mode").toLowerCase();
       }
 
+      // Get stats
       if (line.hasOption("stats")) {
         stats = line.getOptionValue("stats").toLowerCase();
       }
 
+      // Get addIndexOutlier
       if (line.hasOption("addIndexOutlier")) {
         addIndexOutlier = Integer
             .parseInt(line.getOptionValue("addIndexOutlier").toLowerCase());
       }
 
+      // Get errorRateCutadapt
       if (line.hasOption("errorRateCutadapt")) {
         errorRateCutadapt = Long
             .parseLong(line.getOptionValue("errorRateCutadapt").toLowerCase());
       }
 
+      // Get thresholdSW
       if (line.hasOption("thresholdSW")) {
         thresholdSW =
             Long.parseLong(line.getOptionValue("thresholdSW").toLowerCase());
       }
 
+      // Get lengthWindowsSW
       if (line.hasOption("lengthWindowsSW")) {
         lengthWindowsSW = Integer
             .parseInt(line.getOptionValue("lengthWindowsSW").toLowerCase());
       }
 
+      // Get seedMismatchesTrimmomatic
       if (line.hasOption("seedMismatchesTrimmomatic")) {
         seedMismatchesTrimmomatic = Integer.parseInt(
             line.getOptionValue("seedMismatchesTrimmomatic").toLowerCase());
       }
 
+      // Get palindromeClipThresholdTrimmomatic
       if (line.hasOption("palindromeClipThresholdTrimmomatic")) {
         palindromeClipThresholdTrimmomatic = Integer
             .parseInt(line.getOptionValue("palindromeClipThresholdTrimmomatic")
                 .toLowerCase());
       }
 
+      // Get simpleClipThreshold
       if (line.hasOption("simpleClipThreshold")) {
         simpleClipThreshold = Integer
             .parseInt(line.getOptionValue("simpleClipThreshold").toLowerCase());
       }
 
+      // Get arguments
       {
         String[] remainder = line.getArgs();
         if (remainder.length >= 4) {
+
+          // Get sam File
           samFile = new File(remainder[0]);
+
+          // Get fastq File
           fastqFile = new File(remainder[1]);
+
+          // Get fastq Output File
           fastqOutputFile = new File(remainder[2]);
+
+          // Get adaptor File
           adaptorFile = new File(remainder[3]);
+
+          // Get working Directory
           workDir = new File(remainder[4]);
+
         } else {
           System.out.println(
               "ERROR: Enter the five obligatory arguments of the trim module!\n\n");
+
+          // display help
           help(options);
         }
       }
@@ -163,50 +201,67 @@ public class TrimAction extends AbstractAction {
     // create Options object
     final Options options = new Options();
 
+    // add option for help
     options.addOption(OptionBuilder.withArgName("help").hasArg()
         .withDescription("display help").create("help"));
 
+    // add option for help
     options.addOption(OptionBuilder.withArgName("h").hasArg()
         .withDescription("display help").create("help"));
 
+    // add option for trimmer
     options.addOption(OptionBuilder.withArgName("trimmer").hasArg()
         .withDescription(
             "name of trimmer use [cutadapt | trimmomatic] (default : cutadapt)")
         .create("trimmer"));
 
+    // add option for mode
     options.addOption(OptionBuilder.withArgName("mode").hasArg()
         .withDescription("mode of cutadaptTrimming use [P | SW] (default : P)")
         .create("mode"));
+
+    // add option for stats
     options.addOption(OptionBuilder.withArgName("stats").hasArg()
         .withDescription(
             "make somes stats on the cutadaptTrimming [true | false] (default : false)")
         .create("stats"));
 
+    // add option for add Index to the Outlier during the trimming
     options.addOption(OptionBuilder.withArgName("addIndexOutlier").hasArg()
         .withDescription(
             "add more bases in addition to the outlier for P mode (default: 15")
         .create("addIndexOutlier"));
 
+    // add option for error Rate Cutadapt
     options.addOption(OptionBuilder.withArgName("errorRateCutadapt").hasArg()
         .withDescription("error rate for cutadapt (default: 0.5")
         .create("errorRateCutadapt"));
+
+    // add option for threshold Side Window
     options.addOption(OptionBuilder.withArgName("thresholdSW").hasArg()
         .withDescription("threshold for Side-Windows processus (default: 0.8)")
         .create("thresholdSW"));
+
+    // add option for seed mismatches for trimmomatic
     options.addOption(OptionBuilder.withArgName("seedMismatchesTrimmomatic")
         .hasArg()
         .withDescription("seed mismatches option for Trimmomatic (default: 17)")
         .create("seedMismatchesTrimmomatic"));
+
+    // add option for palindrome Clip Threshold for trimmomatic
     options.addOption(
         OptionBuilder.withArgName("palindromeClipThresholdTrimmomatic").hasArg()
             .withDescription(
                 "palindrome clip threshold option for Trimmomatic (default: 30)")
             .create("palindromeClipThresholdTrimmomatic"));
+
+    // add option for simple Clip Threshold for trimmomatic
     options.addOption(OptionBuilder.withArgName("simpleClipThreshold").hasArg()
         .withDescription(
             "simple clip threshold option for Trimmomatic (default : 7)")
         .create("simpleClipThreshold"));
 
+    // return options
     return options;
   }
 
@@ -247,54 +302,69 @@ public class TrimAction extends AbstractAction {
 
     try {
 
+      // Logger of the action
       getLogger().info("Sam File : " + samFile);
       getLogger().info("Fastq File: " + fastqFile);
       getLogger().info("Fastq Trimmed Output File: " + fastqOutputFile);
       getLogger().info("Adaptor File: " + adaptorFile);
       getLogger().info("Work Directory: " + workDir);
 
+      // Call the constructor with the arguments
       TrimFastq trim = new TrimFastq(samFile, fastqFile, adaptorFile,
           fastqOutputFile, workDir);
 
+      // set the trimmer trimmomatic for processing
       if (trimmer.contains("trimmomatic")) {
         trim.setProcessTrimmomatic();
       }
 
+      // set the mode Side-Window for processing
       if (mode.contains("SW")) {
         trim.setProcessSideWindowTrim();
       }
+
+      // if the stats on the trimming will be display
       if (stats.contains("true")) {
         trim.setProcessStats();
       }
+
+      // set the threshold for Side Window method
       if (thresholdSW != 0) {
         trim.setThresholdSideWindow(thresholdSW);
       }
 
+      // set the length of the window for Side Window method
       if (lengthWindowsSW != 0) {
         trim.setLengthWindowSideWindow(lengthWindowsSW);
       }
 
+      // set the number of add index to the outlier
       if (addIndexOutlier != 0) {
         trim.setAddIndexOutlier(addIndexOutlier);
       }
 
+      // set the error rate fort cutadapt trimmmer
       if (errorRateCutadapt != 0) {
         trim.setErrorRateCutadapt(errorRateCutadapt);
       }
 
+      // set the seed mismatches for trimmomatic trimmer
       if (seedMismatchesTrimmomatic != 0) {
         trim.setSeedMismatchesTrimmomatic(seedMismatchesTrimmomatic);
       }
 
+      // set the palindrome clip Threshold for trimmomatic trimmer
       if (palindromeClipThresholdTrimmomatic != 0) {
         trim.setPalindromeClipThresholdTrimmomatic(
             palindromeClipThresholdTrimmomatic);
       }
 
+      // set the simple Clip Threshold for trimmomatic trimmer
       if (simpleClipThreshold != 0) {
         trim.setSimpleClipThreshold(simpleClipThreshold);
       }
 
+      // execute the trimming
       trim.execution();
 
     } catch (Exception e3) {

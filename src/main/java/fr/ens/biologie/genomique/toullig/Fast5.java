@@ -85,6 +85,8 @@ public class Fast5 implements AutoCloseable {
    */
 
   private static IHDF5Reader readFast5File(File fast5File) {
+
+    // Get the object to read a hdf5 file
     IHDF5Factory hdf5Fac = HDF5FactoryProvider.get();
     return hdf5Fac.openForReading(fast5File);
   }
@@ -127,9 +129,13 @@ public class Fast5 implements AutoCloseable {
    * @return a status with the status of the fast5 file
    */
   private Status readStatus() {
+
+    // test if the reader is open
     if (this.reader.getFile() == null) {
       throw new IllegalStateException("The file is closed");
     }
+
+    // test if the fast5 file is basecalled
     if (reader.isGroup("/Analyses/Basecall_1D_000")) {
       return Status.AFTER_BASECALLING;
     } else {
@@ -144,17 +150,26 @@ public class Fast5 implements AutoCloseable {
 
   private ChemistryVersion readChemistryVersion() {
 
+    //
     // Case of not basecalled fast5 file
+    //
+
+    // Case of not basecalled fast5 file and contains a special group
     if (!isBasecalled() && reader.isGroup("/Raw/Reads")) {
       return ChemistryVersion.R9;
     }
+
+    // Case of not basecalled fast5 file and contains a special group
     if (!isBasecalled()
         && reader.isGroup("/Analyses/EventDetection_000/Reads")) {
       return ChemistryVersion.R7_3;
     }
 
+    //
     // Case of basecalled fast5 file
+    //
 
+    // test if the chemistry version is R7.3
     if (reader
         .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
             "model_type")
@@ -162,6 +177,7 @@ public class Fast5 implements AutoCloseable {
       return ChemistryVersion.R7_3;
     }
 
+    // test if the chemistry version is R9
     if (reader
         .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
             "model_type")
@@ -169,6 +185,8 @@ public class Fast5 implements AutoCloseable {
       return ChemistryVersion.R9;
 
     }
+
+    // test if the chemistry version is R9.4
     if (reader
         .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
             "model_type")
@@ -185,6 +203,10 @@ public class Fast5 implements AutoCloseable {
   //
   //
 
+  /**
+   * Getter of the name of tha fast5 file.
+   * @return a string of name of fast5 file
+   */
   public String getNameFast5File() {
     return this.fast5File.toString();
   }
@@ -232,8 +254,7 @@ public class Fast5 implements AutoCloseable {
    * @return a boolean with the barcoded information
    */
   public boolean isBarcoded() {
-    return reader.isGroup("/Analyses/Barcoding_000");// Si l'échantillion a
-    // barcodé
+    return reader.isGroup("/Analyses/Barcoding_000");
   }
 
   /**
@@ -241,8 +262,7 @@ public class Fast5 implements AutoCloseable {
    * @return a boolean with the basecalled information
    */
   public boolean isBasecalled() {
-    return this.status == Status.AFTER_BASECALLING;// Si l'échantillion a
-    // été analysé
+    return this.status == Status.AFTER_BASECALLING;
   }
 
   /**
@@ -251,31 +271,7 @@ public class Fast5 implements AutoCloseable {
    * @return a boolean with the type 2D information
    */
   public boolean is2D() {
-    return this.type == Type.TYPE_2D;// Si l'échantillion a
-    // été analysé
-  }
-
-  //
-  //
-  // primary information getters
-  //
-  //
-
-  //
-  // Raw Group Information
-  //
-
-  /**
-   * Method of the class Fast5 to obtain the electrical signal data of the fast5
-   * file.
-   * @return a double tabular with the electrical signal
-   */
-  public int[] getElectricalSignal() {
-    if (this.chemistryVersion == ChemistryVersion.R9) {
-      return reader
-          .readIntArray("/Raw/Reads/Read_" + getNumberRead() + "/Signal");
-    }
-    return null;
+    return this.type == Type.TYPE_2D;
   }
 
   //
@@ -408,14 +404,18 @@ public class Fast5 implements AutoCloseable {
    * @return an int with number of the read
    */
   public int getNumberRead() {
+
+    // test if the fast5 file is basecalled and is R9
     if (!isBasecalled() && getChemistryVersion() == ChemistryVersion.R9) {
-      String s = reader.getAllGroupMembers("/Raw/Reads").get(0);
-      return Integer.parseInt(s.substring(s.indexOf('_') + 1));
+      String reads = reader.getAllGroupMembers("/Raw/Reads").get(0);
+      return Integer.parseInt(reads.substring(reads.indexOf('_') + 1));
     }
+
+    // test if the fast5 file is basecalled and is R7.3
     if (!isBasecalled() && getChemistryVersion() == ChemistryVersion.R7_3) {
-      String s = reader.getAllGroupMembers("/Analyses/EventDetection_000/Reads")
-          .get(0);
-      return Integer.parseInt(s.substring(s.indexOf('_') + 1));
+      String reads = reader
+          .getAllGroupMembers("/Analyses/EventDetection_000/Reads").get(0);
+      return Integer.parseInt(reads.substring(reads.indexOf('_') + 1));
     }
     return Integer.parseInt(reader.getStringAttribute(
         "/Analyses/Basecall_1D_000/Configuration/general", "read_id"));
@@ -427,11 +427,16 @@ public class Fast5 implements AutoCloseable {
    * @return a string with the basecaller name and version
    */
   public String getBaseCaller() {
+
+    // test if the fast5 file is basecalled
     if (!isBasecalled()) {
       return null;
     }
+    // get the version of chimaera
     String chimaeraVersion = reader
         .getStringAttribute("/Analyses/Basecall_1D_000", "chimaera version");
+
+    // get the version of dragonet
     String dragonetVersion = reader
         .getStringAttribute("/Analyses/Basecall_1D_000", "dragonet version");
     return "chimaera v" + chimaeraVersion + " | dragonet v" + dragonetVersion;
@@ -443,6 +448,8 @@ public class Fast5 implements AutoCloseable {
    * @return a string with the alignement
    */
   public String getAlignment() {
+
+    // test if the fast5 file is basecalled and is 2D
     if (!isBasecalled() || !is2D()) {
       return null;
     }
@@ -456,9 +463,12 @@ public class Fast5 implements AutoCloseable {
    * @return an int with the length of the template strand
    */
   public int getTemplateLength() {
+
+    // test if the fast5 file is basecalled
     if (!isBasecalled()) {
       return 0;
     }
+
     return reader.getIntAttribute(
         "/Analyses/Basecall_1D_000/Summary/basecall_1d_template",
         "sequence_length");
@@ -470,9 +480,12 @@ public class Fast5 implements AutoCloseable {
    * @return an int with the length of the complemente strand
    */
   public int getComplementeLength() {
+
+    // test if the fast5 file is basecalled and is 2D
     if (!isBasecalled() || !is2D()) {
       return 0;
     }
+
     return reader.getIntAttribute(
         "/Analyses/Basecall_1D_000/Summary/basecall_1d_complement",
         "sequence_length");
@@ -484,9 +497,12 @@ public class Fast5 implements AutoCloseable {
    * @return a string with the barcode id
    */
   public String getNumBarcode() {
+
+    // test if the fast5 file is basecalled
     if (!isBasecalled()) {
       return null;
     }
+    // test if the fast5 file is barcoded
     if (isBarcoded()) {
       return reader.getStringAttribute("/Analyses/Barcoding_000/Barcoding",
           "barcode_arrangement");
@@ -506,9 +522,12 @@ public class Fast5 implements AutoCloseable {
    * @return a string with the sequence fastq of the template strand
    */
   public String getTemplateFastq() {
+
+    // test if the fast5 file is basecalled
     if (!isBasecalled()) {
       return null;
     }
+
     return fix(reader
         .readString("/Analyses/Basecall_1D_000/BaseCalled_template/Fastq"));
   }
@@ -519,9 +538,12 @@ public class Fast5 implements AutoCloseable {
    * @return a string with the sequence fastq of the complemente strand
    */
   public String getComplementFastq() {
+
+    // test if the fast5 file is basecalled and is 2D
     if (!is2D() || !isBasecalled()) {
       return null;
     }
+
     return fix(reader
         .readString("/Analyses/Basecall_1D_000/BaseCalled_complement/Fastq"));
   }
@@ -532,9 +554,12 @@ public class Fast5 implements AutoCloseable {
    * @return a string with the sequence fastq of the transcript+rt-adaptor
    */
   public String getTranscriptFastq() {
+
+    // test if the fast5 file is basecalled and is barcoded
     if (!isBarcoded() || !isBasecalled()) {
       return null;
     }
+
     return fix(reader.readString("/Analyses/Barcoding_000/Barcoding/Fastq"));
   }
 
@@ -545,9 +570,12 @@ public class Fast5 implements AutoCloseable {
    * @return a string with the sequence fastq of the consensus
    */
   public String getConsensusFastq() {
+
+    // test if the fast5 file is basecalled and is 2D
     if (!is2D() || !isBasecalled()) {
       return null;
     }
+
     return fix(
         reader.readString("/Analyses/Basecall_2D_000/BaseCalled_2D/Fastq"));
   }
@@ -563,6 +591,8 @@ public class Fast5 implements AutoCloseable {
    * @return a string of the status of the barcode workflow
    */
   public String getBarcodindFinalStatus() {
+
+    // test if the fast5 file is basecalled and is barcoded
     if (!isBasecalled() || !isBarcoded()) {
       return null;
     }
@@ -574,9 +604,12 @@ public class Fast5 implements AutoCloseable {
    * @return a string of the status of the basecall1D workflow
    */
   public String getBaseCall1DFinalStatus() {
+
+    // test if the fast5 file is basecalled
     if (!isBasecalled()) {
       return null;
     }
+
     return getLogFinalStatus(
         reader.readString("/Analyses/Basecall_1D_000/Log"));
   }
@@ -586,9 +619,12 @@ public class Fast5 implements AutoCloseable {
    * @return a string of the status of the basecall2D workflow
    */
   public String getBaseCall2DFinalStatus() {
+
+    // test if the fast5 file is basecalled and is 2D
     if (!isBasecalled() || !is2D()) {
       return null;
     }
+
     return getLogFinalStatus(
         reader.readString("/Analyses/Basecall_2D_000/Log"));
   }
@@ -599,9 +635,12 @@ public class Fast5 implements AutoCloseable {
    * @return a string of the status of the Calibration Strand workflow
    */
   public String getCalibrationStrandFinalStatus() {
+
+    // test if the fast5 file is basecalled
     if (!isBasecalled()) {
       return null;
     }
+
     return getLogFinalStatus(
         reader.readString("/Analyses/Calibration_Strand_000/Log"));
   }
@@ -612,9 +651,12 @@ public class Fast5 implements AutoCloseable {
    * @return a string of the status of the Event Detection workflow
    */
   public String getEventDetectionFinalStatus() {
+
+    // test if the fast5 file is basecalled and the chemi is R7.3
     if (!isBasecalled() || getChemistryVersion() == ChemistryVersion.R7_3) {
       return null;
     }
+
     return getLogFinalStatus(
         reader.readString("/Analyses/EventDetection_000/Log"));
   }
@@ -625,9 +667,12 @@ public class Fast5 implements AutoCloseable {
    * @return a string of the status of the Hairpin split workflow
    */
   public String getHairpinSplitFinalStatus() {
+
+    // test if the fast5 file is basecalled and is 2D
     if (!isBasecalled() || !is2D()) {
       return null;
     }
+
     return getLogFinalStatus(
         reader.readString("/Analyses/Hairpin_Split_000/Log"));
   }
@@ -638,32 +683,45 @@ public class Fast5 implements AutoCloseable {
    * @return a string of the status of the Hairpin split workflow
    */
   private String getLogFinalStatus(String log) {
+
+    // split the log by '\n'
     String[] work = log.split("[\n]");
+
+    // split the log to have the before last line
     String[] work2 = work[work.length - 2].split("\\s");
     String Status = "";
+
+    // get the essential message of the log : the status
     for (int i = 2; i < work2.length; i++) {
       Status += work2[i] + " ";
     }
+
+    // delete the end point of the message
     Status = Status.substring(0, Status.length() - 1);
+
     return Status;
   }
 
   /**
    * Method of the class Fast5 to fix the line break of fastq.
-   * @param s a string
+   * @param sequence a string sequence
    * @return a string with a "\n" at the end
    */
-  private static String fix(String s) {
+  private static String fix(String sequence) {
 
-    if (s == null) {
+    // test if the sequence is null
+    if (sequence == null) {
       return null;
     }
 
-    if (s.length() == 1) {
+    // test if the sequence is equal to 1 in length
+    if (sequence.length() == 1) {
       return "";
     }
 
-    return s + (s.charAt(s.length() - 1) != '\n' ? "\n" : "");
+    // return the sequence fastq corrected
+    return sequence
+        + (sequence.charAt(sequence.length() - 1) != '\n' ? "\n" : "");
 
   }
 

@@ -27,20 +27,35 @@ public class Fast5tofastqAction extends AbstractAction {
   // Action methods
   //
 
+  /**
+   * Method of Fast5tofastqAction class to get the name of the action.
+   * @return , a string
+   */
   @Override
   public String getName() {
     return ACTION_NAME;
   }
 
+  /**
+   * Method of Fast5tofastqAction class to get the desription of the action.
+   * @return , a string
+   */
   @Override
   public String getDescription() {
-    return "execute " + Globals.APP_NAME + " in local mode.";
+    return "execute Fast5tofastq module of "
+        + Globals.APP_NAME + " in local mode.";
   }
 
+  /**
+   * Method of Fast5tofastqAction class to make the action.
+   */
   @Override
   public void action(final List<String> arguments) {
 
+    // options of the command line
     final Options options = makeOptions();
+
+    // parser of the command line
     final CommandLineParser parser = new GnuParser();
 
     String status = "pass";
@@ -52,6 +67,7 @@ public class Fast5tofastqAction extends AbstractAction {
 
     try {
 
+      // Display help
       if (arguments.contains("-help") || arguments.contains("-h")) {
         help(options);
       }
@@ -60,39 +76,46 @@ public class Fast5tofastqAction extends AbstractAction {
       final CommandLine line = parser.parse(options,
           arguments.toArray(new String[arguments.size()]), true);
 
-      // Display help
+      // Display help if no arguments
       if (line.getArgs().length == 0) {
         System.out.println(
             "ERROR: No argument! Please enter the two obligatory arguments\n\n");
         help(options);
       }
 
-      // Set status
+      // Get status
       if (line.hasOption("status")) {
         status = line.getOptionValue("status").toLowerCase();
       }
 
-      // Set type
+      // Get type
       if (line.hasOption("type")) {
         type = line.getOptionValue("type").toLowerCase();
       }
-      // Set compression format
+      // Get compression format
       if (line.hasOption("compress")) {
         compress = line.getOptionValue("compress").toLowerCase();
       }
+      // Get arguments
       {
         String[] remainder = line.getArgs();
         if (remainder.length >= 2) {
+
+          // Get directory of Fast5 run
           dirFast5 = new File(remainder[0]);
+
+          // Get directory of Output Fastq
           dirOutputFastq = new File(remainder[1]);
+
         } else {
           System.out.println(
               "ERROR: Enter the two obligatory arguments of the directory of the basecalled run and the output directory for fastq!\n\n");
+          // display help
           help(options);
         }
       }
 
-      // Set the root directory of the Fast5 run
+      // Get mergeSequence options
       if (line.hasOption("mergeSequence")) {
         merge = Boolean.parseBoolean(line.getOptionValue("merge"));
 
@@ -121,32 +144,39 @@ public class Fast5tofastqAction extends AbstractAction {
     // create Options object
     final Options options = new Options();
 
+    // add option for help
     options.addOption(OptionBuilder.withArgName("help").hasArg()
         .withDescription("display help").create("help"));
 
+    // add option for help
     options.addOption(OptionBuilder.withArgName("h").hasArg()
         .withDescription("display help").create("help"));
 
+    // add option for status
     options.addOption(OptionBuilder.withArgName("status").hasArg()
         .withDescription(
             "set a status of the fast5 file [pass|fail|unclassified] to process;(default: none)")
         .create("status"));
 
+    // add option for type
     options.addOption(OptionBuilder.withArgName("type").hasArg()
         .withDescription(
             "set a type of sequence [template|complement|consensus|transcript] to obtain;(default: transcript)")
         .create("type"));
 
+    // add option for compress
     options.addOption(OptionBuilder.withArgName("compress").hasArg()
         .withDescription(
             "set a compression for the output fastq [GZIP|BZIP2] (default: none)")
         .create("compress"));
 
+    // add option for mergeSequence
     options.addOption(OptionBuilder.withArgName("mergeSequence").hasArg()
         .withDescription(
             "merge the sequence of status choose [true/false];(default: false)")
         .create("merge"));
 
+    // return options
     return options;
   }
 
@@ -183,17 +213,23 @@ public class Fast5tofastqAction extends AbstractAction {
       final String compress, final File dirFast5, final File dirOutputFastq,
       final boolean merge) {
 
-    Date dateDeb = new Date();
+    // Get the Begin Date of the action
+    Date beginDate = new Date();
     try {
+
+      // Call the constructor with the arguments
       Fast5ToFastq if5 = new Fast5ToFastq(dirFast5, dirOutputFastq);
 
       // If you want to specify the group of the status of the read in the
       // output file(ex : .._fail_complement.fastq)
       if5.setMergeAllStatusFast5(merge);
+
       // If the Experimental protocol is not barcoded
       if (status.contains("fail")) {
         if5.setProcessFail();
       }
+
+      // set the pass fast5 to process
       if (status.contains("pass")) {
         if5.setProcessPass();
       }
@@ -201,40 +237,54 @@ public class Fast5tofastqAction extends AbstractAction {
       if (status.contains("unclassified")) {
         if5.setProcessUnclassified();
       }
-      // List of sequences :
+
+      // set Compress format bzip2
       if (type.contains("template")) {
         if5.setSaveTemplateSequence();
       }
+
+      // set Compress format bzip2
       if (type.contains("complement")) {
         if5.setSaveComplementSequence();
       }
+
+      // set Compress format bzip2
       if (type.contains("consensus")) {
         if5.setSaveConsensusSequence();
       }
+
+      // set Compress format bzip2
       if (type.contains("transcript")) {
         if5.setSaveTranscriptSequence();
       }
-      // Compress format
+      // set Compress format gzip
       if (compress.contains("gzip")) {
         if5.setGzipCompression();
       }
+
+      // set Compress format bzip2
       if (compress.contains("bzip2")) {
         if5.setBZip2Compression();
       }
 
+      // Logger of the action
       getLogger().info("Fast5 Run Directory: " + dirFast5);
       getLogger().info("Fastq Output Directory: " + dirOutputFastq);
 
       // Execution to the read of fast5 to fastq
       if5.execute();
 
-      Date dateEnd = new Date();
+      // Get the end Date of the execution
+      Date endDate = new Date();
+
       // Write of few logs files
       try {
+
         Fast5ToFastqLogger logIf5 = new Fast5ToFastqLogger(if5, dirOutputFastq);
-        logIf5.createLogConversionFastq(dateDeb, dateEnd);
+        logIf5.createLogConversionFastq(beginDate, endDate);
         logIf5.createLogCorruptFile();
         logIf5.createLogWorkflow();
+
       } catch (Exception e1) {
         e1.printStackTrace();
       }

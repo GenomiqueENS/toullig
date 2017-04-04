@@ -9,9 +9,6 @@ import static fr.ens.biologie.genomique.eoulsan.bio.Sequence.reverseComplement;
  */
 public class Utils {
 
-  public Utils() {
-
-  }
   //
   // utils
   //
@@ -23,14 +20,17 @@ public class Utils {
    */
   public static String reverse(final String sequence) {
 
+    // test if the sequence is null
     if (sequence == null) {
       return null;
     }
 
+    // translate sequence (string) to a char[]
     final char[] array = sequence.toCharArray();
     final int len = array.length;
     final StringBuilder sb = new StringBuilder(len);
 
+    // reverse the sequence
     for (int i = len - 1; i >= 0; i--) {
       sb.append(array[i]);
     }
@@ -47,18 +47,15 @@ public class Utils {
   public static String complement(final String sequence,
       final Alphabet alphabet) {
 
+    // test if the sequence is null and alphabet is null
     if (sequence == null || alphabet == null) {
       return null;
     }
 
-    String s = reverseComplement(sequence, alphabet);
-    final char[] array = s.toCharArray();
-    final int len = array.length;
-    final StringBuilder sb = new StringBuilder(len);
+    // reverse complement the sequence with eoulsan method
+    String reverseComplement = reverseComplement(sequence, alphabet);
 
-    for (int i = len - 1; i >= 0; i--) {
-      sb.append(array[i]);
-    }
-    return sb.toString();
+    // reverse the sequence
+    return reverse(reverseComplement);
   }
 }

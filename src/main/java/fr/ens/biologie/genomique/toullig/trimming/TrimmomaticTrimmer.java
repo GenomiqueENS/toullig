@@ -33,7 +33,10 @@ public class TrimmomaticTrimmer implements Trimmer {
         + palindromeClipThresholdTrimmomatic + ":" + simpleClipThreshold);
 
     try {
+      // create the logger for trimmomatic
       Logger logger = new Logger(true, true, true);
+
+      // create the trimer for trimmomatic
       this.trimer = IlluminaClippingTrimmer.makeIlluminaClippingTrimmer(logger,
           adaptorFile.getPath()
               + ":" + seedMismatchesTrimmomatic + ":"
@@ -60,45 +63,78 @@ public class TrimmomaticTrimmer implements Trimmer {
   public void preProcessTrimming(int leftLengthOutlier, int rightLengthOutlier,
       String sequence, String id, String quality) {
 
+    // execute the open of the output fastq file
     try (BufferedWriter fastqOutputFile =
         new BufferedWriter(new FileWriter(this.nameOutputFastq))) {
 
-      // Process for trimming
+      //
+      // Pre-process before trimmomatic
+      //
+
+      // get the left outlier sequence
       String leftOutlierSequence =
           getOutlierLeftSequence(rightLengthOutlier, sequence);
+
+      // get the right outlier sequence
       String rightOutlierSequence =
           getOutlierRightSequence(leftLengthOutlier, sequence);
-      String leftOutlierScore =
+
+      // get the left outlier quality
+      String leftOutlierQuality =
           getOutlierLeftQuality(rightLengthOutlier, quality);
-      String rightOutlierScore =
+
+      // get the right outlier quality
+      String rightOutlierQuality =
           getOutlierRightQuality(leftLengthOutlier, quality);
 
+      // get the main sequence (without outlier)
       String mainSequence = sequence.substring(rightLengthOutlier,
           sequence.length() - leftLengthOutlier);
-      String mainScore = quality.substring(rightLengthOutlier,
+
+      // get the main quality (without outlier)
+      String mainQuality = quality.substring(rightLengthOutlier,
           quality.length() - leftLengthOutlier);
 
-      // Trimming with trimmomatic
-      String rigthTrimSequence =
-          trimmingTrimmomatic(rightOutlierSequence, rightOutlierScore);
+      //
+      // Execute trimmomatic
+      //
+
+      // Trimming with trimmomatic the right outlier
       String leftTrimSequence = trimmingTrimmomatic(
-          reverse(leftOutlierSequence), reverse(leftOutlierScore));
+          reverse(leftOutlierSequence), reverse(leftOutlierQuality));
 
-      // Process for writting trimming result
-      String rigthTrimScore = quality.substring(mainScore.length(),
-          mainScore.length() + rightOutlierSequence.length());
-      String leftTrimScore = quality.substring(
-          leftOutlierScore.length() - leftTrimSequence.length(),
-          leftOutlierScore.length());
+      // Trimming with trimmomatic the right outlier
+      String rigthTrimSequence =
+          trimmingTrimmomatic(rightOutlierSequence, rightOutlierQuality);
 
-      String sequenceTranscript =
+      //
+      // Post-process after trimmomatic
+      //
+
+      // get the left trimmed quality
+      String leftTrimQuality = quality.substring(
+          leftOutlierQuality.length() - leftTrimSequence.length(),
+          leftOutlierQuality.length());
+
+      // get the right trimmed quality
+      String rigthTrimQuality = quality.substring(mainQuality.length(),
+          mainQuality.length() + rightOutlierSequence.length());
+
+      // get the sequence trimmed
+      String sequenceTrimmed =
           leftTrimSequence + mainSequence + rigthTrimSequence;
-      String scoreTranscript = leftTrimScore + mainScore + rigthTrimScore;
+
+      // get the quality trimmed
+      String qualityTrimmed = leftTrimQuality + mainQuality + rigthTrimQuality;
+
+      //
+      // Write the sequence and the quality trimmed
+      //
 
       ReadSequence fastq = new ReadSequence();
       fastq.setName(id);
-      fastq.setSequence(sequenceTranscript);
-      fastq.setQuality(scoreTranscript);
+      fastq.setSequence(sequenceTrimmed);
+      fastq.setQuality(qualityTrimmed);
       FastqWriter fastqWriter = new FastqWriter(fastqOutputFile);
       fastqWriter.write(fastq);
     } catch (IOException e) {
@@ -112,9 +148,14 @@ public class TrimmomaticTrimmer implements Trimmer {
    */
   String trimmingTrimmomatic(String sequence, String quality) {
 
+    // get basic information of the read
     FastqRecord record = new FastqRecord("name", sequence, "", quality, 33);
+
+    // trimming with trimmomatic
     FastqRecord[] result =
         this.trimer.processRecords(new FastqRecord[] {record});
+
+    // return the trimmed sequence
     return result[0].getSequence();
   }
 

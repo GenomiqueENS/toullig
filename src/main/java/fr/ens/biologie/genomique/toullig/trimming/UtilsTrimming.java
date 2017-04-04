@@ -11,10 +11,6 @@ import fr.ens.biologie.genomique.eoulsan.bio.io.FastaWriter;
  */
 class UtilsTrimming {
 
-  UtilsTrimming() {
-
-  }
-
   /**
    * Method of the class TrimModes to obtain the sequence of the left outlier.
    * @param lengthOutlierBegin, the length of the outlier
@@ -74,21 +70,32 @@ class UtilsTrimming {
       String sequence, String id, FastaWriter leftFastaWriter,
       FastaWriter rightFastaWriter) {
 
+    // get the left outlier
     String leftOutlierSequence =
         getOutlierLeftSequence(leftLengthOutlier, sequence);
+
+    // get the right outlier
     String rightOutlierSequence =
         getOutlierRightSequence(rightLengthOutlier, sequence);
 
     try {
 
       Sequence leftFasta = new Sequence();
+
+      // get id and sequence of the left outlier
       leftFasta.setName(id);
       leftFasta.setSequence(leftOutlierSequence);
+
+      // write the left outlier
       leftFastaWriter.write(leftFasta);
 
       Sequence rightFasta = new Sequence();
+
+      // get id and sequence of the right outlier
       rightFasta.setName(id);
       rightFasta.setSequence(rightOutlierSequence);
+
+      // write the right outlier
       rightFastaWriter.write(rightFasta);
 
     } catch (IOException e) {
