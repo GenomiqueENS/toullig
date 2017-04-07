@@ -740,9 +740,6 @@ public class Fast5ToFastq {
 
       // test if the transcriptWriter is not null and if the transcript sequence
       // is not null
-
-      System.out.println(f5.getTranscriptFastq());
-
       if (transcriptWriter != null && f5.getTranscriptFastq() != null) {
 
         // get the complement sequence
