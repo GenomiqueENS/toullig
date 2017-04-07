@@ -54,12 +54,14 @@ public class Fast5ToFastqLogger {
    * all differents status of fast5 files.
    * @throws IOException if an IO error occur
    */
-  public void createLogConversionFastq(Date beginDate, Date endDate)
-      throws IOException {
+  public void createLogConversionFastq(Date beginDate, Date endDate,
+      List<String> arguments) throws IOException {
     try {
 
       // write the begin date of the fast5tofastq execution
       this.logWriter.write(beginDate + "\n\n");
+      this.logWriter
+          .write("Command line: " + arguments.toString().replace(",", ""));
       this.logWriter.write("Log of the fast5 run "
           + this.f5.getNameDirectoryRunFast5()
           + " to extract fastq sequences\n\n");

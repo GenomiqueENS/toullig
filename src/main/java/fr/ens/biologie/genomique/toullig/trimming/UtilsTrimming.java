@@ -19,19 +19,31 @@ class UtilsTrimming {
    */
   static String getOutlierLeftSequence(int lengthOutlierBegin,
       String sequence) {
-    return sequence.substring(0, lengthOutlierBegin);
+    if(lengthOutlierBegin>=0){
+      return sequence.substring(0, lengthOutlierBegin);
+    }else{
+      return "";
+    }
+
   }
 
   /**
    * Method of the class TrimModes to obtain the sequence of the right outlier.
-   * @param lengthOutlierEnd, the length of the outlier
+   * @param lengthOutlierRight, the length of the outlier
    * @param sequence, the sequence of the read
    * @return the sequence of the right outlier
    */
-  static String getOutlierRightSequence(int lengthOutlierEnd, String sequence) {
+  static String getOutlierRightSequence(int lengthOutlierRight, String sequence) {
 
-    return sequence.substring(sequence.length() - lengthOutlierEnd,
-        sequence.length());
+
+    if(lengthOutlierRight>=0){
+      return sequence.substring(sequence.length() - lengthOutlierRight,
+              sequence.length());
+    }else{
+      return "";
+    }
+
+
   }
 
   /**

@@ -1,9 +1,12 @@
 package fr.ens.biologie.genomique.toullig;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import fr.ens.biologie.genomique.eoulsan.Common;
+import fr.ens.biologie.genomique.eoulsan.EoulsanException;
+import fr.ens.biologie.genomique.eoulsan.bio.BadBioEntryException;
 import org.apache.commons.cli.*;
 
 import fr.ens.biologie.genomique.toullig.actions.Fast5tofastqAction;
@@ -143,8 +146,19 @@ abstract class Main {
             new ArrayList<>(Arrays.asList(args)).subList(1, args.length));
         break;
 
+      // process test module
+      case "test":
+        new SamDiffAnnot();
+        break;
+
       }
     } catch (ParseException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    } catch (EoulsanException e) {
+      e.printStackTrace();
+    } catch (BadBioEntryException e) {
       e.printStackTrace();
     }
   }

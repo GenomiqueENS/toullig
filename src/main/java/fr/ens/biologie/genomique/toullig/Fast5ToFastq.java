@@ -203,6 +203,7 @@ public class Fast5ToFastq {
    * @return a list of fast5 file
    */
   private static List<File> listFast5(File fast5Dir) {
+
     return Arrays.asList(fast5Dir.listFiles(new FilenameFilter() {
 
       // test if the file is a fast5 file
@@ -276,7 +277,7 @@ public class Fast5ToFastq {
     if (saveCompressBZIP2) {
       return new SynchronizedWriter(
           new File(this.repertoryFastqOutput
-              + "/" + preNameFile + status + "_" + typeSequence + ".bzip2"),
+              + "/" + preNameFile + status + "_" + typeSequence + ".fastq.bz2"),
           "bzip2");
     }
 
@@ -284,7 +285,7 @@ public class Fast5ToFastq {
     if (saveCompressGZIP) {
       return new SynchronizedWriter(
           new File(this.repertoryFastqOutput
-              + "/" + preNameFile + status + "_" + typeSequence + ".gzip"),
+              + "/" + preNameFile + status + "_" + typeSequence + ".fastq.gz"),
           "gzip");
     } else {
       return new SynchronizedWriter(
@@ -739,6 +740,9 @@ public class Fast5ToFastq {
 
       // test if the transcriptWriter is not null and if the transcript sequence
       // is not null
+
+      System.out.println(f5.getTranscriptFastq());
+
       if (transcriptWriter != null && f5.getTranscriptFastq() != null) {
 
         // get the complement sequence

@@ -158,6 +158,8 @@ The transcript sequence is the sequence result of the consensus sequence (in 2D)
 </p>
 
 
+/!\ The transcript sequence is only available for barcoded ONT run.
+
 ### Options Fast5tofastq
 
 
@@ -178,12 +180,19 @@ The transcript sequence is the sequence result of the consensus sequence (in 2D)
 ### Example
 
 
-I have a directory of a minION run in 2D with barcode.
+I have a directory of a minION run in 2D barcoded.
 If i want just get the fastq sequence of the 'template', the 'complement' and the 'consensus' for the fast5 files in the status/repertory 'fail'.
 
 
     bash ./target/dist/toullig-0.2-alpha/toullig.sh fast5tofastq -status fail -type template,complement,consensus /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq
+    
+    I have a directory of a minION run in 2D not barcoded.
+If i want just get the fastq default sequence for the fast5 files in the status/repertory 'pass'.
 
+
+    bash ./target/dist/toullig-0.2-alpha/toullig.sh fast5tofastq -status pass /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq
+
+WARNING : This last example is a trap ! The default type of sequence is transcript or the run is not barcoded and the transcript sequence is not available on nont barcoded run.
 
 # TrimFastq
 

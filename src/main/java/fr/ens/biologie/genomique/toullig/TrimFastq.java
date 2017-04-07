@@ -341,6 +341,9 @@ public class TrimFastq implements AutoCloseable {
    */
   public void execution() throws IOException {
 
+    System.out.println("add_index: " + this.addIndexOutlier);
+    System.out.println("error rate cutadapt: " + this.errorRateCutadapt);
+
     // Declare the left outlier output fasta for cutadapt
     File outputTrimLeftFastaFile =
         new File(this.workDir + "/outputFastaFileLeftOutlier.fastq");

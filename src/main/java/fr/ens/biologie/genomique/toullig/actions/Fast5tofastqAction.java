@@ -127,7 +127,7 @@ public class Fast5tofastqAction extends AbstractAction {
     }
 
     // Execute program in local mode
-    run(status, type, compress, dirFast5, dirOutputFastq, merge);
+    run(status, type, compress, dirFast5, dirOutputFastq, merge, arguments);
   }
 
   //
@@ -167,7 +167,7 @@ public class Fast5tofastqAction extends AbstractAction {
     // add option for compress
     options.addOption(OptionBuilder.withArgName("compress").hasArg()
         .withDescription(
-            "set a compression for the output fastq [GZIP|BZIP2] (default: none)")
+            "set a compression for the output fastq [gzip|bzip2] (default: none)")
         .create("compress"));
 
     // add option for mergeSequence
@@ -211,7 +211,7 @@ public class Fast5tofastqAction extends AbstractAction {
    */
   private static void run(final String status, final String type,
       final String compress, final File dirFast5, final File dirOutputFastq,
-      final boolean merge) {
+      final boolean merge, List<String> arguments) {
 
     // Get the Begin Date of the action
     Date beginDate = new Date();
@@ -281,7 +281,7 @@ public class Fast5tofastqAction extends AbstractAction {
       try {
 
         Fast5ToFastqLogger logIf5 = new Fast5ToFastqLogger(if5, dirOutputFastq);
-        logIf5.createLogConversionFastq(beginDate, endDate);
+        logIf5.createLogConversionFastq(beginDate, endDate, arguments);
         logIf5.createLogCorruptFile();
         logIf5.createLogWorkflow();
 

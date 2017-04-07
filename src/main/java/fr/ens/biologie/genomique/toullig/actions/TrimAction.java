@@ -58,13 +58,13 @@ public class TrimAction extends AbstractAction {
     String trimmer = "";
     String mode = "";
     String stats = "";
-    double errorRateCutadapt = 0;
+    double errorRateCutadapt = 0.0;
     double thresholdSW = 0;
     int lengthWindowsSW = 0;
     int seedMismatchesTrimmomatic = 0;
     int palindromeClipThresholdTrimmomatic = 0;
     int simpleClipThreshold = 0;
-    int addIndexOutlier = 0;
+    int addIndexOutlier = 15;
 
     File samFile = new File("");
     File fastqFile = new File("");
@@ -112,8 +112,8 @@ public class TrimAction extends AbstractAction {
 
       // Get errorRateCutadapt
       if (line.hasOption("errorRateCutadapt")) {
-        errorRateCutadapt = Long
-            .parseLong(line.getOptionValue("errorRateCutadapt").toLowerCase());
+        errorRateCutadapt = Double.parseDouble(
+            line.getOptionValue("errorRateCutadapt").toLowerCase());
       }
 
       // Get thresholdSW
@@ -339,7 +339,7 @@ public class TrimAction extends AbstractAction {
       }
 
       // set the number of add index to the outlier
-      if (addIndexOutlier != 0) {
+      if (addIndexOutlier != 15) {
         trim.setAddIndexOutlier(addIndexOutlier);
       }
 
