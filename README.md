@@ -24,6 +24,7 @@ Aurélien Birer, [birer@biologie.ens.fr](birer@biologie.ens.fr)
     * [Chemistry available](#chemistry-available)
 * [Fast5tofastq](#fast5tofastq)
     * [Understand the type of sequence](#understand-the-type-of-sequence)
+    * [Sequence available for each run configuration] (#sequence-available-for-each-run-configuration)
     * [Options Fast5tofastq](#options-fast5tofastq)
     * [Example](#example)
 * [TrimFastq](#trimFastq)
@@ -160,6 +161,15 @@ The transcript sequence is the sequence result of the consensus sequence (in 2D)
 
 /!\ The transcript sequence is only available for barcoded ONT run.
 
+### Sequence available for each run configuration
+
+Here, for each sequecing configuration the sequence available for the fast5tofastq conversion.
+
+<p align="center">
+  <img src="images/type_of_sequencing_workflow.png"/>
+</p>
+
+
 ### Options Fast5tofastq
 
 
@@ -267,16 +277,16 @@ In the execution of toullig Trim, the programm step :
 # Developpment environnement
 
 
-Ubutun : '16.04.4'
+Ubuntu version: '16.04.4'
 
-JAVA version : '1.8.0_121'
+Java version: '1.8.0_121'
 
-Maven version : '3.2.3'
+Maven version: '3.2.3'
 
 
 # Repository
 
-Currently the Git reference repository is [https://github.com/GenomicParisCentre/toullig](https://github.com/GenomicParisCentre/Toullig).
+Currently the Git reference repository is [https://github.com/GenomicParisCentre/toullig](https://github.com/GenomicParisCentre/toullig).
 
 
 # License
