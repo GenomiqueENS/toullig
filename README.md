@@ -165,6 +165,8 @@ The transcript sequence is the sequence result of the consensus sequence (in 2D)
 
 Here, for each sequecing configuration the sequence available for the fast5tofastq conversion.
 
+In bold, the type of sequencing that it's mostly interessant.
+
 <p align="center">
   <img src="images/type_of_sequencing_workflow.png"/>
 </p>
