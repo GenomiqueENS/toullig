@@ -1,4 +1,4 @@
-package fr.ens.biologie.genomique.toullig;
+package fr.ens.biologie.genomique.toullig.trimming;
 
 import java.io.*;
 import java.util.HashMap;

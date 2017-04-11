@@ -1,4 +1,4 @@
-package fr.ens.biologie.genomique.toullig;
+package fr.ens.biologie.genomique.toullig.fast5tofastq;
 
 import fr.ens.biologie.genomique.eoulsan.util.LocalReporter;
 

@@ -9,8 +9,8 @@ import java.util.List;
 import org.apache.commons.cli.*;
 
 import fr.ens.biologie.genomique.eoulsan.actions.AbstractAction;
-import fr.ens.biologie.genomique.toullig.Fast5ToFastq;
-import fr.ens.biologie.genomique.toullig.Fast5ToFastqLogger;
+import fr.ens.biologie.genomique.toullig.fast5tofastq.Fast5ToFastq;
+import fr.ens.biologie.genomique.toullig.fast5tofastq.Fast5ToFastqLogger;
 import fr.ens.biologie.genomique.toullig.Globals;
 
 /**

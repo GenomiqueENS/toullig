@@ -14,12 +14,13 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Date;
 
+import fr.ens.biologie.genomique.toullig.fast5tofastq.Fast5;
 import org.junit.Test;
 
-import fr.ens.biologie.genomique.toullig.Fast5.ChemistryVersion;
-import fr.ens.biologie.genomique.toullig.Fast5.Status;
-import fr.ens.biologie.genomique.toullig.Fast5.Type;
-import fr.ens.biologie.genomique.toullig.Fast5.Version;
+import fr.ens.biologie.genomique.toullig.fast5tofastq.Fast5.ChemistryVersion;
+import fr.ens.biologie.genomique.toullig.fast5tofastq.Fast5.Status;
+import fr.ens.biologie.genomique.toullig.fast5tofastq.Fast5.Type;
+import fr.ens.biologie.genomique.toullig.fast5tofastq.Fast5.Version;
 
 public class Fast5Test {
   private final String file1 = "/alexander_PC_20161027_R9-4_1D.fast5";

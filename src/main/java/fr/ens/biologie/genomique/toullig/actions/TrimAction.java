@@ -9,7 +9,7 @@ import org.apache.commons.cli.*;
 
 import fr.ens.biologie.genomique.eoulsan.actions.AbstractAction;
 import fr.ens.biologie.genomique.toullig.Globals;
-import fr.ens.biologie.genomique.toullig.TrimFastq;
+import fr.ens.biologie.genomique.toullig.trimming.TrimFastq;
 
 /**
  * This class define the Local exec Action.

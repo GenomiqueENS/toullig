@@ -8,7 +8,7 @@ import fr.ens.biologie.genomique.eoulsan.data.Data;
 import fr.ens.biologie.genomique.eoulsan.data.DataFormatRegistry;
 import fr.ens.biologie.genomique.eoulsan.data.DataFormats;
 import fr.ens.biologie.genomique.eoulsan.modules.AbstractModule;
-import fr.ens.biologie.genomique.toullig.TrimFastq;
+import fr.ens.biologie.genomique.toullig.trimming.TrimFastq;
 
 import java.io.File;
 import java.io.IOException;
