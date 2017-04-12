@@ -336,7 +336,7 @@ public class CutadaptTrimmer implements Trimmer {
           + " " + reverseComplementAdaptorSwithStrand + " " + quiet
           + " --error-rate=" + this.errorRateCutadapt + " --info-file="
           + infoTrimFile.toString()
-          + " --overlap=7 --times=8 --match-read-wildcards --format=fasta "
+          + " --overlap=8 --times=10 --match-read-wildcards --format=fasta "
           + fastaOutlierFile.toString() + " > " + pathOutputTrimFasta);
 
       // System.out.println(pb.command());

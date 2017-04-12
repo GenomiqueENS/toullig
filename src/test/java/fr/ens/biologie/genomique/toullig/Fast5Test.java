@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.Date;
 
 import fr.ens.biologie.genomique.toullig.fast5tofastq.Fast5;
@@ -455,7 +456,7 @@ public class Fast5Test {
   }
 
   @Test
-  public void testGetdDateExp() {
+  public void testGetdDateExp() throws ParseException {
     Fast5 testf1 = new Fast5(getResourceAsFile(file1));
     long Dateint1 = 1477580791;
     Date datef1 = new Date(Dateint1 * 1000);
@@ -817,36 +818,36 @@ public class Fast5Test {
   @Test
   public void testGetBaseCaller() {
     Fast5 testf1 = new Fast5(getResourceAsFile(file1));
-    assertEquals("chimaera v1.23.3 | dragonet v1.23.0", testf1.getBaseCaller());
-    assertNotEquals(null, testf1.getBaseCaller());
+    assertEquals("chimaera v1.23.3 | dragonet v1.23.0", testf1.getSubModuleMetrichorVersion());
+    assertNotEquals(null, testf1.getSubModuleMetrichorVersion());
     testf1.close();
 
     Fast5 testf2 = new Fast5(getResourceAsFile(file2));
-    assertEquals(null, testf2.getBaseCaller());
+    assertEquals(null, testf2.getSubModuleMetrichorVersion());
     testf2.close();
 
     Fast5 testf3 = new Fast5(getResourceAsFile(file3));
-    assertEquals("chimaera v1.22.6 | dragonet v1.22.2", testf3.getBaseCaller());
-    assertNotEquals(null, testf3.getBaseCaller());
+    assertEquals("chimaera v1.22.6 | dragonet v1.22.2", testf3.getSubModuleMetrichorVersion());
+    assertNotEquals(null, testf3.getSubModuleMetrichorVersion());
     testf3.close();
 
     Fast5 testf4 = new Fast5(getResourceAsFile(file4));
-    assertEquals(null, testf4.getBaseCaller());
+    assertEquals(null, testf4.getSubModuleMetrichorVersion());
     testf4.close();
 
     Fast5 testf5 = new Fast5(getResourceAsFile(file5));
     assertEquals("chimaera v1.22.10 | dragonet v1.22.4",
-        testf5.getBaseCaller());
-    assertNotEquals(null, testf5.getBaseCaller());
+        testf5.getSubModuleMetrichorVersion());
+    assertNotEquals(null, testf5.getSubModuleMetrichorVersion());
     testf5.close();
 
     Fast5 testf6 = new Fast5(getResourceAsFile(file6));
-    assertEquals(null, testf6.getBaseCaller());
+    assertEquals(null, testf6.getSubModuleMetrichorVersion());
     testf6.close();
 
     Fast5 testf7 = new Fast5(getResourceAsFile(file7));
-    assertEquals("chimaera v1.23.4 | dragonet v1.23.0", testf7.getBaseCaller());
-    assertNotEquals(null, testf7.getBaseCaller());
+    assertEquals("chimaera v1.23.4 | dragonet v1.23.0", testf7.getSubModuleMetrichorVersion());
+    assertNotEquals(null, testf7.getSubModuleMetrichorVersion());
     testf7.close();
   }
 

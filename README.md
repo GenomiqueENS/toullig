@@ -1,7 +1,8 @@
 Toullig 0.2-alpha
 =======
 
-Toullig is (since January 17 2017) a reader, parser of Fast5 files of ONT (basecalled and not basecalled) and a fastq files writer and the first of march Toullig can trim fastq of ONT based on the RT adaptors.
+Toullig is (since January 17 2017) a reader, parser of Fast5 files of ONT (basecalled and not basecalled) and a '.fastq' files writer.
+The 01 March Toullig can trim fastq of ONT based on the RT adaptors.
 
 
 # Author
@@ -27,6 +28,10 @@ Aurélien Birer, [birer@biologie.ens.fr](birer@biologie.ens.fr)
     * [Sequence available for each run configuration](#sequence-available-for-each-run-configuration)
     * [Options Fast5tofastq](#options-fast5tofastq)
     * [Example](#example)
+    * [Log files](#log-files)
+        * [logConversionFastq.txt](#logconversionfastq.txt)
+        * [logCorruptFast5Files.txt](#logcorruptfast5files)
+        * [logWorkflow.txt](#logworkflow.txt)
 * [TrimFastq](#trimFastq)
     * [Options TrimFastq](#options-trimFastq)
     * [Example trim](#example-trim)
@@ -38,7 +43,7 @@ Aurélien Birer, [birer@biologie.ens.fr](birer@biologie.ens.fr)
 # Requirements
 
 
-You just need to have java 8 and maven installed on your computer. This alpha version work on Ubuntu (Unix distribution).
+You just need to have Java 8 and Maven installed on your computer. This alpha version work on Ubuntu (Unix distribution).
 
 
 # Installation
@@ -76,7 +81,7 @@ You just need to have java 8 and maven installed on your computer. This alpha ve
 
 Toullig have 2 tools :
 
-- fast5tofastq : read the rootDirectory/downloads of your Fast5 run minION after the step of basecalling (metrichor/albacore).
+- fast5tofastq : read the rootDirectory of your ONT run after the step of basecalling (metrichor/albacore) and produce a '.fastq' file.
 - trim : trim the reads of a ONT fastq with a sam file, based on the RT adaptors.
 
 ### Classification MinION run
@@ -116,18 +121,18 @@ Toullig have 2 tools :
 # Fast5tofastq
 
 
-In the execution of toullig Fast5tofastq, the programm step :
+In the execution of toullig Fast5tofastq, the program step :
 
- + List the .fast5 files.
- + Read a .fast5 file.
- + Write the .fastq sequence(s).
- + Make few some log informations.
+ + List the '.fast5' files.
+ + Read a '.fast5' file.
+ + Write the sequence(s) in a '.fastq' file.
+ + Make some log files.
 
 ### Understand the type of sequence
 
-Actually, we use in developpement Metrichor for the basecalling of our .fast5 files.
+Actually, we use in development Metrichor for the basecalling of our '.fast5' files.
 
-But it's important to understand clearly the type of the 4 fastq sequences give by metrichor (in our case in 2D).
+But it's important to understand clearly the type of the 4 fastq sequences (see [Sequence available for each run configuration](#sequence-available-for-each-run-configuration)) give by the basecaller (in our case Metrichor).
 
 
 The template sequence is the first sequence basecalled, this sequence correspond to the own read sequenced in 1D. This sequence contains section as follow :
@@ -144,7 +149,7 @@ The complement sequence is the second sequence basecalled (in 2D), this sequence
 
 /!\ The sequence template and complement can be reverse (it's depends of how the leader-adaptor is fix).
 
-The consensus sequence is the sequence result of the alignement of the template and the complement sequence (in 2D). This sequence contains section as follow :
+The consensus sequence is the sequence result of the alignment of the template and the complement sequence (in 2D). This sequence contains section as follow :
 
 <p align="center">
   <img src="images/consensus_sequence.png"/>
@@ -152,7 +157,7 @@ The consensus sequence is the sequence result of the alignement of the template 
 
 /!\ The consensus sequence can be bases on the template sequence or complement sequence.
 
-The transcript sequence is the sequence result of the consensus sequence (in 2D) with a trim of the barcode sequence (/!\ barcode can be still). This sequence contains section as follow :
+The transcript sequence is the sequence result of the consensus sequence (in 2D) with a trim of the barcoded sequence (/!\ barcode can be still). This sequence contains section as follow :
 
 <p align="center">
   <img src="images/transcript_sequence.png"/>
@@ -163,9 +168,9 @@ The transcript sequence is the sequence result of the consensus sequence (in 2D)
 
 ### Sequence available for each run configuration
 
-Here, for each sequecing configuration the sequence available for the fast5tofastq conversion.
+Here, for each sequencing configuration the sequence available for the fast5tofastq conversion.
 
-In bold, the type of sequencing that it's mostly interessant.
+In bold, the type of sequencing that it's mostly interesting.
 
 <p align="center">
   <img src="images/type_of_sequencing_workflow.png"/>
@@ -178,10 +183,10 @@ In bold, the type of sequencing that it's mostly interessant.
     
     #Options
     
-    -status pass|fail|unclassified (default: pass)                                  # The status of fast5 file
+    -status pass|fail|unclassified (default: pass)                                  # The status of '.fast5' file
     -type template|complement|consensus|transcript (default: transcript)            # The type of sequence
     -mergeSequence true|false (default: false)                                      # If you want merge all type of sequence whatever the status
-    -compress GZIP|BZIP2 (default: none)                                            # Set the type of compression for the output fastq
+    -compress GZIP|BZIP2 (default: none)                                            # Set the type of compression for the output '.fastq' files
     
     #Arguments
 
@@ -192,7 +197,7 @@ In bold, the type of sequencing that it's mostly interessant.
 ### Example
 
 
-I have a directory of a minION run in 2D barcoded.
+I have a directory of a MinION run in 2D barcoded.
 If i want just get the fastq sequence of the 'template', the 'complement' and the 'consensus' for the fast5 files in the status/repertory 'fail'.
 
 
@@ -204,30 +209,49 @@ If i want just get the fastq default sequence for the fast5 files in the status/
 
     bash ./target/dist/toullig-0.2-alpha/toullig.sh fast5tofastq -status pass /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq
 
-WARNING : This last example is a trap ! The default type of sequence is transcript or the run is not barcoded and the transcript sequence is not available on nont barcoded run.
+WARNING : This last example is a trap ! The default type of sequence is transcript or the run is not barcoded and the transcript sequence is not available on ONT barcoded run (see [Sequence available for each run configuration](#sequence-available-for-each-run-configuration)).
+
+### Log files
+
+#### logConversionFastq.txt
+
+This log contains the main informations about the execution of the conversion of '.fast5' files to a the '.fastq' files. The file is structured in 4 sections:
+
+    - The date of the begin of the conversion execution.
+    - The number of files reads for each folder create after the basecalling.
+    - The number of sequences writes in the fastq and the number of sequences null (not write).
+    - The date of the end of the conversion execution.
+
+#### logCorruptFast5Files.txt
+
+This log contains a list of path of corrupt '.fast5' files. Theses files can be read and information can be extract but the HDF5 library use for opening theses files detect a corruption.
+
+#### logWorkflow.txt
+
+This log contains the final status of each basecalling workflow for each folder create after the basecalling.
 
 # TrimFastq
 
 In the case of cDNA protocols like SQK-MAP006.
-One of the problem of the minION reads in the format fastq is that the read is not the transcript as we expected. The read still have the RT adaptor and, in some case, the barcode with adaptors (leader/hairpin).
+One of the problem of the MinION reads in the format fastq is that the read is not the transcript as we expected. The read still have the RT adaptor and, in some case, the barcode with sequencing adaptors (leader/hairpin).
 
-For enhance the mapping quality, it's important to trim the reads to delete these unwanted sequences.
+For find the truely position of the start/stop of the mRNA, it's important to trim the reads to delete these unwanted sequences.
 
-In the execution of toullig Trim, the programm step :
+In the execution of toullig Trim, the program step :
 
- + Repere the index between the outliers and the mRNA (mode P or SW).
+ + Mark the index between the outliers and the mRNA (mode P (Perfect) or SW (Side-Window) ).
  
- For cutadapt:
+ For Cutadapt:
  
- + Write Fasta File for each Outlier.
- + Trim with cutadapt
- + Write the cutadapt output merge.
+ + Write '.fasta' file for each outlier.
+ + Trim with Cutadapt
+ + Write the Cutadapt output merged in a '.fastq' file.
  
-  For trimmomatic:
+  For Trimmomatic:
  
- + Read a sequence fastq.
- + Trim with trimmomatic
- + Write the sequence trimmed.
+ + Read a fastq sequence.
+ + Trim with Trimmomatic.
+ + Write the sequence trimmed into a '.fastq' file.
 
 ### Options TrimFastq
 
@@ -236,7 +260,7 @@ In the execution of toullig Trim, the programm step :
     
     -trimmer cutadapt|trimmomatic (default: cutadapt)       # The trimmer tool use for trimming
     -mode P | SW (default: P)                               # The type of trimming the transcripts reads
-    -stats true|flase (default: false)                      # If you want somes stats on the trimming
+    -stats true|flase (default: false)                      # If you want some statistical information on the Cutadapt trimming
     
     #Options Trimming by Side-window mode
     
@@ -244,7 +268,7 @@ In the execution of toullig Trim, the programm step :
     
     #Options Trimming by Side-window mode
     
-    -thresholdSideWindow (default: 0.8)                             # The threshold for the Side-Window algorithm
+    -thresholdSideWindow (default: 0.8)                     # The threshold for the Side-Window algorithm
     -lengthWindowsSW (default: 15)                          # The length for the the Side-Window algorithm
     
     #Options Cutadapt
@@ -276,7 +300,7 @@ In the execution of toullig Trim, the programm step :
     bash ./target/dist/toullig-0.2-alpha/toullig.sh trim /home/user/samFile.sam /home/user/fastqONTFile.fastq /home/user/myFastqTrim.fastq ~/toullig/config_files/adaptor_RT_sequence_modify_for_nanopore.txt /home/user/yourTmpRepertoryOfWork
 
 
-# Developpment environnement
+# Development environment
 
 
 Ubuntu version: '16.04.4'
