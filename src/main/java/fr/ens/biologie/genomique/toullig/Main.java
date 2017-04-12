@@ -152,13 +152,7 @@ abstract class Main {
         break;
 
       }
-    } catch (ParseException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } catch (EoulsanException e) {
-      e.printStackTrace();
-    } catch (BadBioEntryException e) {
+    } catch (ParseException | BadBioEntryException | EoulsanException | IOException e) {
       e.printStackTrace();
     }
   }

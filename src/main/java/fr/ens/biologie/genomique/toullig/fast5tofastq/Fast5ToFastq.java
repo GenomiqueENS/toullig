@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -523,7 +524,7 @@ public class Fast5ToFastq {
    * @throws IOException, test the read of the file
    */
   private int processDirectory(String fast5SubdirName, String status,
-      LocalReporter localReporter) throws IOException {
+      LocalReporter localReporter) throws IOException, ParseException {
 
     // list of fast5 files
     List<File> list = listFast5(fast5SubdirName);
@@ -541,7 +542,7 @@ public class Fast5ToFastq {
    * @throws IOException, test the read of the file
    */
   private void processDirectory(List<File> listFast5Files, String status,
-      LocalReporter localReporter) throws IOException {
+      LocalReporter localReporter) throws IOException, ParseException {
 
     // test if the list of fast5 files is empty
     if (listFast5Files.isEmpty()) {
@@ -631,7 +632,7 @@ public class Fast5ToFastq {
    * @throws IOException, test the read of the file
    */
   private void processDirectories(List<File> listBarcodeDir,
-      LocalReporter localReporter) throws IOException {
+      LocalReporter localReporter) throws IOException, ParseException {
 
     // process each barcode directories
     for (File barcodeDirectory : listBarcodeDir) {
@@ -667,7 +668,7 @@ public class Fast5ToFastq {
    */
   private void readFast5WriteFastq(File fast5File, Writer complementWriter,
       Writer templateWriter, Writer consensusWriter, Writer transcriptWriter,
-      String status, LocalReporter localReporter) throws IOException {
+      String status, LocalReporter localReporter) throws IOException, ParseException {
 
     // test if the fast5 is corrupt or readable
     try (Fast5 f5 = new Fast5(fast5File)) {
@@ -906,7 +907,7 @@ public class Fast5ToFastq {
   private void readFast5WriteFastq(List<File> listFast5Files,
       Writer complementWriter, Writer templateWriter, Writer consensusWriter,
       Writer transcriptWriter, String status, LocalReporter localReporter)
-      throws IOException {
+          throws IOException, ParseException {
 
     // read fast5 files
     for (File fast5File : listFast5Files) {
@@ -928,7 +929,7 @@ public class Fast5ToFastq {
    * fastq sequence on fast5 file.
    * @throws IOException, test the read of the file
    */
-  public void execute() throws IOException {
+  public void execute() throws IOException, ParseException {
 
     // test if the merge of fastq is enable
     if (this.processMergeStatus) {

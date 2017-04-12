@@ -27,17 +27,16 @@ public class Fast5 implements AutoCloseable {
    * Constructor of the Fast5 class.
    * @param fast5File constructor
    */
-  public Fast5(File fast5File) {
+  public Fast5(File fast5File) throws ParseException {
 
     this.fast5File = fast5File;
     this.reader = readFast5File(fast5File);
-    this.basecaller = readBasecaller();
     this.status = readStatus();
+    this.basecaller = readBasecaller();
     this.version = readVersion();
     this.type = readType();
     this.chemistryVersion = readChemistryVersion();
 
-      System.out.println(this.basecaller);
   }
 
   //
@@ -216,17 +215,23 @@ public class Fast5 implements AutoCloseable {
    */
   private Basecaller readBasecaller(){
 
-    // test if the basecaller is Metrichor by a specific Metrichor field
-    if (reader.hasAttribute("/Analyses/Barcoding_000",
-            "chimaera version")){
-      return Basecaller.METRICHOR;
-    }
+      //test if the file is basecalled
+      if (!isBasecalled()) {
+          return null;
+      }
 
-    // test if the basecaller is Albacore by a specific Albacore field
-    if (reader.getStringAttribute("/Analyses/Barcoding_000",
-            "name").equals("ONT Albacore Sequencing Software")){
-      return Basecaller.ALBACORE;
-    }
+    // test if the basecaller is Metrichor by a specific Metrichor field
+    if (reader.getStringAttribute("/Analyses/Basecall_1D_000","name").equals("ONT Sequencing Workflow")){
+      return Basecaller.METRICHOR;
+    }else{
+        // test if the basecaller is Albacore by a specific Albacore field
+        if (reader.getStringAttribute("/Analyses/Basecall_1D_000",
+                "name").equals("ONT Albacore Sequencing Software")){
+            return Basecaller.ALBACORE;
+        }
+      }
+
+
     return null;
   }
 
@@ -345,22 +350,19 @@ public class Fast5 implements AutoCloseable {
    */
   public Date getdDateExp() throws ParseException {
 
-    // test if the basecaller is Metrichor
-    if(this.basecaller==Basecaller.METRICHOR){
-      String dateInt = reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
-              "exp_start_time");
-      return new Date(Long.parseLong(dateInt) * 1000);
-    }
+      // This function cann return error because the problem of teh date format is related with MinKNOW version and i dont know the version of MinKNOW where they change the format of the Date.
 
-    // test if the basecaller is Albacore
-    if(this.basecaller==Basecaller.ALBACORE){
+    // test if the Chemistry version is R9_4
+    if(this.chemistryVersion==ChemistryVersion.R9_4 && this.chemistryVersion==ChemistryVersion.R9_5){
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MMM-ddTHH:mm:ssZ");
-      String date = reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
-              "exp_start_time");
-      return formatter.parse(date);
+        String date = reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
+                "exp_start_time");
+        return formatter.parse(date);
+    }else{
+        String dateInt = reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
+                "exp_start_time");
+        return new Date(Long.parseLong(dateInt) * 1000);
     }
-
-    return null;
   }
 
   /**
@@ -768,10 +770,8 @@ public class Fast5 implements AutoCloseable {
     if (!isBasecalled() || getChemistryVersion() == ChemistryVersion.R7_3) {
       return null;
     }
-
       // test if the basecaller is Metrichor
       if(this.basecaller==Basecaller.METRICHOR) {
-
           return getLogFinalStatus(
                   reader.readString("/Analyses/EventDetection_000/Log"));
       }
