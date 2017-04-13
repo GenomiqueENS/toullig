@@ -120,6 +120,7 @@ Toullig have 2 tools :
 
 # Fast5tofastq
 
+The module work for Metrichor (now closure) and Albacore basecallers.
 
 In the execution of toullig Fast5tofastq, the program step :
 
@@ -280,10 +281,6 @@ In the execution of toullig Trim, the program step :
     -seedMismatchesTrimmomatic (default:17 )                # The number base of mismatchs maximun for Trimmomatic
     -palindromeClipThresholdTrimmomatic (default: 30)       # The threshold of palindrome clip for Trimmomatic
     -simpleClipThreshold (default: 7)                       # The threshold of simple clip for Trimmomatic
-    
-    #Options Post-Process
-    
-    -minlen (default : 100)                                 # The threshold of minimum length to write trimmed fastq
     
     #Arguments
     

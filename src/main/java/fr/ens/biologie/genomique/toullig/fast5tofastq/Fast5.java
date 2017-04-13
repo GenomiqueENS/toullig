@@ -166,45 +166,77 @@ public class Fast5 implements AutoCloseable {
     //
 
     // Case of not basecalled fast5 file and contains a special group
-    if (!isBasecalled() && reader.isGroup("/Raw/Reads")) {
-      return ChemistryVersion.R9;
-    }
-
-    // Case of not basecalled fast5 file and contains a special group
-    if (!isBasecalled()
-            && reader.isGroup("/Analyses/EventDetection_000/Reads")) {
-      return ChemistryVersion.R7_3;
+    if (!isBasecalled()) {
+      return null;
     }
 
     //
     // Case of basecalled fast5 file
     //
 
-    // test if the chemistry version is R7.3
-    if (reader
-            .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
-                    "model_type")
-            .contains("r7.3_")) {
-      return ChemistryVersion.R7_3;
+    //test if the basecaller is Metrichor
+    if(this.basecaller==Basecaller.METRICHOR){
+
+      // test if the chemistry version is R7.3
+      if (reader
+              .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
+                      "model_type")
+              .contains("r7.3_")) {
+        return ChemistryVersion.R7_3;
+      }
+
+      // test if the chemistry version is R9
+      if (reader
+              .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
+                      "model_type")
+              .contains("r9_")) {
+        return ChemistryVersion.R9;
+
+      }
+
+      // test if the chemistry version is R9.4
+      if (reader
+              .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
+                      "model_type")
+              .contains("r94_")) {
+        return ChemistryVersion.R9_4;
+
+      }
+      return null;
     }
 
-    // test if the chemistry version is R9
-    if (reader
-            .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
-                    "model_type")
-            .contains("r9_")) {
-      return ChemistryVersion.R9;
+    //test if the basecaller is Albacore
+    if(this.basecaller==Basecaller.ALBACORE){
 
+      // test if the chemistry version is R7.3
+      if (reader
+              .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/basecall_1d",
+                      "model")
+              .contains("r7.3_")) {
+        return ChemistryVersion.R7_3;
+      }
+
+      // test if the chemistry version is R9
+      if (reader
+              .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/basecall_1d",
+                      "model")
+              .contains("r9_")) {
+        return ChemistryVersion.R9;
+
+      }
+
+      // test if the chemistry version is R9.4
+      if (reader
+              .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/basecall_1d",
+                      "model")
+              .contains("r9.4_")) {
+        return ChemistryVersion.R9_4;
+
+      }
+      return null;
     }
 
-    // test if the chemistry version is R9.4
-    if (reader
-            .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
-                    "model_type")
-            .contains("r94_")) {
-      return ChemistryVersion.R9_4;
 
-    }
     return null;
   }
 
@@ -215,21 +247,21 @@ public class Fast5 implements AutoCloseable {
    */
   private Basecaller readBasecaller(){
 
-      //test if the file is basecalled
-      if (!isBasecalled()) {
-          return null;
-      }
+    //test if the file is basecalled
+    if (!isBasecalled()) {
+      return null;
+    }
 
     // test if the basecaller is Metrichor by a specific Metrichor field
     if (reader.getStringAttribute("/Analyses/Basecall_1D_000","name").equals("ONT Sequencing Workflow")){
       return Basecaller.METRICHOR;
     }else{
-        // test if the basecaller is Albacore by a specific Albacore field
-        if (reader.getStringAttribute("/Analyses/Basecall_1D_000",
-                "name").equals("ONT Albacore Sequencing Software")){
-            return Basecaller.ALBACORE;
-        }
+      // test if the basecaller is Albacore by a specific Albacore field
+      if (reader.getStringAttribute("/Analyses/Basecall_1D_000",
+              "name").equals("ONT Albacore Sequencing Software")){
+        return Basecaller.ALBACORE;
       }
+    }
 
 
     return null;
@@ -274,11 +306,19 @@ public class Fast5 implements AutoCloseable {
   }
 
   /**
-   * Getter of the variable RVersion.
-   * @return a rversion with the chemical kit version use
+   * Getter of the variable ChemistryVersion.
+   * @return a ChemistryVersion with the chemical kit version use
    */
   public ChemistryVersion getChemistryVersion() {
     return this.chemistryVersion;
+  }
+
+  /**
+   * Getter of the variable Basecaller.
+   * @return a Basecaller with the basecaller use
+   */
+  public Basecaller getBasecaller() {
+    return this.basecaller;
   }
 
   //
@@ -345,24 +385,36 @@ public class Fast5 implements AutoCloseable {
 
   /**
    * Method of the class Fast5 to obtain the date of the sequencing in the fast5
-   * file.
+   * file for the basecaller Metrichor.
    * @return a date of the sequencing
    */
-  public Date getdDateExp() throws ParseException {
+  public Date getDateExpMetrichor() throws ParseException {
 
-      // This function cann return error because the problem of teh date format is related with MinKNOW version and i dont know the version of MinKNOW where they change the format of the Date.
-
-    // test if the Chemistry version is R9_4
-    if(this.chemistryVersion==ChemistryVersion.R9_4 && this.chemistryVersion==ChemistryVersion.R9_5){
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MMM-ddTHH:mm:ssZ");
-        String date = reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
-                "exp_start_time");
-        return formatter.parse(date);
-    }else{
-        String dateInt = reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
-                "exp_start_time");
-        return new Date(Long.parseLong(dateInt) * 1000);
+    //test if the basecaller is metrichor
+    if(this.basecaller==Basecaller.METRICHOR){
+      String dateInt = reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
+              "exp_start_time");
+      return new Date(Long.parseLong(dateInt) * 1000);
     }
+
+return null;
+
+  }
+
+  /**
+   * Method of the class Fast5 to obtain the date of the sequencing in the fast5
+   * file for the basecaller Albacore.
+   * @return a string of the date of sequencing
+   */
+  public String getDateExpAlbacore() throws ParseException {
+
+    //test if the basecaller is metrichor
+    if(this.basecaller==Basecaller.ALBACORE){
+      return reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
+              "exp_start_time");
+    }
+    return null;
+
   }
 
   /**
@@ -455,19 +507,31 @@ public class Fast5 implements AutoCloseable {
   public int getNumberRead() {
 
     // test if the fast5 file is basecalled and is R9
-    if (!isBasecalled() && getChemistryVersion() == ChemistryVersion.R9) {
+    if (!isBasecalled() && this.reader.exists("/Raw/Reads")) {
       String reads = reader.getAllGroupMembers("/Raw/Reads").get(0);
       return Integer.parseInt(reads.substring(reads.indexOf('_') + 1));
     }
 
     // test if the fast5 file is basecalled and is R7.3
-    if (!isBasecalled() && getChemistryVersion() == ChemistryVersion.R7_3) {
+    if (!isBasecalled() && this.reader.exists("/Analyses/EventDetection_000/Reads")) {
       String reads = reader
               .getAllGroupMembers("/Analyses/EventDetection_000/Reads").get(0);
       return Integer.parseInt(reads.substring(reads.indexOf('_') + 1));
     }
-    return Integer.parseInt(reader.getStringAttribute(
-            "/Analyses/Basecall_1D_000/Configuration/general", "read_id"));
+
+    // test if the basecaller is Metrichor
+    if (this.basecaller==Basecaller.METRICHOR){
+      return Integer.parseInt(reader.getStringAttribute(
+              "/Analyses/Basecall_1D_000/Configuration/general", "read_id"));
+    }
+
+    // test if the basecaller is Albacore
+    if (this.basecaller==Basecaller.ALBACORE){
+      String reads = reader.getAllGroupMembers("/Raw/Reads").get(0);
+      return Integer.parseInt(reads.substring(reads.indexOf('_') + 1));
+    }
+
+  return 0;
   }
 
   /**
@@ -476,61 +540,48 @@ public class Fast5 implements AutoCloseable {
    */
   public String getSubModuleMetrichorVersion() {
 
-      if(this.basecaller==Basecaller.METRICHOR){
+    if(this.basecaller==Basecaller.METRICHOR){
 
-          // test if the fast5 file is basecalled
-          if (!isBasecalled()) {
-              return null;
-          }
-          // get the version of chimaera
-          String chimaeraVersion = reader
-                  .getStringAttribute("/Analyses/Basecall_1D_000", "chimaera version");
-
-          // get the version of dragonet
-          String dragonetVersion = reader
-                  .getStringAttribute("/Analyses/Basecall_1D_000", "dragonet version");
-          return "chimaera v" + chimaeraVersion + " | dragonet v" + dragonetVersion;
+      // test if the fast5 file is basecalled
+      if (!isBasecalled()) {
+        return null;
       }
+      // get the version of chimaera
+      String chimaeraVersion = reader
+              .getStringAttribute("/Analyses/Basecall_1D_000", "chimaera version");
 
-      return null;
+      // get the version of dragonet
+      String dragonetVersion = reader
+              .getStringAttribute("/Analyses/Basecall_1D_000", "dragonet version");
+      return "chimaera v" + chimaeraVersion + " | dragonet v" + dragonetVersion;
+    }
+
+    return null;
 
   }
 
-    /**
-     * Method of the class Fast5 to obtain the version of Albacore
-     * @return a string with the version of Albacore
-     */
-    public String getAlbacoreVersion() {
-
-        if(this.basecaller==Basecaller.ALBACORE){
-
-            // test if the fast5 file is basecalled
-            if (!isBasecalled()) {
-                return null;
-            }
-
-            // get the version of chimaera
-            return reader
-                    .getStringAttribute("/Analyses/Basecall_1D_000", "version");
-        }
-
-        return null;
-
-    }
-
   /**
-   * Method of the class Fast5 to obtain alignement of the complement and the
-   * template sequence in the fast5 file.
-   * @return a string with the alignement
+   * Method of the class Fast5 to obtain the version of Albacore
+   * @return a string with the version of Albacore
    */
-  public String getAlignment() {
+  public String getAlbacoreVersion() {
 
-    // test if the fast5 file is basecalled and is 2D
-    if (!isBasecalled() || !is2D()) {
+    // test if the fast5 file is basecalled
+    if (!isBasecalled()) {
       return null;
     }
-    return reader
-            .readString("/Analyses/Basecall_2D_000/BaseCalled_2D/Alignment");
+
+    if(this.basecaller==Basecaller.ALBACORE){
+
+
+
+      // get the version of chimaera
+      return reader
+              .getStringAttribute("/Analyses/Basecall_1D_000", "version");
+    }
+
+    return null;
+
   }
 
   /**
@@ -579,23 +630,23 @@ public class Fast5 implements AutoCloseable {
       return null;
     }
 
-      // test if the fast5 file is barcoded
-      if (isBarcoded()) {
-          // test if the basecaller is Metrichor
-          if (this.basecaller == Basecaller.METRICHOR) {
+    // test if the fast5 file is barcoded
+    if (isBarcoded()) {
+      // test if the basecaller is Metrichor
+      if (this.basecaller == Basecaller.METRICHOR) {
 
-                  return reader.getStringAttribute("/Analyses/Barcoding_000/Barcoding",
-                          "barcode_arrangement");
+        return reader.getStringAttribute("/Analyses/Barcoding_000/Barcoding",
+                "barcode_arrangement");
 
-          }
-
-          // test if the basecaller is Albacore
-          if (this.basecaller == Basecaller.ALBACORE) {
-
-              return reader.getStringAttribute("/Analyses/Barcoding_000/Summary/barcoding",
-                      "barcode_full_arrangement");
-          }
       }
+
+      // test if the basecaller is Albacore
+      if (this.basecaller == Basecaller.ALBACORE) {
+
+        return reader.getStringAttribute("/Analyses/Barcoding_000/Summary/barcoding",
+                "barcode_full_arrangement");
+      }
+    }
 
 
     return null;
@@ -651,7 +702,13 @@ public class Fast5 implements AutoCloseable {
       return null;
     }
 
-    return fix(reader.readString("/Analyses/Barcoding_000/Barcoding/Fastq"));
+    //test if the basecaller is Metrichor
+    if(this.basecaller==Basecaller.METRICHOR){
+      return fix(reader.readString("/Analyses/Barcoding_000/Barcoding/Fastq"));
+    }
+
+    return null;
+
   }
 
   /**
@@ -683,22 +740,22 @@ public class Fast5 implements AutoCloseable {
    */
   public String getBarcodindFinalStatus() {
 
-      // test if the fast5 file is basecalled and is barcoded
-      if (!isBasecalled() || !isBarcoded()) {
-          return null;
-      }
-
-      // test if the basecaller is Metrichor
-      if(this.basecaller==Basecaller.METRICHOR){
-          return getLogFinalStatus(reader.readString("/Analyses/Barcoding_000/Log"));
-      }
-
-      //test if the basecaller is Albacore
-      if(this.basecaller==Basecaller.ALBACORE){
-          return getLogFinalStatus(reader.readString("/Analyses/Barcoding_000/log"));
-      }
-
+    // test if the fast5 file is basecalled and is barcoded
+    if (!isBasecalled() || !isBarcoded()) {
       return null;
+    }
+
+    // test if the basecaller is Metrichor
+    if(this.basecaller==Basecaller.METRICHOR){
+      return getLogFinalStatus(reader.readString("/Analyses/Barcoding_000/Log"));
+    }
+
+    //test if the basecaller is Albacore
+    if(this.basecaller==Basecaller.ALBACORE){
+      return getLogFinalStatus(reader.readString("/Analyses/Barcoding_000/log"));
+    }
+
+    return null;
   }
 
   /**
@@ -712,12 +769,12 @@ public class Fast5 implements AutoCloseable {
       return null;
     }
 
-      // test if the basecaller is Metrichor
-      if(this.basecaller==Basecaller.METRICHOR) {
-          return getLogFinalStatus(
-                  reader.readString("/Analyses/Basecall_1D_000/Log"));
-      }
-      return null;
+    // test if the basecaller is Metrichor
+    if(this.basecaller==Basecaller.METRICHOR) {
+      return getLogFinalStatus(
+              reader.readString("/Analyses/Basecall_1D_000/Log"));
+    }
+    return null;
   }
 
   /**
@@ -730,12 +787,12 @@ public class Fast5 implements AutoCloseable {
     if (!isBasecalled() || !is2D()) {
       return null;
     }
-      // test if the basecaller is Metrichor
-      if(this.basecaller==Basecaller.METRICHOR) {
-          return getLogFinalStatus(
-                  reader.readString("/Analyses/Basecall_2D_000/Log"));
-      }
-      return null;
+    // test if the basecaller is Metrichor
+    if(this.basecaller==Basecaller.METRICHOR) {
+      return getLogFinalStatus(
+              reader.readString("/Analyses/Basecall_2D_000/Log"));
+    }
+    return null;
   }
 
   /**
@@ -750,13 +807,13 @@ public class Fast5 implements AutoCloseable {
       return null;
     }
 
-      // test if the basecaller is Metrichor
-      if(this.basecaller==Basecaller.METRICHOR) {
-          return getLogFinalStatus(
-                  reader.readString("/Analyses/Calibration_Strand_000/Log"));
-      }
+    // test if the basecaller is Metrichor
+    if(this.basecaller==Basecaller.METRICHOR) {
+      return getLogFinalStatus(
+              reader.readString("/Analyses/Calibration_Strand_000/Log"));
+    }
 
-      return null;
+    return null;
   }
 
   /**
@@ -770,12 +827,12 @@ public class Fast5 implements AutoCloseable {
     if (!isBasecalled() || getChemistryVersion() == ChemistryVersion.R7_3) {
       return null;
     }
-      // test if the basecaller is Metrichor
-      if(this.basecaller==Basecaller.METRICHOR) {
-          return getLogFinalStatus(
-                  reader.readString("/Analyses/EventDetection_000/Log"));
-      }
-      return null;
+    // test if the basecaller is Metrichor
+    if(this.basecaller==Basecaller.METRICHOR) {
+      return getLogFinalStatus(
+              reader.readString("/Analyses/EventDetection_000/Log"));
+    }
+    return null;
   }
 
   /**
@@ -790,12 +847,12 @@ public class Fast5 implements AutoCloseable {
       return null;
     }
 
-      // test if the basecaller is Metrichor
-      if(this.basecaller==Basecaller.METRICHOR) {
-          return getLogFinalStatus(
-                  reader.readString("/Analyses/Hairpin_Split_000/Log"));
-      }
-      return null;
+    // test if the basecaller is Metrichor
+    if(this.basecaller==Basecaller.METRICHOR) {
+      return getLogFinalStatus(
+              reader.readString("/Analyses/Hairpin_Split_000/Log"));
+    }
+    return null;
   }
 
   /**
@@ -805,26 +862,26 @@ public class Fast5 implements AutoCloseable {
    */
   private String getLogFinalStatus(String log) {
 
-      // test if the basecaller is Metrichor
-      if(this.basecaller==Basecaller.METRICHOR) {
-          // split the log by '\n'
-          String[] work = log.split("[\n]");
+    // test if the basecaller is Metrichor
+    if(this.basecaller==Basecaller.METRICHOR) {
+      // split the log by '\n'
+      String[] work = log.split("[\n]");
 
-          // split the log to have the before last line
-          String[] work2 = work[work.length - 2].split("\\s");
-          String Status = "";
+      // split the log to have the before last line
+      String[] work2 = work[work.length - 2].split("\\s");
+      String Status = "";
 
-          // get the essential message of the log : the status
-          for (int i = 2; i < work2.length; i++) {
-              Status += work2[i] + " ";
-          }
-
-          // delete the end point of the message
-          Status = Status.substring(0, Status.length() - 1);
-
-          return Status;
+      // get the essential message of the log : the status
+      for (int i = 2; i < work2.length; i++) {
+        Status += work2[i] + " ";
       }
-      return null;
+
+      // delete the end point of the message
+      Status = Status.substring(0, Status.length() - 1);
+
+      return Status;
+    }
+    return null;
   }
 
   /**
