@@ -1,4 +1,4 @@
-package fr.ens.biologie.genomique.toullig.trimming;
+package fr.ens.biologie.genomique.toullig.trimming.Trimmer;
 
 import fr.ens.biologie.genomique.eoulsan.bio.ReadSequence;
 import fr.ens.biologie.genomique.eoulsan.bio.io.FastqWriter;

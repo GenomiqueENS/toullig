@@ -212,7 +212,7 @@ public class TrimAction extends AbstractAction {
     // add option for trimmer
     options.addOption(OptionBuilder.withArgName("trimmer").hasArg()
         .withDescription(
-            "name of trimmer use [cutadapt | trimmomatic] (default : cutadapt)")
+            "name of trimmer use [cutadapt | trimmomatic | no] (default : cutadapt)")
         .create("trimmer"));
 
     // add option for mode
@@ -317,6 +317,17 @@ public class TrimAction extends AbstractAction {
       if (trimmer.contains("trimmomatic")) {
         trim.setProcessTrimmomatic();
       }
+
+      // set the trimmer cutadapt for processing
+      if (trimmer.contains("cutadapt")) {
+        trim.setProcessCutadapt();
+      }
+
+      // set no trimmer for processing
+      if (trimmer.contains("no")) {
+        trim.setProcessNoTrimmer();
+      }
+
 
       // set the mode Side-Window for processing
       if (mode.contains("SW")) {

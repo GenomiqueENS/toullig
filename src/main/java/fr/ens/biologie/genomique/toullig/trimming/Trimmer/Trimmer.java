@@ -1,4 +1,4 @@
-package fr.ens.biologie.genomique.toullig.trimming;
+package fr.ens.biologie.genomique.toullig.trimming.Trimmer;
 
 /**
  * Interface for Trimmer Created by birer on 03/04/17.

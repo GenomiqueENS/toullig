@@ -1,4 +1,6 @@
-package fr.ens.biologie.genomique.toullig.trimming;
+package fr.ens.biologie.genomique.toullig.trimming.OutlierPositionFinder;
+
+import fr.ens.biologie.genomique.toullig.trimming.Trimmer.Trimmer;
 
 import java.io.File;
 

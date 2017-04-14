@@ -1,4 +1,4 @@
-package fr.ens.biologie.genomique.toullig.trimming;
+package fr.ens.biologie.genomique.toullig.trimming.Trimmer;
 
 import com.google.common.base.Strings;
 import fr.ens.biologie.genomique.eoulsan.bio.Alphabet;
@@ -8,6 +8,8 @@ import fr.ens.biologie.genomique.eoulsan.bio.io.FastaReader;
 import fr.ens.biologie.genomique.eoulsan.bio.io.FastaWriter;
 import fr.ens.biologie.genomique.eoulsan.bio.io.FastqWriter;
 import fr.ens.biologie.genomique.eoulsan.util.LocalReporter;
+import fr.ens.biologie.genomique.toullig.trimming.InformationRead;
+import fr.ens.biologie.genomique.toullig.trimming.UtilsTrimming;
 
 import java.io.*;
 import java.util.HashMap;
@@ -393,7 +395,7 @@ public class CutadaptTrimmer implements Trimmer {
    * @param infoTrimFile, a path to store stats in a file
    * @throws IOException if an IO error occur
    */
-  public void statsLogCutadapt(File infoTrimFile) throws IOException {
+  public void statsLogCutadapt(File infoTrimFile, String header) throws IOException {
 
     // create new localReporter object
     LocalReporter localReporterNumberTimesAdaptor = new LocalReporter();
@@ -478,14 +480,21 @@ public class CutadaptTrimmer implements Trimmer {
     // Analyze counter group Construction
     //
 
+    FileWriter writerStat = new FileWriter(this.nameOutputFastq.getParent()+"/differents_constructions_of_RT_adaptor_on_outliers.txt");
+
+    writerStat.write(header+"\n\n");
+
     // get all adaptor construction in the localReporterNumberTimesAdaptor
     // object
     for (String constructionAdaptor : localReporterNumberTimesAdaptor
         .getCounterNames("Construction")) {
-      System.out.println(constructionAdaptor
-          + " :  " + localReporterNumberTimesAdaptor
-              .getCounterValue("Construction", constructionAdaptor));
+      writerStat.write(constructionAdaptor
+              + " :  " + localReporterNumberTimesAdaptor
+              .getCounterValue("Construction", constructionAdaptor)+"\n");
     }
+
+    writerStat.close();
+
   }
 
   //
@@ -493,7 +502,7 @@ public class CutadaptTrimmer implements Trimmer {
   //
 
   /**
-   * Method of the class TrimmomaticTrimmer to trimming with the Trimmer
+   * Method of the class CutadaptTrimmer to trimming with the Trimmer
    * interface.
    * @param leftLengthOutlier , the length of the left outlier
    * @param rightLengthOutlier , the length of the left outlier
@@ -511,7 +520,7 @@ public class CutadaptTrimmer implements Trimmer {
   }
 
   /**
-   * Method of the class TrimmomaticTrimmer to trimming with the Trimmer
+   * Method of the class CutadaptTrimmer to trimming with the Trimmer
    * interface
    */
   public void trimming() {

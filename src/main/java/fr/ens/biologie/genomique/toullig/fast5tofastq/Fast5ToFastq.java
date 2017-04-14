@@ -7,9 +7,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
@@ -17,6 +20,9 @@ import fr.ens.biologie.genomique.eoulsan.util.LocalReporter;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 
 import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.RegexFileFilter;
 
 /**
  * This class read a minION run of Fast5 basecalled to extract fastq sequence.
@@ -172,7 +178,7 @@ public class Fast5ToFastq {
    * @param dir is a directory
    * @return a list of directory (must be contains fast5 files)
    */
-  private List<File> listSubDir(File dir) {
+  private List<File> listSubDir(File dir, String extension) {
 
     // create new List for the results
     List<File> result = new ArrayList<>();
@@ -181,7 +187,7 @@ public class Fast5ToFastq {
     for (File file : dir.listFiles()) {
 
       // test if the file is a directory
-      if (file.isDirectory()) {
+      if (file.isDirectory() && file.toString().contains(extension)) {
         result.add(file);
       }
     }
@@ -215,6 +221,8 @@ public class Fast5ToFastq {
     }));
   }
 
+
+
   /**
    * This method of the class Fast5ToFastq list all the fast5 files of a run.
    * @return a list of all fast5 file
@@ -226,13 +234,13 @@ public class Fast5ToFastq {
 
     // get the directory of list of files
     for (File directory : listSubDir(
-        new File(this.fast5RunDirectory, "downloads"))) {
+        new File(this.fast5RunDirectory, "downloads"),"")) {
 
       // test if the directory is a directory
       if (directory.isDirectory()) {
 
         // list all sub directories
-        List<File> subDirectories = listSubDir(directory);
+        List<File> subDirectories = listSubDir(directory,"");
 
         // list all fast5 file
         listFast5Files.addAll(listFast5(directory));
@@ -523,15 +531,56 @@ public class Fast5ToFastq {
    * @return an int who is the number of fast5 process
    * @throws IOException, test the read of the file
    */
-  private int processDirectory(String fast5SubdirName, String status,
+  private int processDirectory(File fast5SubdirName, String status,
       LocalReporter localReporter) throws IOException, ParseException {
 
-    // list of fast5 files
-    List<File> list = listFast5(fast5SubdirName);
+    boolean subDirectoryNumber4000=false;
 
-    // process this list of fast5 files
-    processDirectory(list, status, localReporter);
-    return list.size();
+
+
+    if(fast5SubdirName.listFiles()!=null){
+      for(File f1 : fast5SubdirName.listFiles()){
+        if(f1.isDirectory()){
+          subDirectoryNumber4000=true;
+        }
+        else{
+          subDirectoryNumber4000=false;
+        }
+        break;
+      }
+    }
+
+      // for search in sub Directory
+      if(subDirectoryNumber4000){
+
+        List<File> list = new ArrayList<File>();
+
+        // list subdir
+        for(File f1 : fast5SubdirName.listFiles()){
+
+          // list of fast5 files
+          list.addAll(listFast5(f1));
+
+        }
+        // process this list of fast5 files
+        processDirectory(list, status, localReporter);
+        return list.size();
+
+
+      }else{
+
+        System.out.println(fast5SubdirName);
+
+        List<File> list = listFast5(fast5SubdirName);
+
+        // process this list of fast5 files
+        processDirectory(list, status, localReporter);
+        return list.size();
+      }
+
+
+
+
   }
 
   /**
@@ -634,23 +683,65 @@ public class Fast5ToFastq {
   private void processDirectories(List<File> listBarcodeDir,
       LocalReporter localReporter) throws IOException, ParseException {
 
+    boolean subDirectoryNumber4000=false;
+
     // process each barcode directories
     for (File barcodeDirectory : listBarcodeDir) {
 
-      // create a list of fast5 for a barcode
-      List<File> listBarcodeFast5Files = listFast5(barcodeDirectory);
+      for(File f1 : barcodeDirectory.listFiles()){
+        if(f1.isDirectory()){
+          subDirectoryNumber4000=true;
+        }
+        else{
+          subDirectoryNumber4000=false;
+        }
+        break;
+      }
 
-      // process this list
-      processDirectory(listBarcodeFast5Files, barcodeDirectory.getName(),
-          localReporter);
+      // for search in sub Directory
+      if(subDirectoryNumber4000){
 
-      // incremente numberPassFast5Files counter
-      localReporter.incrCounter("numberFiles", "numberPassFast5Files",
-          listBarcodeFast5Files.size());
 
-      // incremente numberFast5Files counter
-      localReporter.incrCounter("numberFiles", "numberFast5Files",
-          listBarcodeFast5Files.size());
+        List<File> listBarcodeFast5Files = new ArrayList<File>();
+
+        // list subdir
+        for(File f1 : barcodeDirectory.listFiles()){
+
+          // create a list of fast5 for a barcode
+          listBarcodeFast5Files.addAll(listFast5(f1));
+
+        }
+        // process this list
+        processDirectory(listBarcodeFast5Files, barcodeDirectory.getName(),
+                localReporter);
+
+        // incremente numberPassFast5Files counter
+        localReporter.incrCounter("numberFiles", "numberPassFast5Files",
+                listBarcodeFast5Files.size());
+
+        // incremente numberFast5Files counter
+        localReporter.incrCounter("numberFiles", "numberFast5Files",
+                listBarcodeFast5Files.size());
+
+
+      }else{
+        // create a list of fast5 for a barcode
+        List<File> listBarcodeFast5Files = listFast5(barcodeDirectory);
+
+        // process this list
+        processDirectory(listBarcodeFast5Files, barcodeDirectory.getName(),
+                localReporter);
+
+        // incremente numberPassFast5Files counter
+        localReporter.incrCounter("numberFiles", "numberPassFast5Files",
+                listBarcodeFast5Files.size());
+
+        // incremente numberFast5Files counter
+        localReporter.incrCounter("numberFiles", "numberFast5Files",
+                listBarcodeFast5Files.size());
+      }
+
+
     }
   }
 
@@ -918,6 +1009,39 @@ public class Fast5ToFastq {
     }
   }
 
+
+  /**
+   * This method of the class Fast5ToFastq get a fast5 file.
+   * @return a fast5 file
+   */
+  private File getAFast5File() throws IOException, InterruptedException {
+
+    File dir=this.fast5RunDirectory;
+
+    List files = new ArrayList(FileUtils.listFiles(dir, new RegexFileFilter("^(.*?)"),
+            DirectoryFileFilter.DIRECTORY));
+
+    return new File(files.get(0).toString());
+
+//    for(File files : file.listFiles())
+//    {
+//      System.out.println(files);
+//      if(files.isDirectory())
+//      {
+//        getAFast5File(files);
+//      }
+//      else
+//      {
+//
+//        System.out.println(files);
+//        // do your thing
+//        // you can either save in HashMap and use it as
+//        // per your requirement
+//      }
+//    }
+//  return new File("");
+  }
+
   //
   //
   // Main function
@@ -929,7 +1053,41 @@ public class Fast5ToFastq {
    * fastq sequence on fast5 file.
    * @throws IOException, test the read of the file
    */
-  public void execute() throws IOException, ParseException {
+  public void execute() throws IOException, ParseException, InterruptedException {
+
+    // get a fast5 file
+    File sampleFast5File=getAFast5File();
+
+    try(Fast5 f5 =new Fast5(sampleFast5File)){
+
+      if(f5.getBasecaller()== Fast5.Basecaller.METRICHOR){
+
+        // execution for the basecaller Metrichor classification
+        executeBasecallerMetrichor();
+
+      }
+
+      if(f5.getBasecaller()== Fast5.Basecaller.ALBACORE){
+
+        // execution for the basecaller Metrichor classification
+        executeBasecallerAlbacore();
+
+      }
+
+
+    }catch(Exception e){
+      e.printStackTrace();
+    }
+
+  }
+
+
+  /**
+   * This method of the class Fast5ToFastq execute the process to retrieve the
+   * fastq sequence on fast5 file for the basecaller Metrichor.
+   * @throws IOException, test the read of the file
+   */
+  public void executeBasecallerMetrichor() throws IOException, ParseException {
 
     // test if the merge of fastq is enable
     if (this.processMergeStatus) {
@@ -944,15 +1102,15 @@ public class Fast5ToFastq {
 
       // get the list of fail fast5 files
       int numberFailFast5Files =
-          processDirectory("downloads/fail", "fail", this.localReporter);
+              processDirectory(new File(this.fast5RunDirectory.toPath().toString()+"/downloads/fail"), "fail", this.localReporter);
 
       // incremente fail fast5 files counter
       this.localReporter.incrCounter("numberFiles", "numberFailFast5Files",
-          numberFailFast5Files);
+              numberFailFast5Files);
 
       // incremente fast5 files counter
       this.localReporter.incrCounter("numberFiles", "numberFast5Files",
-          numberFailFast5Files);
+              numberFailFast5Files);
     }
 
     // test if the pass fast5 is to process
@@ -960,23 +1118,103 @@ public class Fast5ToFastq {
 
       // get the list of pass fast5 files
       int numberPassFast5Files =
-          processDirectory("downloads/pass", "pass", this.localReporter);
+              processDirectory(new File(this.fast5RunDirectory.toPath().toString()+"/downloads/pass"), "pass", this.localReporter);
 
       // test if the number of pass fast5 files is not null
       if (numberPassFast5Files != 0) {
 
         // incremente pass fast5 files counter
         this.localReporter.incrCounter("numberFiles", "numberPassFast5Files",
-            numberPassFast5Files);
+                numberPassFast5Files);
 
         // incremente fast5 files counter
         this.localReporter.incrCounter("numberFiles", "numberFast5Files",
-            numberPassFast5Files);
+                numberPassFast5Files);
       } else {
 
         // get the list of barcode pass fast5 files
         List<File> listBarcodeFast5Dir =
-            listSubDir(new File(this.fast5RunDirectory, "downloads/pass"));
+                listSubDir(new File(this.fast5RunDirectory, "/"),"");
+
+        // process the barcode directories
+        processDirectories(listBarcodeFast5Dir, this.localReporter);
+      }
+
+    }
+
+    // test if the unclassified fast5 is to process
+    if (this.processUnclassified) {
+
+      // get the list of unclassified fast5 files
+      int numberUnclassifiedFast5Files = processDirectory( new File( this.fast5RunDirectory.toPath().toString()+"/downloads/fail/unclassified")
+             , "unclassified", this.localReporter);
+
+      // incremente unclassified fast5 files counter
+      this.localReporter.incrCounter("numberFiles",
+              "numberUnclassifiedFast5Files", numberUnclassifiedFast5Files);
+
+      // incremente fast5 files counter
+      this.localReporter.incrCounter("numberFiles", "numberFast5Files",
+              numberUnclassifiedFast5Files);
+    }
+  }
+
+  /**
+   * This method of the class Fast5ToFastq execute the process to retrieve the
+   * fastq sequence on fast5 file for the basecaller Albacore.
+   * @throws IOException, test the read of the file
+   */
+  public void executeBasecallerAlbacore() throws IOException, ParseException {
+
+//    // test if the merge of fastq is enable
+//    if (this.processMergeStatus) {
+//
+//      // process all fast5
+//      processDirectory(listAllFast5(), "merge_status", this.localReporter);
+//      return;
+//    }
+
+    // test if the fail fast5 is to process
+    if (this.processFail) {
+
+      // get the list of fail fast5 files
+      int numberFailFast5Files =
+              processDirectory(new File(this.fast5RunDirectory.toPath().toString()+"/"), "fail", this.localReporter);
+
+      // incremente fail fast5 files counter
+      this.localReporter.incrCounter("numberFiles", "numberFailFast5Files",
+              numberFailFast5Files);
+
+      // incremente fast5 files counter
+      this.localReporter.incrCounter("numberFiles", "numberFast5Files",
+              numberFailFast5Files);
+    }
+
+    // test if the pass fast5 is to process
+    if (this.processPass) {
+
+
+      // get the list of pass fast5 files
+      int numberPassFast5Files =
+              processDirectory(new File(this.fast5RunDirectory.toPath().toString()+"/"), "pass", this.localReporter);
+
+
+      // test if the number of pass fast5 files is not null
+      if (numberPassFast5Files != 0) {
+
+
+        // incremente pass fast5 files counter
+        this.localReporter.incrCounter("numberFiles", "numberPassFast5Files",
+                numberPassFast5Files);
+
+        // incremente fast5 files counter
+        this.localReporter.incrCounter("numberFiles", "numberFast5Files",
+                numberPassFast5Files);
+      } else {
+
+        // get the list of barcode pass fast5 files
+        List<File> listBarcodeFast5Dir =
+                listSubDir(new File(this.fast5RunDirectory, "/"),"barcode");
 
         // process the barcode directories
         processDirectories(listBarcodeFast5Dir, this.localReporter);
@@ -989,15 +1227,17 @@ public class Fast5ToFastq {
 
       // get the list of unclassified fast5 files
       int numberUnclassifiedFast5Files = processDirectory(
-          "downloads/fail/unclassified", "unclassified", this.localReporter);
+              new File(this.fast5RunDirectory.toPath().toString()+"/unclassified"), "unclassified", this.localReporter);
 
       // incremente unclassified fast5 files counter
       this.localReporter.incrCounter("numberFiles",
-          "numberUnclassifiedFast5Files", numberUnclassifiedFast5Files);
+              "numberUnclassifiedFast5Files", numberUnclassifiedFast5Files);
 
       // incremente fast5 files counter
       this.localReporter.incrCounter("numberFiles", "numberFast5Files",
-          numberUnclassifiedFast5Files);
+              numberUnclassifiedFast5Files);
     }
+
   }
+
 }

@@ -7,7 +7,13 @@ import java.util.Map;
 
 import fr.ens.biologie.genomique.eoulsan.bio.ReadSequence;
 import fr.ens.biologie.genomique.eoulsan.bio.io.FastqReader;
-import fr.ens.biologie.genomique.toullig.trimming.*;
+import fr.ens.biologie.genomique.toullig.trimming.OutlierPositionFinder.OutlierPositionFinder;
+import fr.ens.biologie.genomique.toullig.trimming.OutlierPositionFinder.PerfectOutlierPositionFinder;
+import fr.ens.biologie.genomique.toullig.trimming.OutlierPositionFinder.SideWindowOutlierPositionFinder;
+import fr.ens.biologie.genomique.toullig.trimming.Trimmer.CutadaptTrimmer;
+import fr.ens.biologie.genomique.toullig.trimming.Trimmer.NoTrimmer;
+import fr.ens.biologie.genomique.toullig.trimming.Trimmer.Trimmer;
+import fr.ens.biologie.genomique.toullig.trimming.Trimmer.TrimmomaticTrimmer;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamInputResource;
 import htsjdk.samtools.SamReader;
@@ -30,6 +36,9 @@ public class TrimFastq implements AutoCloseable {
   private File adaptorFile;
 
   private boolean processCutadapt = true;
+  private boolean processTrimmomatic = false;
+  private boolean processNoTrimmer =false;
+
   private boolean processStatsCutadapt = false;
 
   private int addIndexOutlier = 15;
@@ -256,11 +265,30 @@ public class TrimFastq implements AutoCloseable {
   }
 
   /**
+   * Method of the class TrimFastq to set the process cutadapt.
+   */
+  public void setProcessCutadapt() {
+    this.processTrimmomatic = false;
+    this.processCutadapt = true;
+    this.processNoTrimmer = false;
+  }
+
+  /**
    * Method of the class TrimFastq to set the process trimmomatic.
    */
   public void setProcessTrimmomatic() {
-    boolean processTrimmomatic = true;
+    this.processTrimmomatic = true;
     this.processCutadapt = false;
+    this.processNoTrimmer = false;
+  }
+
+  /**
+   * Method of the class TrimFastq to set the process no trimmer.
+   */
+  public void setProcessNoTrimmer() {
+    this.processTrimmomatic = false;
+    this.processCutadapt = false;
+    this.processNoTrimmer = true;
   }
 
   /**
@@ -342,7 +370,6 @@ public class TrimFastq implements AutoCloseable {
   public void execution() throws IOException {
 
     System.out.println("add_index: " + this.addIndexOutlier);
-    System.out.println("error rate cutadapt: " + this.errorRateCutadapt);
 
     // Declare the left outlier output fasta for cutadapt
     File outputTrimLeftFastaFile =
@@ -369,7 +396,7 @@ public class TrimFastq implements AutoCloseable {
     OutlierPositionFinder outlierPositionFinder;
 
     // call the Trimmer interface
-    Trimmer trimmer;
+    Trimmer trimmer = null;
 
     // Declare the left outlier fasta for cutadapt
     File fastaLeftOutlierFile =
@@ -407,6 +434,8 @@ public class TrimFastq implements AutoCloseable {
     // test to process the cutadapt trimmer
     if (this.processCutadapt) {
 
+      System.out.println("error rate cutadapt: " + this.errorRateCutadapt);
+
       // call CutadaptTrimmer constructor
       trimmer = new CutadaptTrimmer(this.workTrimmingMap, this.nameOutputFastq,
           outputTrimLeftFastaFile, outputTrimRightFastaFile, this.adaptorRT,
@@ -414,12 +443,22 @@ public class TrimFastq implements AutoCloseable {
           fastaLeftOutlierFile, fastaRightOutlierFile, infoTrimLeftFile,
           infoTrimRightFile);
 
-    } else {
+    }
+
+    // test to process the trimmomatic trimmer
+    if(this.processTrimmomatic){
 
       // call TrimmomaticTrimmer constructor
       trimmer = new TrimmomaticTrimmer(this.adaptorFile, this.nameOutputFastq,
           this.seedMismatchesTrimmomatic,
           this.palindromeClipThresholdTrimmomatic, this.simpleClipThreshold);
+    }
+
+    // test to process no trimmer
+    if(this.processNoTrimmer){
+
+      // call NoTrimmer constructor
+      trimmer = new NoTrimmer(this.workTrimmingMap, this.nameOutputFastq);
     }
 
     // execute the outlier position finder
@@ -430,7 +469,7 @@ public class TrimFastq implements AutoCloseable {
     trimmer.trimming();
 
     // test to execute stats for cutadapt trimming
-    if (processStatsCutadapt) {
+    if (this.processStatsCutadapt && this.processCutadapt) {
 
       // call CutadaptTrimmer constructor
       CutadaptTrimmer trimmingCutadapt = new CutadaptTrimmer(
@@ -439,13 +478,11 @@ public class TrimFastq implements AutoCloseable {
           this.errorRateCutadapt, fastaLeftOutlierFile, fastaRightOutlierFile,
           infoTrimLeftFile, infoTrimRightFile);
 
-      System.out.println("Start stat Left outlier");
       // execute for the left outlier the stats of cutadapt
-      trimmingCutadapt.statsLogCutadapt(infoTrimLeftFile);
+      trimmingCutadapt.statsLogCutadapt(infoTrimLeftFile,"Start stat Left outlier");
 
-      System.out.println("Start stat Right outlier");
       // execute for the right outlier the stats of cutadapt
-      trimmingCutadapt.statsLogCutadapt(infoTrimRightFile);
+      trimmingCutadapt.statsLogCutadapt(infoTrimRightFile,"Start stat Right outlier");
     }
   }
 

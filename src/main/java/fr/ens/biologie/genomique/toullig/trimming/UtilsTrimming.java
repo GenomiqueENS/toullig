@@ -9,7 +9,7 @@ import fr.ens.biologie.genomique.eoulsan.bio.io.FastaWriter;
  * Class of somes utils methods for cutadaptTrimming. Created by birer on
  * 29/03/17.
  */
-class UtilsTrimming {
+public class UtilsTrimming {
 
   /**
    * Method of the class TrimModes to obtain the sequence of the left outlier.
@@ -17,7 +17,7 @@ class UtilsTrimming {
    * @param sequence, the sequence of the read
    * @return the sequence of the left outlier
    */
-  static String getOutlierLeftSequence(int lengthOutlierBegin,
+  public static String getOutlierLeftSequence(int lengthOutlierBegin,
       String sequence) {
     if(lengthOutlierBegin>=0){
       return sequence.substring(0, lengthOutlierBegin);
@@ -33,7 +33,7 @@ class UtilsTrimming {
    * @param sequence, the sequence of the read
    * @return the sequence of the right outlier
    */
-  static String getOutlierRightSequence(int lengthOutlierRight, String sequence) {
+  public static String getOutlierRightSequence(int lengthOutlierRight, String sequence) {
 
 
     if(lengthOutlierRight>=0){
@@ -52,7 +52,7 @@ class UtilsTrimming {
    * @param score, the score of the read
    * @return , a string of quality
    */
-  static String getOutlierLeftQuality(int lengthOutlierBegin, String score) {
+  public static String getOutlierLeftQuality(int lengthOutlierBegin, String score) {
     return score.substring(0, lengthOutlierBegin);
   }
 
@@ -62,7 +62,7 @@ class UtilsTrimming {
    * @param score, the score of the read
    * @return , a string of quality
    */
-  static String getOutlierRightQuality(int lengthOutlierEnd, String score) {
+  public static String getOutlierRightQuality(int lengthOutlierEnd, String score) {
     return score.substring(score.length() - lengthOutlierEnd, score.length());
   }
 
@@ -78,7 +78,7 @@ class UtilsTrimming {
    * @param sequence, the sequence of the read
    * @param id, the id of the read
    */
-  static void writeOutliers(int leftLengthOutlier, int rightLengthOutlier,
+  public static void writeOutliers(int leftLengthOutlier, int rightLengthOutlier,
       String sequence, String id, FastaWriter leftFastaWriter,
       FastaWriter rightFastaWriter) {
 
