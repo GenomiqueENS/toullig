@@ -37,7 +37,7 @@ public class TrimFastq implements AutoCloseable {
 
   private boolean processCutadapt = true;
   private boolean processTrimmomatic = false;
-  private boolean processNoTrimmer =false;
+  private boolean processNoTrimmer = false;
 
   private boolean processStatsCutadapt = false;
 
@@ -446,7 +446,7 @@ public class TrimFastq implements AutoCloseable {
     }
 
     // test to process the trimmomatic trimmer
-    if(this.processTrimmomatic){
+    if (this.processTrimmomatic) {
 
       // call TrimmomaticTrimmer constructor
       trimmer = new TrimmomaticTrimmer(this.adaptorFile, this.nameOutputFastq,
@@ -455,7 +455,7 @@ public class TrimFastq implements AutoCloseable {
     }
 
     // test to process no trimmer
-    if(this.processNoTrimmer){
+    if (this.processNoTrimmer) {
 
       // call NoTrimmer constructor
       trimmer = new NoTrimmer(this.workTrimmingMap, this.nameOutputFastq);
@@ -466,7 +466,9 @@ public class TrimFastq implements AutoCloseable {
         fastaRightOutlierFile, trimmer);
 
     // execute the trimming
-    trimmer.trimming();
+    if (trimmer != null) {
+      trimmer.trimming();
+    }
 
     // test to execute stats for cutadapt trimming
     if (this.processStatsCutadapt && this.processCutadapt) {
@@ -479,10 +481,12 @@ public class TrimFastq implements AutoCloseable {
           infoTrimLeftFile, infoTrimRightFile);
 
       // execute for the left outlier the stats of cutadapt
-      trimmingCutadapt.statsLogCutadapt(infoTrimLeftFile,"Start stat Left outlier");
+      trimmingCutadapt.statsLogCutadapt(infoTrimLeftFile,
+          "Start stat Left outlier");
 
       // execute for the right outlier the stats of cutadapt
-      trimmingCutadapt.statsLogCutadapt(infoTrimRightFile,"Start stat Right outlier");
+      trimmingCutadapt.statsLogCutadapt(infoTrimRightFile,
+          "Start stat Right outlier");
     }
   }
 

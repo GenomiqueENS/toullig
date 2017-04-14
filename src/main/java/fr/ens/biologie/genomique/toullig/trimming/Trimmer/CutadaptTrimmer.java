@@ -395,7 +395,8 @@ public class CutadaptTrimmer implements Trimmer {
    * @param infoTrimFile, a path to store stats in a file
    * @throws IOException if an IO error occur
    */
-  public void statsLogCutadapt(File infoTrimFile, String header) throws IOException {
+  public void statsLogCutadapt(File infoTrimFile, String header)
+      throws IOException {
 
     // create new localReporter object
     LocalReporter localReporterNumberTimesAdaptor = new LocalReporter();
@@ -480,17 +481,19 @@ public class CutadaptTrimmer implements Trimmer {
     // Analyze counter group Construction
     //
 
-    FileWriter writerStat = new FileWriter(this.nameOutputFastq.getParent()+"/differents_constructions_of_RT_adaptor_on_outliers.txt");
+    FileWriter writerStat = new FileWriter(this.nameOutputFastq.getParent()
+        + "/differents_constructions_of_RT_adaptor_on_outliers.txt");
 
-    writerStat.write(header+"\n\n");
+    writerStat.write(header + "\n\n");
 
     // get all adaptor construction in the localReporterNumberTimesAdaptor
     // object
     for (String constructionAdaptor : localReporterNumberTimesAdaptor
         .getCounterNames("Construction")) {
       writerStat.write(constructionAdaptor
-              + " :  " + localReporterNumberTimesAdaptor
-              .getCounterValue("Construction", constructionAdaptor)+"\n");
+          + " :  " + localReporterNumberTimesAdaptor
+              .getCounterValue("Construction", constructionAdaptor)
+          + "\n");
     }
 
     writerStat.close();
@@ -502,8 +505,7 @@ public class CutadaptTrimmer implements Trimmer {
   //
 
   /**
-   * Method of the class CutadaptTrimmer to trimming with the Trimmer
-   * interface.
+   * Method of the class CutadaptTrimmer to trimming with the Trimmer interface.
    * @param leftLengthOutlier , the length of the left outlier
    * @param rightLengthOutlier , the length of the left outlier
    * @param sequence, the sequence of the read
@@ -520,8 +522,7 @@ public class CutadaptTrimmer implements Trimmer {
   }
 
   /**
-   * Method of the class CutadaptTrimmer to trimming with the Trimmer
-   * interface
+   * Method of the class CutadaptTrimmer to trimming with the Trimmer interface
    */
   public void trimming() {
 

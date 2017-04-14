@@ -1,8 +1,6 @@
 package fr.ens.biologie.genomique.toullig.fast5tofastq;
 
 import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
@@ -27,7 +25,7 @@ public class Fast5 implements AutoCloseable {
    * Constructor of the Fast5 class.
    * @param fast5File constructor
    */
-  public Fast5(File fast5File) throws ParseException {
+  public Fast5(File fast5File) {
 
     this.fast5File = fast5File;
     this.reader = readFast5File(fast5File);
@@ -80,7 +78,8 @@ public class Fast5 implements AutoCloseable {
   }
 
   /**
-   * Values of the variable Basecaller that design the basecaller use for the basecalling.
+   * Values of the variable Basecaller that design the basecaller use for the
+   * basecalling.
    */
   public enum Basecaller {
     METRICHOR, ALBACORE
@@ -174,95 +173,93 @@ public class Fast5 implements AutoCloseable {
     // Case of basecalled fast5 file
     //
 
-    //test if the basecaller is Metrichor
-    if(this.basecaller==Basecaller.METRICHOR){
+    // test if the basecaller is Metrichor
+    if (this.basecaller == Basecaller.METRICHOR) {
 
       // test if the chemistry version is R7.3
       if (reader
-              .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
-                      "model_type")
-              .contains("r7.3_")) {
+          .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
+              "model_type")
+          .contains("r7.3_")) {
         return ChemistryVersion.R7_3;
       }
 
       // test if the chemistry version is R9
       if (reader
-              .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
-                      "model_type")
-              .contains("r9_")) {
+          .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
+              "model_type")
+          .contains("r9_")) {
         return ChemistryVersion.R9;
 
       }
 
       // test if the chemistry version is R9.4
       if (reader
-              .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
-                      "model_type")
-              .contains("r94_")) {
+          .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
+              "model_type")
+          .contains("r94_")) {
         return ChemistryVersion.R9_4;
 
       }
       return null;
     }
 
-    //test if the basecaller is Albacore
-    if(this.basecaller==Basecaller.ALBACORE){
+    // test if the basecaller is Albacore
+    if (this.basecaller == Basecaller.ALBACORE) {
 
       // test if the chemistry version is R7.3
       if (reader
-              .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/basecall_1d",
-                      "model")
-              .contains("r7.3_")) {
+          .getStringAttribute(
+              "/Analyses/Basecall_1D_000/Configuration/basecall_1d", "model")
+          .contains("r7.3_")) {
         return ChemistryVersion.R7_3;
       }
 
       // test if the chemistry version is R9
       if (reader
-              .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/basecall_1d",
-                      "model")
-              .contains("r9_")) {
+          .getStringAttribute(
+              "/Analyses/Basecall_1D_000/Configuration/basecall_1d", "model")
+          .contains("r9_")) {
         return ChemistryVersion.R9;
 
       }
 
       // test if the chemistry version is R9.4
       if (reader
-              .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/basecall_1d",
-                      "model")
-              .contains("r9.4_")) {
+          .getStringAttribute(
+              "/Analyses/Basecall_1D_000/Configuration/basecall_1d", "model")
+          .contains("r9.4_")) {
         return ChemistryVersion.R9_4;
 
       }
       return null;
     }
-
 
     return null;
   }
-
 
   /**
    * Method of the variable Basecaller who obtain the basecaller use.
    * @return a Basecaller with the basecaller use
    */
-  private Basecaller readBasecaller(){
+  private Basecaller readBasecaller() {
 
-    //test if the file is basecalled
+    // test if the file is basecalled
     if (!isBasecalled()) {
       return null;
     }
 
     // test if the basecaller is Metrichor by a specific Metrichor field
-    if (reader.getStringAttribute("/Analyses/Basecall_1D_000","name").equals("ONT Sequencing Workflow")){
+    if (reader.getStringAttribute("/Analyses/Basecall_1D_000", "name")
+        .equals("ONT Sequencing Workflow")) {
       return Basecaller.METRICHOR;
-    }else{
+    } else {
       // test if the basecaller is Albacore by a specific Albacore field
-      if (reader.getStringAttribute("/Analyses/Basecall_1D_000",
-              "name").equals("ONT Albacore Sequencing Software")){
+      if (reader.getStringAttribute("/Analyses/Basecall_1D_000", "name")
+          .equals("ONT Albacore Sequencing Software")) {
         return Basecaller.ALBACORE;
       }
     }
-
 
     return null;
   }
@@ -363,7 +360,7 @@ public class Fast5 implements AutoCloseable {
    */
   public String getNumMinION() {
     return reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
-            "device_id");
+        "device_id");
   }
 
   /**
@@ -372,7 +369,7 @@ public class Fast5 implements AutoCloseable {
    */
   public String getFlowcellId() {
     return reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
-            "flow_cell_id");
+        "flow_cell_id");
   }
 
   /**
@@ -388,16 +385,16 @@ public class Fast5 implements AutoCloseable {
    * file for the basecaller Metrichor.
    * @return a date of the sequencing
    */
-  public Date getDateExpMetrichor() throws ParseException {
+  public Date getDateExpMetrichor() {
 
-    //test if the basecaller is metrichor
-    if(this.basecaller==Basecaller.METRICHOR){
+    // test if the basecaller is metrichor
+    if (this.basecaller == Basecaller.METRICHOR) {
       String dateInt = reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
-              "exp_start_time");
+          "exp_start_time");
       return new Date(Long.parseLong(dateInt) * 1000);
     }
 
-return null;
+    return null;
 
   }
 
@@ -406,12 +403,12 @@ return null;
    * file for the basecaller Albacore.
    * @return a string of the date of sequencing
    */
-  public String getDateExpAlbacore() throws ParseException {
+  public String getDateExpAlbacore() {
 
-    //test if the basecaller is metrichor
-    if(this.basecaller==Basecaller.ALBACORE){
+    // test if the basecaller is metrichor
+    if (this.basecaller == Basecaller.ALBACORE) {
       return reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
-              "exp_start_time");
+          "exp_start_time");
     }
     return null;
 
@@ -423,7 +420,7 @@ return null;
    */
   public String getProtocolRunId() {
     return reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
-            "protocol_run_id");
+        "protocol_run_id");
   }
 
   /**
@@ -433,7 +430,7 @@ return null;
    */
   public String getHostname() {
     return reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
-            "hostname");
+        "hostname");
   }
 
   /**
@@ -442,7 +439,7 @@ return null;
    */
   public String getOS() {
     return reader.getStringAttribute("/UniqueGlobalKey/tracking_id",
-            "operating_system");
+        "operating_system");
   }
 
   //
@@ -456,7 +453,7 @@ return null;
    */
   public String getExperimentKit() {
     return reader.getStringAttribute("/UniqueGlobalKey/context_tags",
-            "experiment_kit");
+        "experiment_kit");
   }
 
   /**
@@ -466,9 +463,9 @@ return null;
    */
   public String getExperimentType() {
     if (reader.hasAttribute("/UniqueGlobalKey/context_tags",
-            "experiment_type")) {
+        "experiment_type")) {
       return reader.getStringAttribute("/UniqueGlobalKey/context_tags",
-              "experiment_type");
+          "experiment_type");
     }
     return null;
   }
@@ -480,7 +477,7 @@ return null;
    */
   public int getSampleFrequency() {
     return Integer.parseInt(reader.getStringAttribute(
-            "/UniqueGlobalKey/context_tags", "sample_frequency"));
+        "/UniqueGlobalKey/context_tags", "sample_frequency"));
   }
 
   /**
@@ -490,7 +487,7 @@ return null;
    */
   public int getChannelNumber() {
     return Integer.parseInt(reader
-            .getStringAttribute("/UniqueGlobalKey/channel_id", "channel_number"));
+        .getStringAttribute("/UniqueGlobalKey/channel_id", "channel_number"));
   }
 
   //
@@ -513,34 +510,36 @@ return null;
     }
 
     // test if the fast5 file is basecalled and is R7.3
-    if (!isBasecalled() && this.reader.exists("/Analyses/EventDetection_000/Reads")) {
+    if (!isBasecalled()
+        && this.reader.exists("/Analyses/EventDetection_000/Reads")) {
       String reads = reader
-              .getAllGroupMembers("/Analyses/EventDetection_000/Reads").get(0);
+          .getAllGroupMembers("/Analyses/EventDetection_000/Reads").get(0);
       return Integer.parseInt(reads.substring(reads.indexOf('_') + 1));
     }
 
     // test if the basecaller is Metrichor
-    if (this.basecaller==Basecaller.METRICHOR){
+    if (this.basecaller == Basecaller.METRICHOR) {
       return Integer.parseInt(reader.getStringAttribute(
-              "/Analyses/Basecall_1D_000/Configuration/general", "read_id"));
+          "/Analyses/Basecall_1D_000/Configuration/general", "read_id"));
     }
 
     // test if the basecaller is Albacore
-    if (this.basecaller==Basecaller.ALBACORE){
+    if (this.basecaller == Basecaller.ALBACORE) {
       String reads = reader.getAllGroupMembers("/Raw/Reads").get(0);
       return Integer.parseInt(reads.substring(reads.indexOf('_') + 1));
     }
 
-  return 0;
+    return 0;
   }
 
   /**
-   * Method of the class Fast5 to obtain the version of the sub-modules of Metrichor
+   * Method of the class Fast5 to obtain the version of the sub-modules of
+   * Metrichor
    * @return a string with the version
    */
   public String getSubModuleMetrichorVersion() {
 
-    if(this.basecaller==Basecaller.METRICHOR){
+    if (this.basecaller == Basecaller.METRICHOR) {
 
       // test if the fast5 file is basecalled
       if (!isBasecalled()) {
@@ -548,11 +547,11 @@ return null;
       }
       // get the version of chimaera
       String chimaeraVersion = reader
-              .getStringAttribute("/Analyses/Basecall_1D_000", "chimaera version");
+          .getStringAttribute("/Analyses/Basecall_1D_000", "chimaera version");
 
       // get the version of dragonet
       String dragonetVersion = reader
-              .getStringAttribute("/Analyses/Basecall_1D_000", "dragonet version");
+          .getStringAttribute("/Analyses/Basecall_1D_000", "dragonet version");
       return "chimaera v" + chimaeraVersion + " | dragonet v" + dragonetVersion;
     }
 
@@ -571,13 +570,10 @@ return null;
       return null;
     }
 
-    if(this.basecaller==Basecaller.ALBACORE){
-
-
+    if (this.basecaller == Basecaller.ALBACORE) {
 
       // get the version of chimaera
-      return reader
-              .getStringAttribute("/Analyses/Basecall_1D_000", "version");
+      return reader.getStringAttribute("/Analyses/Basecall_1D_000", "version");
     }
 
     return null;
@@ -597,8 +593,8 @@ return null;
     }
 
     return reader.getIntAttribute(
-            "/Analyses/Basecall_1D_000/Summary/basecall_1d_template",
-            "sequence_length");
+        "/Analyses/Basecall_1D_000/Summary/basecall_1d_template",
+        "sequence_length");
   }
 
   /**
@@ -614,8 +610,8 @@ return null;
     }
 
     return reader.getIntAttribute(
-            "/Analyses/Basecall_1D_000/Summary/basecall_1d_complement",
-            "sequence_length");
+        "/Analyses/Basecall_1D_000/Summary/basecall_1d_complement",
+        "sequence_length");
   }
 
   /**
@@ -636,18 +632,18 @@ return null;
       if (this.basecaller == Basecaller.METRICHOR) {
 
         return reader.getStringAttribute("/Analyses/Barcoding_000/Barcoding",
-                "barcode_arrangement");
+            "barcode_arrangement");
 
       }
 
       // test if the basecaller is Albacore
       if (this.basecaller == Basecaller.ALBACORE) {
 
-        return reader.getStringAttribute("/Analyses/Barcoding_000/Summary/barcoding",
-                "barcode_full_arrangement");
+        return reader.getStringAttribute(
+            "/Analyses/Barcoding_000/Summary/barcoding",
+            "barcode_full_arrangement");
       }
     }
-
 
     return null;
   }
@@ -671,7 +667,7 @@ return null;
     }
 
     return fix(reader
-            .readString("/Analyses/Basecall_1D_000/BaseCalled_template/Fastq"));
+        .readString("/Analyses/Basecall_1D_000/BaseCalled_template/Fastq"));
   }
 
   /**
@@ -687,7 +683,7 @@ return null;
     }
 
     return fix(reader
-            .readString("/Analyses/Basecall_1D_000/BaseCalled_complement/Fastq"));
+        .readString("/Analyses/Basecall_1D_000/BaseCalled_complement/Fastq"));
   }
 
   /**
@@ -702,8 +698,8 @@ return null;
       return null;
     }
 
-    //test if the basecaller is Metrichor
-    if(this.basecaller==Basecaller.METRICHOR){
+    // test if the basecaller is Metrichor
+    if (this.basecaller == Basecaller.METRICHOR) {
       return fix(reader.readString("/Analyses/Barcoding_000/Barcoding/Fastq"));
     }
 
@@ -725,7 +721,7 @@ return null;
     }
 
     return fix(
-            reader.readString("/Analyses/Basecall_2D_000/BaseCalled_2D/Fastq"));
+        reader.readString("/Analyses/Basecall_2D_000/BaseCalled_2D/Fastq"));
   }
 
   //
@@ -746,13 +742,15 @@ return null;
     }
 
     // test if the basecaller is Metrichor
-    if(this.basecaller==Basecaller.METRICHOR){
-      return getLogFinalStatus(reader.readString("/Analyses/Barcoding_000/Log"));
+    if (this.basecaller == Basecaller.METRICHOR) {
+      return getLogFinalStatus(
+          reader.readString("/Analyses/Barcoding_000/Log"));
     }
 
-    //test if the basecaller is Albacore
-    if(this.basecaller==Basecaller.ALBACORE){
-      return getLogFinalStatus(reader.readString("/Analyses/Barcoding_000/log"));
+    // test if the basecaller is Albacore
+    if (this.basecaller == Basecaller.ALBACORE) {
+      return getLogFinalStatus(
+          reader.readString("/Analyses/Barcoding_000/log"));
     }
 
     return null;
@@ -770,9 +768,9 @@ return null;
     }
 
     // test if the basecaller is Metrichor
-    if(this.basecaller==Basecaller.METRICHOR) {
+    if (this.basecaller == Basecaller.METRICHOR) {
       return getLogFinalStatus(
-              reader.readString("/Analyses/Basecall_1D_000/Log"));
+          reader.readString("/Analyses/Basecall_1D_000/Log"));
     }
     return null;
   }
@@ -788,9 +786,9 @@ return null;
       return null;
     }
     // test if the basecaller is Metrichor
-    if(this.basecaller==Basecaller.METRICHOR) {
+    if (this.basecaller == Basecaller.METRICHOR) {
       return getLogFinalStatus(
-              reader.readString("/Analyses/Basecall_2D_000/Log"));
+          reader.readString("/Analyses/Basecall_2D_000/Log"));
     }
     return null;
   }
@@ -808,9 +806,9 @@ return null;
     }
 
     // test if the basecaller is Metrichor
-    if(this.basecaller==Basecaller.METRICHOR) {
+    if (this.basecaller == Basecaller.METRICHOR) {
       return getLogFinalStatus(
-              reader.readString("/Analyses/Calibration_Strand_000/Log"));
+          reader.readString("/Analyses/Calibration_Strand_000/Log"));
     }
 
     return null;
@@ -828,9 +826,9 @@ return null;
       return null;
     }
     // test if the basecaller is Metrichor
-    if(this.basecaller==Basecaller.METRICHOR) {
+    if (this.basecaller == Basecaller.METRICHOR) {
       return getLogFinalStatus(
-              reader.readString("/Analyses/EventDetection_000/Log"));
+          reader.readString("/Analyses/EventDetection_000/Log"));
     }
     return null;
   }
@@ -848,9 +846,9 @@ return null;
     }
 
     // test if the basecaller is Metrichor
-    if(this.basecaller==Basecaller.METRICHOR) {
+    if (this.basecaller == Basecaller.METRICHOR) {
       return getLogFinalStatus(
-              reader.readString("/Analyses/Hairpin_Split_000/Log"));
+          reader.readString("/Analyses/Hairpin_Split_000/Log"));
     }
     return null;
   }
@@ -863,23 +861,23 @@ return null;
   private String getLogFinalStatus(String log) {
 
     // test if the basecaller is Metrichor
-    if(this.basecaller==Basecaller.METRICHOR) {
+    if (this.basecaller == Basecaller.METRICHOR) {
       // split the log by '\n'
       String[] work = log.split("[\n]");
 
       // split the log to have the before last line
       String[] work2 = work[work.length - 2].split("\\s");
-      String Status = "";
+      StringBuilder Status = new StringBuilder();
 
       // get the essential message of the log : the status
       for (int i = 2; i < work2.length; i++) {
-        Status += work2[i] + " ";
+        Status.append(work2[i]).append(" ");
       }
 
       // delete the end point of the message
-      Status = Status.substring(0, Status.length() - 1);
+      Status = new StringBuilder(Status.substring(0, Status.length() - 1));
 
-      return Status;
+      return Status.toString();
     }
     return null;
   }
@@ -903,7 +901,7 @@ return null;
 
     // return the sequence fastq corrected
     return sequence
-            + (sequence.charAt(sequence.length() - 1) != '\n' ? "\n" : "");
+        + (sequence.charAt(sequence.length() - 1) != '\n' ? "\n" : "");
 
   }
 

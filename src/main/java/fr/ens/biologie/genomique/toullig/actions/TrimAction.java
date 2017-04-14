@@ -328,7 +328,6 @@ public class TrimAction extends AbstractAction {
         trim.setProcessNoTrimmer();
       }
 
-
       // set the mode Side-Window for processing
       if (mode.contains("SW")) {
         trim.setProcessSideWindowTrim();

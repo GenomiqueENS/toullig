@@ -147,9 +147,7 @@ public class Fast5ToFastqLogger {
         + this.f5.getNumberPassFast5Files(this.localReporter));
 
     // add to the list log the write file per type
-    for (String element : this.listWriteSequenceLog) {
-      listLog.add(element);
-    }
+    listLog.addAll(this.listWriteSequenceLog);
     return listLog;
   }
 
@@ -175,10 +173,7 @@ public class Fast5ToFastqLogger {
     List<String> groupNameWrite = new ArrayList<>();
 
     // get the number of sequence write per type
-    for (String element : localReporter
-        .getCounterNames("numberSequenceWrite")) {
-      groupNameWrite.add(element);
-    }
+    groupNameWrite.addAll(localReporter.getCounterNames("numberSequenceWrite"));
 
     // sort by name
     Collections.sort(groupNameWrite);
@@ -220,9 +215,7 @@ public class Fast5ToFastqLogger {
     List<String> groupName = new ArrayList<>();
 
     // get the list of type
-    for (String element : localReporter.getCounterGroups()) {
-      groupName.add(element);
-    }
+    groupName.addAll(localReporter.getCounterGroups());
 
     // sort by name
     Collections.sort(groupName);

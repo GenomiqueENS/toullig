@@ -19,9 +19,9 @@ public class UtilsTrimming {
    */
   public static String getOutlierLeftSequence(int lengthOutlierBegin,
       String sequence) {
-    if(lengthOutlierBegin>=0){
+    if (lengthOutlierBegin >= 0) {
       return sequence.substring(0, lengthOutlierBegin);
-    }else{
+    } else {
       return "";
     }
 
@@ -33,16 +33,15 @@ public class UtilsTrimming {
    * @param sequence, the sequence of the read
    * @return the sequence of the right outlier
    */
-  public static String getOutlierRightSequence(int lengthOutlierRight, String sequence) {
+  public static String getOutlierRightSequence(int lengthOutlierRight,
+      String sequence) {
 
-
-    if(lengthOutlierRight>=0){
+    if (lengthOutlierRight >= 0) {
       return sequence.substring(sequence.length() - lengthOutlierRight,
-              sequence.length());
-    }else{
+          sequence.length());
+    } else {
       return "";
     }
-
 
   }
 
@@ -52,7 +51,8 @@ public class UtilsTrimming {
    * @param score, the score of the read
    * @return , a string of quality
    */
-  public static String getOutlierLeftQuality(int lengthOutlierBegin, String score) {
+  public static String getOutlierLeftQuality(int lengthOutlierBegin,
+      String score) {
     return score.substring(0, lengthOutlierBegin);
   }
 
@@ -62,7 +62,8 @@ public class UtilsTrimming {
    * @param score, the score of the read
    * @return , a string of quality
    */
-  public static String getOutlierRightQuality(int lengthOutlierEnd, String score) {
+  public static String getOutlierRightQuality(int lengthOutlierEnd,
+      String score) {
     return score.substring(score.length() - lengthOutlierEnd, score.length());
   }
 
@@ -78,9 +79,9 @@ public class UtilsTrimming {
    * @param sequence, the sequence of the read
    * @param id, the id of the read
    */
-  public static void writeOutliers(int leftLengthOutlier, int rightLengthOutlier,
-      String sequence, String id, FastaWriter leftFastaWriter,
-      FastaWriter rightFastaWriter) {
+  public static void writeOutliers(int leftLengthOutlier,
+      int rightLengthOutlier, String sequence, String id,
+      FastaWriter leftFastaWriter, FastaWriter rightFastaWriter) {
 
     // get the left outlier
     String leftOutlierSequence =
