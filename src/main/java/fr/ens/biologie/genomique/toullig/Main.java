@@ -164,11 +164,7 @@ abstract class Main {
   private static void help() {
 
     // Show help message
-    System.out.println(
-        Globals.APP_NAME_LOWER_CASE + ".sh tool [options_tool] arguments_tool");
-    System.out.println("Toullig have 2 tools : \n"
-        + "\t\t - fast5tofastq : Tool for read Fast5 files of minION and create the fastq.\n"
-        + "\t\t - trim : Tool for trim adaptor in the fasqt of ONT.\n\n");
+    System.out.println(Globals.HELP_TXT);
 
     exit(0);
   }

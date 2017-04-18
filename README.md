@@ -21,7 +21,8 @@ Aurélien Birer, [birer@biologie.ens.fr](birer@biologie.ens.fr)
     * [To install Toullig](#to-install-toullig)
 * [General options](#general-options)
 * [How it works](#how-it-works)
-    * [Classification MinION run](#classification-minion-run)
+    * [Old classification MinION run with Metrichor (MinKNOW < v1.4.2)](#old-classification-minion-run-with-metrichor)
+    * [New classification MinION run with Albacore (MinKNOW > v1.4.2)](#new-classification-minion-run-with-albacore)
     * [Chemistry available](#chemistry-available)
 * [Fast5tofastq](#fast5tofastq)
     * [Understand the type of sequence](#understand-the-type-of-sequence)
@@ -84,8 +85,32 @@ Toullig have 2 tools :
 - fast5tofastq : read the rootDirectory of your ONT run after the step of basecalling (metrichor/albacore) and produce a '.fastq' file.
 - trim : trim the reads of a ONT fastq with a sam file, based on the RT adaptors.
 
-### Classification MinION run
+### Old classification MinION run with Metrichor (MinKNOW < v1.4.2)
 
+
+
+>**Not Barcoded Directories Tree**
+
+├── downloads <br>
+│   ├── fail <br>
+│   └── pass <br>
+└── uploaded <br>
+
+>**Barcoded Directories Tree (with 6 barcode)**
+
+├── downloads <br>
+│   ├── fail <br>
+│   │   └── unclassified <br>
+│   └── pass <br>
+│       ├── BC01 <br>
+│       ├── BC02 <br>
+│       ├── BC03 <br>
+│       ├── BC04 <br>
+│       ├── BC05 <br>
+│       └── BC06 <br>
+└── uploaded <br>
+
+### New classification MinION run with Albacore (MinKNOW > v1.4.2)
 
 
 >**Not Barcoded Directories Tree**
@@ -204,7 +229,7 @@ If i want just get the fastq sequence of the 'template', the 'complement' and th
 
     bash ./target/dist/toullig-0.2-alpha/toullig.sh fast5tofastq -status fail -type template,complement,consensus /home/user/myRootDirectoryFast5run /home/user/myOutputDirectoryFastq
     
-    I have a directory of a minION run in 2D not barcoded.
+I have a directory of a minION run in 2D not barcoded.
 If i want just get the fastq default sequence for the fast5 files in the status/repertory 'pass'.
 
 
@@ -259,13 +284,13 @@ In the execution of toullig Trim, the program step :
     
     #Options
     
-    -trimmer cutadapt|trimmomatic (default: cutadapt)       # The trimmer tool use for trimming
+    -trimmer cutadapt|trimmomatic|no (default: cutadapt)    # The trimmer tool use for trimming or not
     -mode P | SW (default: P)                               # The type of trimming the transcripts reads
     -stats true|flase (default: false)                      # If you want some statistical information on the Cutadapt trimming
     
     #Options Trimming by Side-window mode
     
-    - addIndexOutlier (default: 15)                         # A addition of bases of the outlier to have a better catch of the adaptor
+    -addIndexOutlier (default: 15)                         # A addition of bases of the outlier to have a better catch of the adaptor
     
     #Options Trimming by Side-window mode
     

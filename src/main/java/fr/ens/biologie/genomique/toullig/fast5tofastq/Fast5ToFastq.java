@@ -573,7 +573,7 @@ public class Fast5ToFastq {
    * @throws IOException, test the read of the file
    */
   private void processDirectory(List<File> listFast5Files, String status,
-      LocalReporter localReporter) throws IOException, ParseException {
+      LocalReporter localReporter) throws IOException {
 
     // test if the list of fast5 files is empty
     if (listFast5Files.isEmpty()) {
@@ -653,7 +653,6 @@ public class Fast5ToFastq {
       assert transcriptWriter != null;
       transcriptWriter.close();
     }
-
   }
 
   /**
@@ -715,7 +714,6 @@ public class Fast5ToFastq {
         localReporter.incrCounter("numberFiles", "numberFast5Files",
             listBarcodeFast5Files.size());
       }
-
     }
   }
 
@@ -734,7 +732,7 @@ public class Fast5ToFastq {
   private void readFast5WriteFastq(File fast5File, Writer complementWriter,
       Writer templateWriter, Writer consensusWriter, Writer transcriptWriter,
       String status, LocalReporter localReporter)
-      throws IOException, ParseException {
+      throws IOException {
 
     // test if the fast5 is corrupt or readable
     try (Fast5 f5 = new Fast5(fast5File)) {
@@ -973,7 +971,7 @@ public class Fast5ToFastq {
   private void readFast5WriteFastq(List<File> listFast5Files,
       Writer complementWriter, Writer templateWriter, Writer consensusWriter,
       Writer transcriptWriter, String status, LocalReporter localReporter)
-      throws IOException, ParseException {
+      throws IOException {
 
     // read fast5 files
     for (File fast5File : listFast5Files) {
@@ -1008,6 +1006,7 @@ public class Fast5ToFastq {
         result1.add(file);
       }
 
+      // test if is it's a file and have an extension ".fast5"
       if (file.isFile() && file.toString().contains(".fast5")) {
 
         try (DirectoryStream<Path> stream =
@@ -1037,6 +1036,7 @@ public class Fast5ToFastq {
           result2.add(file);
         }
 
+        // test if is it's a file and have an extension ".fast5"
         if (file.isFile() && file.toString().contains(".fast5")) {
 
           try (DirectoryStream<Path> stream =
@@ -1069,6 +1069,7 @@ public class Fast5ToFastq {
           result3.add(file);
         }
 
+        // test if is it's a file and have an extension ".fast5"
         if (file.isFile() && file.toString().contains(".fast5")) {
 
           try (DirectoryStream<Path> stream =
@@ -1086,19 +1087,7 @@ public class Fast5ToFastq {
         }
       }
     }
-
     return null;
-
-    //
-    //
-    //
-
-    // List files = new ArrayList(FileUtils.listFiles(dir, new
-    // RegexFileFilter("^(.*?)"),
-    // DirectoryFileFilter.DIRECTORY));
-    //
-    // return new File(files.get(0).toString());
-
   }
 
   //
@@ -1112,7 +1101,7 @@ public class Fast5ToFastq {
    * fastq sequence on fast5 file.
    * @throws IOException, test the read of the file
    */
-  public void execute() throws IOException, InterruptedException {
+  public void execute() throws IOException {
 
     System.out.println("Sampling of a Fast5 file");
 

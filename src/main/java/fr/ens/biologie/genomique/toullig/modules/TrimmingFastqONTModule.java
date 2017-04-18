@@ -212,7 +212,7 @@ public class TrimmingFastqONTModule extends AbstractModule {
 
       case "trimmer.stats":
         stats = p.getBooleanValue();
-        if (stats != true || stats != false) {
+        if (!stats || stats) {
           Modules.unknownParameter(context, p);
         }
         break;
