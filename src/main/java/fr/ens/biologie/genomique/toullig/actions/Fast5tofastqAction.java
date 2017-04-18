@@ -43,7 +43,7 @@ public class Fast5tofastqAction extends AbstractAction {
   @Override
   public String getDescription() {
     return "execute Fast5tofastq module of "
-        + Globals.APP_NAME + " in local mode.";
+            + Globals.APP_NAME + " in local mode.";
   }
 
   /**
@@ -74,18 +74,23 @@ public class Fast5tofastqAction extends AbstractAction {
 
       // parse the command line arguments
       final CommandLine line = parser.parse(options,
-          arguments.toArray(new String[arguments.size()]), true);
+              arguments.toArray(new String[arguments.size()]), true);
 
       // Display help if no arguments
       if (line.getArgs().length == 0) {
         System.out.println(
-            "ERROR: No argument! Please enter the two obligatory arguments\n\n");
+                "ERROR: No argument! Please enter the two obligatory arguments\n\n");
         help(options);
       }
 
       // Get status
       if (line.hasOption("status")) {
         status = line.getOptionValue("status").toLowerCase();
+        if(status.equals("pass") || status.equals("unclassified") || status.equals("fail") ){
+        }else{
+          System.out.println("The status: "+status+" is incorrect please entry a correct status options (pass|fail|unclassified)");
+          help(options);
+        }
       }
 
       // Get type
@@ -109,7 +114,7 @@ public class Fast5tofastqAction extends AbstractAction {
 
         } else {
           System.out.println(
-              "ERROR: Enter the two obligatory arguments of the directory of the basecalled run and the output directory for fastq!\n\n");
+                  "ERROR: Enter the two obligatory arguments of the directory of the basecalled run and the output directory for fastq!\n\n");
           // display help
           help(options);
         }
@@ -123,7 +128,7 @@ public class Fast5tofastqAction extends AbstractAction {
 
     } catch (ParseException e) {
       System.out.println(
-          "Error while parsing command line arguments: " + e.getMessage());
+              "Error while parsing command line arguments: " + e.getMessage());
     }
 
     // Execute program in local mode
@@ -146,35 +151,35 @@ public class Fast5tofastqAction extends AbstractAction {
 
     // add option for help
     options.addOption(OptionBuilder.withArgName("help").hasArg()
-        .withDescription("display help").create("help"));
+            .withDescription("display help").create("help"));
 
     // add option for help
     options.addOption(OptionBuilder.withArgName("h").hasArg()
-        .withDescription("display help").create("help"));
+            .withDescription("display help").create("help"));
 
     // add option for status
     options.addOption(OptionBuilder.withArgName("status").hasArg()
-        .withDescription(
-            "set a status of the fast5 file [pass|fail|unclassified] to process;(default: none)")
-        .create("status"));
+            .withDescription(
+                    "set a status of the fast5 file [pass|fail|unclassified] to process;(default: pass)")
+            .create("status"));
 
     // add option for type
     options.addOption(OptionBuilder.withArgName("type").hasArg()
-        .withDescription(
-            "set a type of sequence [template|complement|consensus|transcript] to obtain;(default: transcript)")
-        .create("type"));
+            .withDescription(
+                    "set a type of sequence [template|complement|consensus|transcript] to obtain;(default: transcript)")
+            .create("type"));
 
     // add option for compress
     options.addOption(OptionBuilder.withArgName("compress").hasArg()
-        .withDescription(
-            "set a compression for the output fastq [gzip|bzip2] (default: none)")
-        .create("compress"));
+            .withDescription(
+                    "set a compression for the output fastq [gzip|bzip2]")
+            .create("compress"));
 
     // add option for mergeSequence
     options.addOption(OptionBuilder.withArgName("mergeSequence").hasArg()
-        .withDescription(
-            "merge the sequence of status choose [true/false];(default: false)")
-        .create("merge"));
+            .withDescription(
+                    "merge the sequence of status choose [true/false];(default: false)")
+            .create("merge"));
 
     // return options
     return options;
@@ -189,9 +194,9 @@ public class Fast5tofastqAction extends AbstractAction {
     // Show help message
     final HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp(
-        Globals.APP_NAME_LOWER_CASE
-            + ".sh " + ACTION_NAME + "[options] FAST5_DIR FASTQ_OUTPUT_DIR\n",
-        options);
+            Globals.APP_NAME_LOWER_CASE
+                    + ".sh " + ACTION_NAME + "[options] FAST5_DIR FASTQ_OUTPUT_DIR\n",
+            options);
 
     System.exit(0);
   }
@@ -210,8 +215,8 @@ public class Fast5tofastqAction extends AbstractAction {
    * @param merge, boolean for assemble all data
    */
   private static void run(final String status, final String type,
-      final String compress, final File dirFast5, final File dirOutputFastq,
-      final boolean merge, List<String> arguments) {
+                          final String compress, final File dirFast5, final File dirOutputFastq,
+                          final boolean merge, List<String> arguments) {
 
     // Get the Begin Date of the action
     Date beginDate = new Date();
