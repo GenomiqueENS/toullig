@@ -15,47 +15,47 @@ Aurélien Birer, [birer@biologie.ens.fr](birer@biologie.ens.fr)
 # Table of contents
 
 
-* [Requirements](#requirements)
-* [Installation](#installation)
-    * [To install Maven](#to-install-maven)
-    * [To install Toullig](#to-install-toullig)
-* [General options](#general-options)
-* [How it works](#how-it-works)
-    * [Old classification MinION run with Metrichor (MinKNOW < v1.4.2)](#old-classification-minion-run-with-metrichor)
-    * [New classification MinION run with Albacore (MinKNOW > v1.4.2)](#new-classification-minion-run-with-albacore)
-    * [Chemistry available](#chemistry-available)
-* [Fast5tofastq](#fast5tofastq)
-    * [Understand the type of sequence](#understand-the-type-of-sequence)
-    * [Sequence available for each run configuration](#sequence-available-for-each-run-configuration)
-    * [Options Fast5tofastq](#options-fast5tofastq)
-    * [Example](#example)
-    * [Log files](#log-files)
-        * [logConversionFastq.txt](#logconversionfastq.txt)
-        * [logCorruptFast5Files.txt](#logcorruptfast5files)
-        * [logWorkflow.txt](#logworkflow.txt)
-* [TrimFastq](#trimFastq)
-    * [Options TrimFastq](#options-trimFastq)
-    * [Example trim](#example-trim)
-* [Developpment environnement](#developpment-environnement)
-* [Repository](#repository)
-* [License](#license)
+* [Requirements](#Requirements)
+* [Installation](#Installation)
+    * [To install Maven](#To install Maven)
+    * [To install Toullig](#To install Toullig)
+* [General options](#General options)
+* [How it works](#How it works)
+    * [Old classification MinION run with Metrichor (MinKNOW < v1.4.2)](#Old classification MinION run with Metrichor)
+    * [New classification MinION run with Albacore (MinKNOW > v1.4.2)](#New classification MinION run with Albacore)
+    * [Chemistry available](#Chemistry available)
+* [Fast5tofastq](#Fast5tofastq)
+    * [Understand the type of sequence](#Understand the type of sequence)
+    * [Sequence available for each run configuration](#Sequence available for each run configuration)
+    * [Options Fast5tofastq](#Options Fast5tofastq)
+    * [Example](#Example)
+    * [Log files](#Log files)
+        * [logConversionFastq.txt](#logConversionFastq.txt)
+        * [logCorruptFast5Files.txt](#logCorruptFast5Files.txt)
+        * [logWorkflow.txt](#logWorkflow.txt)
+* [TrimFastq](#TrimFastq)
+    * [Options TrimFastq](#Options TrimFastq)
+    * [Example trim](#Example trim)
+* [Development environment](#Development environment)
+* [Repository](#Repository)
+* [License](#License)
 
-
-# Requirements
+<div id='Requirements'/>
+#  Requirements
 
 
 You just need to have Java 8 and Maven installed on your computer. This alpha version work on Ubuntu (Unix distribution).
 
-
+<div id='Installation'/>
 # Installation
 
-
+<div id='To install Maven'/>
 ### To install Maven
 
 
     sudo apt-get install maven
 
-
+<div id='To install Toullig'/>
 ### To install Toullig
 
 
@@ -64,7 +64,7 @@ You just need to have Java 8 and Maven installed on your computer. This alpha ve
     cd toullig
     mvn clean install
 
-
+<div id='General options'/>
 # General options
 
 
@@ -76,7 +76,7 @@ You just need to have Java 8 and Maven installed on your computer. This alpha ve
     -license        #display license of toullig
     
 
-
+<div id='How it works'/>
 # How it works
 
 
@@ -85,6 +85,7 @@ Toullig have 2 tools :
 - fast5tofastq : read the rootDirectory of your ONT run after the step of basecalling (metrichor/albacore) and produce a '.fastq' file.
 - trim : trim the reads of a ONT fastq with a sam file, based on the RT adaptors.
 
+<div id='Old classification MinION run with Metrichor'/>
 ### Old classification MinION run with Metrichor (MinKNOW < v1.4.2)
 
 
@@ -110,6 +111,7 @@ Toullig have 2 tools :
 │       └── BC06 <br>
 └── uploaded <br>
 
+<div id='New classification MinION run with Albacore'/>
 ### New classification MinION run with Albacore (MinKNOW > v1.4.2)
 
 
@@ -134,7 +136,7 @@ Toullig have 2 tools :
 │       └── BC06 <br>
 └── uploaded <br>
 
-
+<div id='Chemistry available'/>
 ### Chemistry available
 
 
@@ -142,7 +144,7 @@ Toullig have 2 tools :
   <img src="images/chemistry_tested.png"/>
 </p>
 
-
+<div id='Fast5tofastq'/>
 # Fast5tofastq
 
 The module work for Metrichor (now closure) and Albacore basecallers.
@@ -154,6 +156,7 @@ In the execution of toullig Fast5tofastq, the program step :
  + Write the sequence(s) in a '.fastq' file.
  + Make some log files.
 
+<div id='Understand the type of sequence'/>
 ### Understand the type of sequence
 
 Actually, we use in development Metrichor for the basecalling of our '.fast5' files.
@@ -192,6 +195,7 @@ The transcript sequence is the sequence result of the consensus sequence (in 2D)
 
 /!\ The transcript sequence is only available for barcoded ONT run.
 
+<div id='Sequence available for each run configuration'/>
 ### Sequence available for each run configuration
 
 Here, for each sequencing configuration the sequence available for the fast5tofastq conversion.
@@ -202,7 +206,7 @@ In bold, the type of sequencing that it's mostly interesting.
   <img src="images/type_of_sequencing_workflow.png"/>
 </p>
 
-
+<div id='Options Fast5tofastq'/>
 ### Options Fast5tofastq
 
 
@@ -220,6 +224,7 @@ In bold, the type of sequencing that it's mostly interesting.
     -outputDirectoryFastq /home/user/yourOutputDirectoryFastq
     
     
+<div id='Example'/>
 ### Example
 
 
@@ -237,8 +242,10 @@ If i want just get the fastq default sequence for the fast5 files in the status/
 
 WARNING : This last example is a trap ! The default type of sequence is transcript or the run is not barcoded and the transcript sequence is not available on ONT barcoded run (see [Sequence available for each run configuration](#sequence-available-for-each-run-configuration)).
 
+<div id='Log files'/>
 ### Log files
 
+<div id='logConversionFastq.txt'/>
 #### logConversionFastq.txt
 
 This log contains the main informations about the execution of the conversion of '.fast5' files to a the '.fastq' files. The file is structured in 4 sections:
@@ -248,14 +255,17 @@ This log contains the main informations about the execution of the conversion of
     - The number of sequences writes in the fastq and the number of sequences null (not write).
     - The date of the end of the conversion execution.
 
+<div id='logCorruptFast5Files.txt'/>
 #### logCorruptFast5Files.txt
 
 This log contains a list of path of corrupt '.fast5' files. Theses files can be read and information can be extract but the HDF5 library use for opening theses files detect a corruption.
 
+<div id='logWorkflow.txt'/>
 #### logWorkflow.txt
 
 This log contains the final status of each basecalling workflow for each folder create after the basecalling.
 
+<div id='TrimFastq'/>
 # TrimFastq
 
 In the case of cDNA protocols like SQK-MAP006.
@@ -279,6 +289,7 @@ In the execution of toullig Trim, the program step :
  + Trim with Trimmomatic.
  + Write the sequence trimmed into a '.fastq' file.
 
+<div id='Options TrimFastq'/>
 ### Options TrimFastq
 
     
@@ -315,13 +326,13 @@ In the execution of toullig Trim, the program step :
     -adaptorFile        /home/user/yourAdaptorFile
     -workDir            /home/user/yourTmpRepertoryOfWork
 
-
+<div id='Example trim'/>
 ### Example trim
 
 
     bash ./target/dist/toullig-0.2-alpha/toullig.sh trim /home/user/samFile.sam /home/user/fastqONTFile.fastq /home/user/myFastqTrim.fastq ~/toullig/config_files/adaptor_RT_sequence_modify_for_nanopore.txt /home/user/yourTmpRepertoryOfWork
 
-
+<div id='Development environment'/>
 # Development environment
 
 
@@ -331,12 +342,12 @@ Java version: '1.8.0_121'
 
 Maven version: '3.2.3'
 
-
+<div id='Repository'/>
 # Repository
 
 Currently the Git reference repository is [https://github.com/GenomicParisCentre/toullig](https://github.com/GenomicParisCentre/toullig).
 
-
+<div id='License'/>
 # License
 
 [GNU General Public License, version 3](https://www.gnu.org/licenses/gpl-3.0.html)
