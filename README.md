@@ -42,11 +42,11 @@ Aurélien Birer, [birer@biologie.ens.fr](birer@biologie.ens.fr)
 
 <div id='Requirements'/>
 #  Requirements
-
+</div>
 
 You just need to have Java 8 and Maven installed on your computer. This alpha version work on Ubuntu (Unix distribution).
 
-<div id='Installation'/>
+<div id='Installation'/></div>
 # Installation
 
 <div id='To-install-Maven'/>
