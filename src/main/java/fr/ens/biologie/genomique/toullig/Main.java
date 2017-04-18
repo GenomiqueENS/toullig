@@ -146,14 +146,13 @@ abstract class Main {
             new ArrayList<>(Arrays.asList(args)).subList(1, args.length));
         break;
 
-      // process test module
-      case "test":
-        new SamDiffAnnot();
-        break;
+//      // process test module
+//      case "test":
+//        new SamDiffAnnot();
+//        break;
 
       }
-    } catch (ParseException | BadBioEntryException | EoulsanException
-        | IOException e) {
+    } catch (ParseException e) {
       e.printStackTrace();
     }
   }
