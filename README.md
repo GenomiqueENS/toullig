@@ -124,26 +124,17 @@ Toullig have 2 tools :
 ### New classification MinION run with Albacore (MinKNOW > v1.4.2)
 
 
->**Not Barcoded Directories Tree**
+>**Barcoded Directories Tree **
 
-├── downloads <br>
-│   ├── fail <br>
-│   └── pass <br>
-└── uploaded <br>
 
->**Barcoded Directories Tree (with 6 barcode)**
-
-├── downloads <br>
-│   ├── fail <br>
-│   │   └── unclassified <br>
-│   └── pass <br>
-│       ├── BC01 <br>
-│       ├── BC02 <br>
-│       ├── BC03 <br>
-│       ├── BC04 <br>
-│       ├── BC05 <br>
-│       └── BC06 <br>
-└── uploaded <br>
+├── unclassified <br>
+├── barcode01 <br>
+├── barcode02 <br>
+├── barcode03 <br>
+├── barcode04 <br>
+├── barcode05 <br>
+├── barcode06 <br>
+└── ... <br>
 
 <div id='Chemistry-available'/>
 
@@ -307,6 +298,12 @@ In the execution of toullig Trim, the program step :
  
  + Read a fastq sequence.
  + Trim with Trimmomatic.
+ + Write the sequence trimmed into a '.fastq' file.
+
+  For no trimmer:
+ 
+ + Read a fastq sequence.
+ + Cut the sequence at the outlier position between the outlier and the transcript.
  + Write the sequence trimmed into a '.fastq' file.
 
 <div id='Options-TrimFastq'/>

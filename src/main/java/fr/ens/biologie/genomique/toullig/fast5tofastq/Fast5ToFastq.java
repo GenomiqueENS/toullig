@@ -536,6 +536,7 @@ public class Fast5ToFastq {
       }
     }
 
+
     // for search in sub Directory
     if (subDirectoryNumber4000) {
 
@@ -544,17 +545,16 @@ public class Fast5ToFastq {
       // list subdir
       for (File f1 : fast5SubdirName.listFiles()) {
 
-        // list of fast5 files
-        list.addAll(listFast5(f1));
-
+              list.addAll(listFast5(f1));
+              if(list.isEmpty()){
+                return 0;
+              }
       }
       // process this list of fast5 files
       processDirectory(list, status, localReporter);
       return list.size();
 
     } else {
-
-      System.out.println(fast5SubdirName);
 
       List<File> list = listFast5(fast5SubdirName);
 
@@ -990,9 +990,6 @@ public class Fast5ToFastq {
 
     File dir = this.fast5RunDirectory;
 
-    File dir_test =
-        new File(this.fast5RunDirectory.toString() + "/barcode01/1");
-
     // create new List for the results
     List<File> result1 = new ArrayList<>();
     List<File> result2 = new ArrayList<>();
@@ -1010,11 +1007,22 @@ public class Fast5ToFastq {
       if (file.isFile() && file.toString().contains(".fast5")) {
 
         try (DirectoryStream<Path> stream =
-            Files.newDirectoryStream(dir_test.toPath(), "*.{fast5}")) {
+            Files.newDirectoryStream(dir.toPath(), "*.{fast5}")) {
 
           for (Path entry : stream) {
 
-            return entry.toFile();
+            try (Fast5 f5 = new Fast5(entry.toFile())){
+
+              // test if the fast5 file is basecalled
+              if(f5.isBasecalled()){
+
+                return entry.toFile();
+
+              }
+
+            }catch (Exception e){
+              e.printStackTrace();
+            }
           }
         } catch (DirectoryIteratorException ex) {
           // I/O error encounted during the iteration, the cause is an
@@ -1031,6 +1039,7 @@ public class Fast5ToFastq {
     // get the directory in the result list
     for (File resultDirectory : result1) {
       for (File file : resultDirectory.listFiles()) {
+
         // test if the file is a directory
         if (file.isDirectory()) {
           result2.add(file);
@@ -1040,11 +1049,22 @@ public class Fast5ToFastq {
         if (file.isFile() && file.toString().contains(".fast5")) {
 
           try (DirectoryStream<Path> stream =
-              Files.newDirectoryStream(dir_test.toPath(), "*.{fast5}")) {
+              Files.newDirectoryStream(resultDirectory.toPath(), "*.{fast5}")) {
 
             for (Path entry : stream) {
 
-              return entry.toFile();
+              try (Fast5 f5 = new Fast5(entry.toFile())){
+
+                // test if the fast5 file is basecalled
+                if(f5.isBasecalled()){
+
+                  return entry.toFile();
+
+                }
+
+              }catch (Exception e){
+                e.printStackTrace();
+              }
             }
           } catch (DirectoryIteratorException ex) {
             // I/O error encounted during the iteration, the cause is an
@@ -1065,19 +1085,31 @@ public class Fast5ToFastq {
 
         // test if the file is a directory
         if (file.isDirectory()) {
-          System.out.println(file);
           result3.add(file);
         }
+
 
         // test if is it's a file and have an extension ".fast5"
         if (file.isFile() && file.toString().contains(".fast5")) {
 
           try (DirectoryStream<Path> stream =
-              Files.newDirectoryStream(dir_test.toPath(), "*.{fast5}")) {
+              Files.newDirectoryStream(resultDirectory.toPath(), "*.{fast5}")) {
+
 
             for (Path entry : stream) {
 
-              return entry.toFile();
+              try (Fast5 f5 = new Fast5(entry.toFile())){
+
+                // test if the fast5 file is basecalled
+                if(f5.isBasecalled()){
+
+                  return entry.toFile();
+
+                }
+
+              }catch (Exception e){
+                e.printStackTrace();
+              }
             }
           } catch (DirectoryIteratorException ex) {
             // I/O error encounted during the iteration, the cause is an
@@ -1087,6 +1119,8 @@ public class Fast5ToFastq {
         }
       }
     }
+
+
     return null;
   }
 
@@ -1250,6 +1284,7 @@ public class Fast5ToFastq {
     // test if the pass fast5 is to process
     if (this.processPass) {
 
+
       // get the list of pass fast5 files
       int numberPassFast5Files = processDirectory(
           new File(this.fast5RunDirectory.toPath().toString() + "/"), "pass",
@@ -1266,6 +1301,8 @@ public class Fast5ToFastq {
         this.localReporter.incrCounter("numberFiles", "numberFast5Files",
             numberPassFast5Files);
       } else {
+
+        System.out.println("lol");
 
         // get the list of barcode pass fast5 files
         List<File> listBarcodeFast5Dir =
