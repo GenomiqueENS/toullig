@@ -17,7 +17,7 @@ Aurélien Birer, [birer@biologie.ens.fr](birer@biologie.ens.fr)
 
 * [Requirements](#Requirements)
 * [Installation](#Installation)
-    * [To install Maven](#To install Maven)
+    * [To install Maven](#To-install-Maven)
     * [To install Toullig](#To install Toullig)
 * [General options](#General options)
 * [How it works](#How it works)
@@ -49,7 +49,7 @@ You just need to have Java 8 and Maven installed on your computer. This alpha ve
 <div id='Installation'/>
 # Installation
 
-<div id='To install Maven'/>
+<div id='To-install-Maven'/>
 ### To install Maven
 
 
