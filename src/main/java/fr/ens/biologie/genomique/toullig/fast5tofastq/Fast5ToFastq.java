@@ -1302,8 +1302,6 @@ public class Fast5ToFastq {
             numberPassFast5Files);
       } else {
 
-        System.out.println("lol");
-
         // get the list of barcode pass fast5 files
         List<File> listBarcodeFast5Dir =
             listSubDir(new File(this.fast5RunDirectory, "/"), "barcode");
