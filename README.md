@@ -140,9 +140,50 @@ Toullig have 2 tools :
 
 ### Chemistry available
 
-
 <p align="center">
-  <img src="images/chemistry_tested.png"/>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}
+.tg .tg-axu7{font-size:16px;background-color:#ffce93;text-align:center}
+.tg .tg-h76o{font-size:16px;background-color:#fffc9e;color:#333333;text-align:center}
+.tg .tg-zkti{font-size:16px;background-color:#c0c0c0;text-align:center}
+.tg .tg-50iz{font-size:16px;background-color:#34ff34;text-align:center}
+.tg .tg-cr72{font-size:16px;background-color:#fe0000;text-align:center}
+</style>
+<table class="tg">
+  <tr>
+  <th class="tg-axu7">Chemistry Kit/ Type of sequencing<br></th>
+  <th class="tg-axu7">1D</th>
+  <th class="tg-axu7">2D</th>
+  <th class="tg-axu7">1D²</th>
+  </tr>
+  <tr>
+  <td class="tg-h76o">R7.3</td>
+  <td class="tg-zkti">Not tested<br></td>
+  <td class="tg-50iz">Tested</td>
+  <td class="tg-cr72">Not available</td>
+  </tr>
+  <tr>
+  <td class="tg-h76o">R9</td>
+  <td class="tg-zkti">Not tested</td>
+  <td class="tg-50iz">Tested</td>
+  <td class="tg-cr72">Not available</td>
+  </tr>
+  <tr>
+   <td class="tg-h76o">R9.4</td>
+   <td class="tg-50iz">Tested</td>
+   <td class="tg-50iz">Tested</td>
+   <td class="tg-cr72">Not available<br></td>
+  </tr>
+  <tr>
+   <td class="tg-h76o">R9.5</td>
+   <td class="tg-zkti">Not tested</td>
+   <td class="tg-zkti">Not tested</td>
+   <td class="tg-zkti">Not tested</td>
+  </tr>
+</table>
+
 </p>
 
 <div id='Fast5tofastq'/>
@@ -207,7 +248,57 @@ Here, for each sequencing configuration the sequence available for the fast5tofa
 In bold, the type of sequencing that it's mostly interesting.
 
 <p align="center">
-  <img src="images/type_of_sequencing_workflow.png"/>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}
+.tg .tg-wyfy{font-size:16px;background-color:#fe996b;text-align:center}
+.tg .tg-flxg{font-weight:bold;font-size:16px;background-color:#34ff34;text-align:center}
+.tg .tg-iqod{font-size:18px;background-color:#ffce93;text-align:center}
+.tg .tg-h76o{font-size:16px;background-color:#fffc9e;color:#333333;text-align:center}
+.tg .tg-50iz{font-size:16px;background-color:#34ff34;text-align:center}
+.tg .tg-zqoy{font-size:16px;background-color:#c0c0c0;color:#333333;text-align:center}
+</style>
+<table class="tg">
+  <tr>
+  <th class="tg-iqod">Barcoding</th>
+  <th class="tg-iqod">Type of Sequencing<br></th>
+  <th class="tg-iqod">Type of sequence available with Metrichor<br></th>
+  <th class="tg-iqod">Type of sequence available with Albacore<br></th>
+  </tr>
+  <tr>
+  <td class="tg-h76o" rowspan="3">YES</td>
+  <td class="tg-wyfy">1D</td>
+  <td class="tg-50iz">Template, <b>Transcript</b></td>
+  <td class="tg-flxg">Template</td>
+  </tr>
+  <tr>
+  <td class="tg-wyfy">2D</td>
+  <td class="tg-50iz">Template, Complement, Consensus, <b>Transcript</b></td>
+  <td class="tg-zqoy">Not tested</td>
+  </tr>
+  <tr>
+  <td class="tg-wyfy">1D²</td>
+  <td class="tg-zqoy">Not tested</td>
+  <td class="tg-zqoy">Not tested</td>
+  </tr>
+  <tr>
+  <td class="tg-h76o" rowspan="3">NO</td>
+  <td class="tg-wyfy">1D</td>
+  <td class="tg-flxg">Template</td>
+  <td class="tg-zqoy">Not tested</td>
+  </tr>
+  <tr>
+  <td class="tg-wyfy">2D</td>
+  <td class="tg-50iz">Template, Complement, <b>Consensus</b></td>
+  <td class="tg-zqoy">Not tested</td>
+  </tr>
+  <tr>
+  <td class="tg-wyfy">1D²</td>
+  <td class="tg-zqoy">Not tested</td>
+  <td class="tg-zqoy">Not tested</td>
+  </tr>
+</table>
 </p>
 
 <div id='Options-Fast5tofastq'/>
