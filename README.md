@@ -140,48 +140,38 @@ Toullig have 2 tools :
 
 ### Chemistry available
 
-```html
+
 <p align="center">
-<style type="text/css">
-.tg  {border-collapse:collapse;border-spacing:0;}
-.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}
-.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}
-.tg .tg-axu7{font-size:16px;background-color:#ffce93;text-align:center}
-.tg .tg-h76o{font-size:16px;background-color:#fffc9e;color:#333333;text-align:center}
-.tg .tg-zkti{font-size:16px;background-color:#c0c0c0;text-align:center}
-.tg .tg-50iz{font-size:16px;background-color:#34ff34;text-align:center}
-.tg .tg-cr72{font-size:16px;background-color:#fe0000;text-align:center}
-</style>
-<table class="tg">
+<table>
   <tr>
-  <th class="tg-axu7">Chemistry Kit/ Type of sequencing<br></th>
-  <th class="tg-axu7">1D</th>
-  <th class="tg-axu7">2D</th>
-  <th class="tg-axu7">1D²</th>
+  <th>Chemistry Kit/ Type of sequencing<br></th>
+  <th>1D</th>
+  <th>2D</th>
+  <th>1D²</th>
   </tr>
   <tr>
-  <td class="tg-h76o">R7.3</td>
-  <td class="tg-zkti">Not tested<br></td>
-  <td class="tg-50iz">Tested</td>
-  <td class="tg-cr72">Not available</td>
+  <td>R7.3</td>
+  <td>Not tested<br></td>
+  <td>Tested</td>
+  <td>Not available</td>
   </tr>
   <tr>
-  <td class="tg-h76o">R9</td>
-  <td class="tg-zkti">Not tested</td>
-  <td class="tg-50iz">Tested</td>
-  <td class="tg-cr72">Not available</td>
+  <td>R9</td>
+  <td>Not tested</td>
+  <td><b>Tested</b></td>
+  <td>Not available</td>
   </tr>
   <tr>
-   <td class="tg-h76o">R9.4</td>
-   <td class="tg-50iz">Tested</td>
-   <td class="tg-50iz">Tested</td>
-   <td class="tg-cr72">Not available<br></td>
+   <td>R9.4</td>
+   <td>Tested</td>
+   <td>Tested</td>
+   <td>Not available</td>
   </tr>
   <tr>
-   <td class="tg-h76o">R9.5</td>
-   <td class="tg-zkti">Not tested</td>
-   <td class="tg-zkti">Not tested</td>
-   <td class="tg-zkti">Not tested</td>
+   <td>R9.5</td>
+   <td>Not tested</td>
+   <td>Not tested</td>
+   <td>Not tested</td>
   </tr>
 </table>
 </p>
