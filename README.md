@@ -140,6 +140,7 @@ Toullig have 2 tools :
 
 ### Chemistry available
 
+```html
 <p align="center">
 <style type="text/css">
 .tg  {border-collapse:collapse;border-spacing:0;}
@@ -183,8 +184,8 @@ Toullig have 2 tools :
    <td class="tg-zkti">Not tested</td>
   </tr>
 </table>
-
 </p>
+```
 
 <div id='Fast5tofastq'/>
 
