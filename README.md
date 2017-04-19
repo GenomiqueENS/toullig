@@ -152,7 +152,7 @@ Toullig have 2 tools :
   <tr>
   <td>R7.3</td>
   <td>Not tested<br></td>
-  <td>Tested</td>
+  <td><b>Tested</b></td>
   <td>Not available</td>
   </tr>
   <tr>
@@ -163,8 +163,8 @@ Toullig have 2 tools :
   </tr>
   <tr>
    <td>R9.4</td>
-   <td>Tested</td>
-   <td>Tested</td>
+   <td><b>Tested</b></td>
+   <td><b>Tested</b></td>
    <td>Not available</td>
   </tr>
   <tr>
@@ -175,7 +175,6 @@ Toullig have 2 tools :
   </tr>
 </table>
 </p>
-```
 
 <div id='Fast5tofastq'/>
 
@@ -239,55 +238,44 @@ Here, for each sequencing configuration the sequence available for the fast5tofa
 In bold, the type of sequencing that it's mostly interesting.
 
 <p align="center">
-<style type="text/css">
-.tg  {border-collapse:collapse;border-spacing:0;}
-.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}
-.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}
-.tg .tg-wyfy{font-size:16px;background-color:#fe996b;text-align:center}
-.tg .tg-flxg{font-weight:bold;font-size:16px;background-color:#34ff34;text-align:center}
-.tg .tg-iqod{font-size:18px;background-color:#ffce93;text-align:center}
-.tg .tg-h76o{font-size:16px;background-color:#fffc9e;color:#333333;text-align:center}
-.tg .tg-50iz{font-size:16px;background-color:#34ff34;text-align:center}
-.tg .tg-zqoy{font-size:16px;background-color:#c0c0c0;color:#333333;text-align:center}
-</style>
-<table class="tg">
+<table>
   <tr>
-  <th class="tg-iqod">Barcoding</th>
-  <th class="tg-iqod">Type of Sequencing<br></th>
-  <th class="tg-iqod">Type of sequence available with Metrichor<br></th>
-  <th class="tg-iqod">Type of sequence available with Albacore<br></th>
+  <th>Barcoding</th>
+  <th>Type of Sequencing<br></th>
+  <th>Type of sequence available with Metrichor<br></th>
+  <th>Type of sequence available with Albacore<br></th>
   </tr>
   <tr>
-  <td class="tg-h76o" rowspan="3">YES</td>
-  <td class="tg-wyfy">1D</td>
-  <td class="tg-50iz">Template, <b>Transcript</b></td>
-  <td class="tg-flxg">Template</td>
+  <td rowspan="3">YES</td>
+  <td>1D</td>
+  <td>Template, <b>Transcript</b></td>
+  <td><b>Template</b></td>
   </tr>
   <tr>
-  <td class="tg-wyfy">2D</td>
-  <td class="tg-50iz">Template, Complement, Consensus, <b>Transcript</b></td>
-  <td class="tg-zqoy">Not tested</td>
+  <td>2D</td>
+  <td>Template, Complement, Consensus, <b>Transcript</b></td>
+  <td>Not tested</td>
   </tr>
   <tr>
-  <td class="tg-wyfy">1D²</td>
-  <td class="tg-zqoy">Not tested</td>
+  <td>1D²</td>
+  <td>Not tested</td>
+  <td>Not tested</td>
+  </tr>
+  <tr>
+  <td rowspan="3">NO</td>
+  <td>1D</td>
+  <td><b>Template</b></td>
   <td class="tg-zqoy">Not tested</td>
   </tr>
   <tr>
-  <td class="tg-h76o" rowspan="3">NO</td>
-  <td class="tg-wyfy">1D</td>
-  <td class="tg-flxg">Template</td>
-  <td class="tg-zqoy">Not tested</td>
+  <td>2D</td>
+  <td>Template, Complement, <b>Consensus</b></td>
+  <td>Not tested</td>
   </tr>
   <tr>
-  <td class="tg-wyfy">2D</td>
-  <td class="tg-50iz">Template, Complement, <b>Consensus</b></td>
-  <td class="tg-zqoy">Not tested</td>
-  </tr>
-  <tr>
-  <td class="tg-wyfy">1D²</td>
-  <td class="tg-zqoy">Not tested</td>
-  <td class="tg-zqoy">Not tested</td>
+  <td>1D²</td>
+  <td>Not tested</td>
+  <td>Not tested</td>
   </tr>
 </table>
 </p>
