@@ -1,12 +1,9 @@
 package fr.ens.biologie.genomique.toullig;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import fr.ens.biologie.genomique.eoulsan.Common;
-import fr.ens.biologie.genomique.eoulsan.EoulsanException;
-import fr.ens.biologie.genomique.eoulsan.bio.BadBioEntryException;
 import org.apache.commons.cli.*;
 
 import fr.ens.biologie.genomique.toullig.actions.Fast5tofastqAction;
@@ -95,11 +92,10 @@ abstract class Main {
 
       // test if no arguments is given
       if (args.length == 0) {
-        System.out.println(
-            "ERROR: Toullig need in the first argument the tool what you want use!");
-        System.out.println("See the help with "
-            + Globals.APP_NAME_LOWER_CASE + ".sh -h, --help\n");
-        exit(1);
+
+        showErrorMessageAndExit(
+            "ERROR: Toullig need in the first argument the tool what you want use!\nSee the help with "
+                + Globals.APP_NAME_LOWER_CASE + ".sh -h, --help\n");
 
       }
 
@@ -129,27 +125,33 @@ abstract class Main {
 
       // process fast5tofastq module
       case "fast5tofastq":
+
         new Fast5tofastqAction().action(
             new ArrayList<>(Arrays.asList(args)).subList(1, args.length));
+
         break;
 
       // display help
       default:
-        System.out.println("ERROR: The name of the tool is not correct!");
-        System.out.println("See the help with "
-            + Globals.APP_NAME_LOWER_CASE + ".sh -h, --help\n");
+
+        showMessageAndExit(
+            "ERROR: The name of the tool is not correct!\nSee the help with "
+                + Globals.APP_NAME_LOWER_CASE + ".sh -h, --help\n");
+
         break;
 
       // process trim module
       case "trim":
+
         new TrimAction().action(
             new ArrayList<>(Arrays.asList(args)).subList(1, args.length));
+
         break;
 
-//      // process test module
-//      case "test":
-//        new SamDiffAnnot();
-//        break;
+      // // process test module
+      // case "test":
+      // new SamDiffAnnot();
+      // break;
 
       }
     } catch (ParseException e) {

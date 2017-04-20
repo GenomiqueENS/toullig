@@ -1,9 +1,12 @@
 package fr.ens.biologie.genomique.toullig.trimming.OutlierPositionFinder;
 
+import fr.ens.biologie.genomique.eoulsan.bio.ReadSequence;
+import fr.ens.biologie.genomique.eoulsan.bio.io.FastqReader;
 import fr.ens.biologie.genomique.toullig.trimming.InformationRead;
 import fr.ens.biologie.genomique.toullig.trimming.Trimmer.Trimmer;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -14,6 +17,7 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
 
   private final Map<String, InformationRead> workTrimmingMap;
   private final int addIndexOutlier;
+  private final File fastqFile;
 
   /**
    * Constructor of the PerfectOutlierPositionFinder class.
@@ -21,10 +25,11 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
    * @param addIndexOutlier, a int of outlier index add
    */
   public PerfectOutlierPositionFinder(
-      Map<String, InformationRead> workTrimmingMap, int addIndexOutlier) {
+      Map<String, InformationRead> workTrimmingMap, int addIndexOutlier, File fastqFile) {
 
     this.workTrimmingMap = workTrimmingMap;
     this.addIndexOutlier = addIndexOutlier;
+    this.fastqFile = fastqFile;
   }
 
   /**
@@ -45,98 +50,129 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
     int countQFlag0 = 0;
     int countQFlag4 = 0;
 
-    // get the id of each read in the work map
-    for (String id : this.workTrimmingMap.keySet()) {
+    // open the fastq File
+    try (FastqReader reader = new FastqReader(this.fastqFile)) {
 
-      int leftLengthOutlier = 0;
-      int rightLengthOutlier = 0;
-      countSamReads++;
+      // read the fastq file
+      for (ReadSequence read : reader) {
 
-      // get information of each read
-      InformationRead informationRead = this.workTrimmingMap.get(id);
-      String sequence = informationRead.sequence;
-      String quality = informationRead.quality;
-      String cigar = informationRead.cigar;
-      int qFlag = informationRead.qFlag;
+        // get header
+        String header = read.getName();
 
-      // trim by CIGAR
-      if (!"*".equals(cigar)) {
+        // split header for get id
+        String[] part = header.split(" ");
 
-        // Locate index between the adaptor and the mRNA with the Soft and
-        // Hard clipping for Left side
-        int leftIndexOutlier = cigar.indexOf("S");
+        // get id
+        String id = part[0];
 
-        // test if the last index is a Hard clipping
-        if (leftIndexOutlier > cigar.indexOf("H") && cigar.contains("H")) {
-          leftIndexOutlier = cigar.indexOf("H");
-        }
+        // get sequence
+        String sequence = read.getSequence();
 
-        // test if the left index outlier is correct
-        if (leftIndexOutlier != -1
-            && leftIndexOutlier + 1 != cigar.length()
-            && leftIndexOutlier <= 6) {
+        // get quality
+        String quality = read.getQuality();
 
-          // get the left length of the outlier
-          leftLengthOutlier =
-              Integer.parseInt(cigar.substring(0, leftIndexOutlier))
-                  + this.addIndexOutlier;
-          informationRead.leftLengthOutlier = leftLengthOutlier;
+        // get the information read of the id corresponding in the work trimming
+        // map
+        InformationRead informationRead = this.workTrimmingMap.get(id);
 
-          countLeftOutlierFind++;
+        // set the sequence of the read
+        informationRead.sequence = sequence;
+
+        // set the quality of the read
+        informationRead.quality = quality;
+
+        int leftLengthOutlier = 0;
+        int rightLengthOutlier = 0;
+        countSamReads++;
+
+        // get information of each read
+        String cigar = informationRead.cigar;
+        int qFlag = informationRead.qFlag;
+
+        // trim by CIGAR
+        if (!"*".equals(cigar)) {
+
+          // Locate index between the adaptor and the mRNA with the Soft and
+          // Hard clipping for Left side
+          int leftIndexOutlier = cigar.indexOf("S");
+
+          // test if the last index is a Hard clipping
+          if (leftIndexOutlier > cigar.indexOf("H") && cigar.contains("H")) {
+            leftIndexOutlier = cigar.indexOf("H");
+          }
+
+          // test if the left index outlier is correct
+          if (leftIndexOutlier != -1
+                  && leftIndexOutlier + 1 != cigar.length()
+                  && leftIndexOutlier <= 6) {
+
+            // get the left length of the outlier
+            leftLengthOutlier =
+                    Integer.parseInt(cigar.substring(0, leftIndexOutlier))
+                            + this.addIndexOutlier;
+            informationRead.leftLengthOutlier = leftLengthOutlier;
+
+            countLeftOutlierFind++;
+          } else {
+            rightLengthOutlier = 0;
+          }
+
+          // Locate index between the adaptor and the mRNA with the Soft and
+          // Hard clipping for Right side
+          int rightIndexOutlier = cigar.lastIndexOf("S");
+
+          // test if the last index is a Hard clipping
+          if (rightIndexOutlier < cigar.lastIndexOf("H")) {
+            rightIndexOutlier = cigar.lastIndexOf("H");
+          }
+
+          // test if the right index is negatif
+          if (rightIndexOutlier == -1) {
+            rightIndexOutlier = 0;
+          }
+
+          // test if the left index outlier is correct
+          if (rightIndexOutlier + 1 == cigar.length()
+                  && cigar.length() - rightIndexOutlier < 5) {
+
+            // get the right length of the outlier
+            rightLengthOutlier = Integer.parseInt(
+                    cigar.substring(cigar.lastIndexOf("M") + 1, rightIndexOutlier))
+                    + this.addIndexOutlier;
+            informationRead.rightLengthOutlier = rightLengthOutlier;
+            countRightOutlierFind++;
+          } else {
+            leftLengthOutlier = 0;
+          }
+
+          // pre-process trimming
+          trimmer.preProcessTrimming(leftLengthOutlier, rightLengthOutlier,
+                  sequence, id, quality);
+
         } else {
-          rightLengthOutlier = 0;
+          countCigarReads++;
         }
 
-        // Locate index between the adaptor and the mRNA with the Soft and
-        // Hard clipping for Right side
-        int rightIndexOutlier = cigar.lastIndexOf("S");
-
-        // test if the last index is a Hard clipping
-        if (rightIndexOutlier < cigar.lastIndexOf("H")) {
-          rightIndexOutlier = cigar.lastIndexOf("H");
+        // test if the qFlag equal to 16
+        if (qFlag == 16) {
+          countQFlag16++;
         }
 
-        // test if the right index is negatif
-        if (rightIndexOutlier == -1) {
-          rightIndexOutlier = 0;
+        // test if the qFlag equal to 0
+        if (qFlag == 0) {
+          countQFlag0++;
         }
 
-        // test if the left index outlier is correct
-        if (rightIndexOutlier + 1 == cigar.length()
-            && cigar.length() - rightIndexOutlier < 5) {
-
-          // get the right length of the outlier
-          rightLengthOutlier = Integer.parseInt(
-              cigar.substring(cigar.lastIndexOf("M") + 1, rightIndexOutlier))
-              + this.addIndexOutlier;
-          informationRead.rightLengthOutlier = rightLengthOutlier;
-          countRightOutlierFind++;
-        } else {
-          leftLengthOutlier = 0;
+        // test if the qFlag equal to 4
+        if (qFlag == 4) {
+          countQFlag4++;
         }
-
-        // pre-process trimming
-        trimmer.preProcessTrimming(leftLengthOutlier, rightLengthOutlier,
-            sequence, id, quality);
-
-      } else {
-        countCigarReads++;
       }
 
-      // test if the qFlag equal to 16
-      if (qFlag == 16) {
-        countQFlag16++;
-      }
 
-      // test if the qFlag equal to 0
-      if (qFlag == 0) {
-        countQFlag0++;
-      }
-
-      // test if the qFlag equal to 4
-      if (qFlag == 4) {
-        countQFlag4++;
-      }
+      reader.close();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
 
     //

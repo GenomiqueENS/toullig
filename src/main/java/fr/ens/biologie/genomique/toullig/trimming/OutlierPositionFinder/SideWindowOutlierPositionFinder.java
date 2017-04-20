@@ -1,9 +1,12 @@
 package fr.ens.biologie.genomique.toullig.trimming.OutlierPositionFinder;
 
+import fr.ens.biologie.genomique.eoulsan.bio.ReadSequence;
+import fr.ens.biologie.genomique.eoulsan.bio.io.FastqReader;
 import fr.ens.biologie.genomique.toullig.trimming.InformationRead;
 import fr.ens.biologie.genomique.toullig.trimming.Trimmer.Trimmer;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,6 +20,7 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
   private final int lengthWindowsSideWindow;
   private final double thresholdSideWindow;
   private final Map<String, InformationRead> workTrimmingMap;
+  private final File fastqFile;
 
   /**
    * Constructor of the SideWindow class.
@@ -28,11 +32,12 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
    */
   public SideWindowOutlierPositionFinder(int lengthWindowsSideWindow,
       double thresholdSideWindow,
-      Map<String, InformationRead> workTrimmingMap) {
+      Map<String, InformationRead> workTrimmingMap, File fastqFile) {
 
     this.lengthWindowsSideWindow = lengthWindowsSideWindow;
     this.thresholdSideWindow = thresholdSideWindow;
     this.workTrimmingMap = workTrimmingMap;
+    this.fastqFile = fastqFile;
   }
 
   /**
@@ -53,16 +58,41 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
 
     int lengthSequenceCigar;
 
-    // get all read of the working Map
-    for (String id : this.workTrimmingMap.keySet()) {
+    // open the fastq File
+    try (FastqReader reader = new FastqReader(this.fastqFile)) {
+
+      // read the fastq file
+      for (ReadSequence read : reader) {
+
+        // get header
+        String header = read.getName();
+
+        // split header for get id
+        String[] part = header.split(" ");
+
+        // get id
+        String id = part[0];
+
+        // get sequence
+        String sequence = read.getSequence();
+
+        // get quality
+        String quality = read.getQuality();
+
+        // get the information read of the id corresponding in the work trimming
+        // map
+        InformationRead informationRead = this.workTrimmingMap.get(id);
+
+        // set the sequence of the read
+        informationRead.sequence = sequence;
+
+        // set the quality of the read
+        informationRead.quality = quality;
 
       StringBuilder sequenceCigarBinary = new StringBuilder();
 
       // get information of the read
-      InformationRead informationRead = this.workTrimmingMap.get(id);
-      String sequence = informationRead.sequence;
       String cigar = informationRead.cigar;
-      String quality = informationRead.quality;
 
       // test if the read is unmapped
       if (!"*".equals(cigar)) {
@@ -131,6 +161,10 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
         trimmer.preProcessTrimming(leftLengthOutlier, rightLengthOutlier,
             sequence, id, quality);
       }
+    }
+      reader.close();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
 
   }

@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import fr.ens.biologie.genomique.eoulsan.bio.ReadSequence;
-import fr.ens.biologie.genomique.eoulsan.bio.io.FastqReader;
 import fr.ens.biologie.genomique.toullig.trimming.OutlierPositionFinder.OutlierPositionFinder;
 import fr.ens.biologie.genomique.toullig.trimming.OutlierPositionFinder.PerfectOutlierPositionFinder;
 import fr.ens.biologie.genomique.toullig.trimming.OutlierPositionFinder.SideWindowOutlierPositionFinder;
@@ -209,49 +207,6 @@ public class TrimFastq implements AutoCloseable {
     }
   }
 
-  /**
-   * Method of the class TrimFastq to read a fastq file.
-   * @param fastqFile, a BufferedReader fastq file
-   */
-  private void readFastqFile(File fastqFile) {
-
-    // open the fastq File
-    try (FastqReader reader = new FastqReader(fastqFile)) {
-
-      // read the fastq file
-      for (ReadSequence read : reader) {
-
-        // get header
-        String header = read.getName();
-
-        // split header for get id
-        String[] part = header.split(" ");
-
-        // get id
-        String id = part[0];
-
-        // get sequence
-        String sequence = read.getSequence();
-
-        // get quality
-        String quality = read.getQuality();
-
-        // get the information read of the id corresponding in the work trimming
-        // map
-        InformationRead informationRead = this.workTrimmingMap.get(id);
-
-        // set the sequence of the read
-        informationRead.sequence = sequence;
-
-        // set the quality of the read
-        informationRead.quality = quality;
-      }
-      reader.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
   //
   // Set
   //
@@ -390,7 +345,7 @@ public class TrimFastq implements AutoCloseable {
     readSamFile(samInputStream);
 
     // read the fastq File
-    readFastqFile(this.fastqFile);
+    // readFastqFile(this.fastqFile);
 
     // call the OutlierPositionFinder interface
     OutlierPositionFinder outlierPositionFinder;
@@ -422,13 +377,13 @@ public class TrimFastq implements AutoCloseable {
 
       // call PerfectOutlierPositionFinder constructor
       outlierPositionFinder = new PerfectOutlierPositionFinder(
-          this.workTrimmingMap, this.addIndexOutlier);
+          this.workTrimmingMap, this.addIndexOutlier, this.fastqFile);
     } else {
 
       // call SideWindowOutlierPositionFinder constructor
       outlierPositionFinder =
           new SideWindowOutlierPositionFinder(this.lengthWindowSideWindow,
-              this.thresholdSideWindow, this.workTrimmingMap);
+              this.thresholdSideWindow, this.workTrimmingMap, this.fastqFile);
     }
 
     // test to process the cutadapt trimmer

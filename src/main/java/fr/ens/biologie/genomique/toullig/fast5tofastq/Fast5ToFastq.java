@@ -525,7 +525,7 @@ public class Fast5ToFastq {
    * @throws IOException, test the read of the file
    */
   private int processDirectory(File fast5SubdirName, String status,
-      LocalReporter localReporter) throws IOException, ParseException {
+      LocalReporter localReporter) throws IOException {
 
     boolean subDirectoryNumber4000 = false;
 
@@ -536,7 +536,6 @@ public class Fast5ToFastq {
       }
     }
 
-
     // for search in sub Directory
     if (subDirectoryNumber4000) {
 
@@ -545,10 +544,10 @@ public class Fast5ToFastq {
       // list subdir
       for (File f1 : fast5SubdirName.listFiles()) {
 
-              list.addAll(listFast5(f1));
-              if(list.isEmpty()){
-                return 0;
-              }
+        list.addAll(listFast5(f1));
+        if (list.isEmpty()) {
+          return 0;
+        }
       }
       // process this list of fast5 files
       processDirectory(list, status, localReporter);
@@ -662,7 +661,7 @@ public class Fast5ToFastq {
    * @throws IOException, test the read of the file
    */
   private void processDirectories(List<File> listBarcodeDir,
-      LocalReporter localReporter) throws IOException, ParseException {
+      LocalReporter localReporter) throws IOException {
 
     boolean subDirectoryNumber4000 = false;
 
@@ -731,8 +730,7 @@ public class Fast5ToFastq {
    */
   private void readFast5WriteFastq(File fast5File, Writer complementWriter,
       Writer templateWriter, Writer consensusWriter, Writer transcriptWriter,
-      String status, LocalReporter localReporter)
-      throws IOException {
+      String status, LocalReporter localReporter) throws IOException {
 
     // test if the fast5 is corrupt or readable
     try (Fast5 f5 = new Fast5(fast5File)) {
@@ -1011,16 +1009,16 @@ public class Fast5ToFastq {
 
           for (Path entry : stream) {
 
-            try (Fast5 f5 = new Fast5(entry.toFile())){
+            try (Fast5 f5 = new Fast5(entry.toFile())) {
 
               // test if the fast5 file is basecalled
-              if(f5.isBasecalled()){
+              if (f5.isBasecalled()) {
 
                 return entry.toFile();
 
               }
 
-            }catch (Exception e){
+            } catch (Exception e) {
               e.printStackTrace();
             }
           }
@@ -1053,16 +1051,16 @@ public class Fast5ToFastq {
 
             for (Path entry : stream) {
 
-              try (Fast5 f5 = new Fast5(entry.toFile())){
+              try (Fast5 f5 = new Fast5(entry.toFile())) {
 
                 // test if the fast5 file is basecalled
-                if(f5.isBasecalled()){
+                if (f5.isBasecalled()) {
 
                   return entry.toFile();
 
                 }
 
-              }catch (Exception e){
+              } catch (Exception e) {
                 e.printStackTrace();
               }
             }
@@ -1088,26 +1086,24 @@ public class Fast5ToFastq {
           result3.add(file);
         }
 
-
         // test if is it's a file and have an extension ".fast5"
         if (file.isFile() && file.toString().contains(".fast5")) {
 
           try (DirectoryStream<Path> stream =
               Files.newDirectoryStream(resultDirectory.toPath(), "*.{fast5}")) {
 
-
             for (Path entry : stream) {
 
-              try (Fast5 f5 = new Fast5(entry.toFile())){
+              try (Fast5 f5 = new Fast5(entry.toFile())) {
 
                 // test if the fast5 file is basecalled
-                if(f5.isBasecalled()){
+                if (f5.isBasecalled()) {
 
                   return entry.toFile();
 
                 }
 
-              }catch (Exception e){
+              } catch (Exception e) {
                 e.printStackTrace();
               }
             }
@@ -1119,7 +1115,6 @@ public class Fast5ToFastq {
         }
       }
     }
-
 
     return null;
   }
@@ -1283,7 +1278,6 @@ public class Fast5ToFastq {
 
     // test if the pass fast5 is to process
     if (this.processPass) {
-
 
       // get the list of pass fast5 files
       int numberPassFast5Files = processDirectory(
