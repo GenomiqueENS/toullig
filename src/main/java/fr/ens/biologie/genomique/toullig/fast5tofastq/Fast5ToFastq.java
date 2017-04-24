@@ -270,10 +270,33 @@ public class Fast5ToFastq {
    */
   private Writer createWriterFastq(File fast5File, String typeSequence,
       String status) throws IOException {
-    // the substring is done on the string "_ch" who correspond to the channel
-    // number
-    String preNameFile = fast5File.getName().substring(0,
-        fast5File.getName().indexOf("_ch") + 1);
+
+    String preNameFile;
+
+    String[] part = fast5File.getName().split("_");
+
+    // test if the filename contains the "mux_scan" field or the
+    // "sequencing_run"
+    if (part[4].equals("mux")
+        && part[5].equals("scan") && !part[4].equals("sequencing")
+        && !part[5].equals("run")) {
+
+      // double substring on the "mux_scan" field and the 5 number id field.
+      preNameFile = fast5File.getName().substring(0,
+          fast5File.getName().indexOf("_mux_scan") + 1)
+          + fast5File.getName().substring(fast5File.getName()
+              .substring(0, fast5File.getName().indexOf("_scan_") + 6).length(),
+              fast5File.getName().indexOf("_ch") - 5);
+    } else {
+
+      // double substring on the "sequencing_run" field and the 5 number id
+      // field.
+      preNameFile = fast5File.getName().substring(0,
+          fast5File.getName().indexOf("_sequencing_run") + 1)
+          + fast5File.getName().substring(fast5File.getName()
+              .substring(0, fast5File.getName().indexOf("_run") + 5).length(),
+              fast5File.getName().indexOf("_ch") - 5);
+    }
 
     // create writer in bzip2 compression
     if (saveCompressBZIP2) {
