@@ -276,7 +276,7 @@ public class TrimAction extends AbstractAction {
     formatter.printHelp(
         Globals.APP_NAME_LOWER_CASE
             + ".sh " + ACTION_NAME
-            + " [options] SAMFILE FASTQ_DIR FASTQ_OUTPUT_DIR ADAPTOR_FILE WORK_DIR \n",
+            + " [options] SAM_FILE FASTQ_FILE FASTQ_OUTPUT_FILE ADAPTOR_FILE WORK_DIR \n",
         options);
 
     System.exit(0);
