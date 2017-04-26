@@ -199,6 +199,7 @@ public class TrimFastq implements AutoCloseable {
               cigar, lengthBeginOutlier, lengthEndOutlier, qFlag, cigarLength));
         }
       }
+
       System.out.println(
           "Number of multi-mapped reads: " + fastqHashMultimapped.size());
       inputSam.close();
