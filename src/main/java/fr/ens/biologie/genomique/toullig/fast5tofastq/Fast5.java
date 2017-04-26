@@ -176,27 +176,25 @@ public class Fast5 implements AutoCloseable {
     // test if the basecaller is Metrichor
     if (this.basecaller == Basecaller.METRICHOR) {
 
-      // test if the chemistry version is R7.3
-      if (reader
+      String modelType = reader
           .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
-              "model_type")
+              "model_type");
+
+      // test if the chemistry version is R7.3
+      if (modelType
           .contains("r7.3_")) {
         return ChemistryVersion.R7_3;
       }
 
       // test if the chemistry version is R9
-      if (reader
-          .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
-              "model_type")
+      if (modelType
           .contains("r9_")) {
         return ChemistryVersion.R9;
 
       }
 
       // test if the chemistry version is R9.4
-      if (reader
-          .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
-              "model_type")
+      if (modelType
           .contains("r94_")) {
         return ChemistryVersion.R9_4;
 
@@ -207,28 +205,26 @@ public class Fast5 implements AutoCloseable {
     // test if the basecaller is Albacore
     if (this.basecaller == Basecaller.ALBACORE) {
 
+      final String model;
+      if (reader.hasAttribute("/Analyses/Basecall_1D_000/Configuration/basecall_1d", "template_model")) {
+        model =reader.getStringAttribute("/Analyses/Basecall_1D_000/Configuration/basecall_1d", "template_model");
+      } else {
+        model = reader.getStringAttribute("/Analyses/Basecall_1D_000/Configuration/basecall_1d", "model");
+      }
+
       // test if the chemistry version is R7.3
-      if (reader
-          .getStringAttribute(
-              "/Analyses/Basecall_1D_000/Configuration/basecall_1d", "model")
-          .contains("r7.3_")) {
+      if (model.contains("r7.3_")) {
         return ChemistryVersion.R7_3;
       }
 
       // test if the chemistry version is R9
-      if (reader
-          .getStringAttribute(
-              "/Analyses/Basecall_1D_000/Configuration/basecall_1d", "model")
-          .contains("r9_")) {
+      if (model.contains("r9_")) {
         return ChemistryVersion.R9;
 
       }
 
       // test if the chemistry version is R9.4
-      if (reader
-          .getStringAttribute(
-              "/Analyses/Basecall_1D_000/Configuration/basecall_1d", "model")
-          .contains("r9.4_")) {
+      if (model.contains("r9.4_")) {
         return ChemistryVersion.R9_4;
 
       }
@@ -249,14 +245,14 @@ public class Fast5 implements AutoCloseable {
       return null;
     }
 
+    String nameAttribute = reader.getStringAttribute("/Analyses/Basecall_1D_000", "name");
+
     // test if the basecaller is Metrichor by a specific Metrichor field
-    if (reader.getStringAttribute("/Analyses/Basecall_1D_000", "name")
-        .equals("ONT Sequencing Workflow")) {
+    if (nameAttribute.equals("ONT Sequencing Workflow")) {
       return Basecaller.METRICHOR;
     } else {
       // test if the basecaller is Albacore by a specific Albacore field
-      if (reader.getStringAttribute("/Analyses/Basecall_1D_000", "name")
-          .equals("ONT Albacore Sequencing Software")) {
+      if (nameAttribute.equals("ONT Albacore Sequencing Software")) {
         return Basecaller.ALBACORE;
       }
     }
