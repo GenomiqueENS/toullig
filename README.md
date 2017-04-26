@@ -254,7 +254,7 @@ In bold, the type of sequencing that it's mostly interesting.
   <tr>
   <td>2D</td>
   <td>Template, Complement, Consensus, <b>Transcript</b></td>
-  <td>Not tested</td>
+  <td>Template, Complement, <b>Consensus</b></td>
   </tr>
   <tr>
   <td>1D²</td>
@@ -270,7 +270,7 @@ In bold, the type of sequencing that it's mostly interesting.
   <tr>
   <td>2D</td>
   <td>Template, Complement, <b>Consensus</b></td>
-  <td>Not tested</td>
+  <td>Template, Complement, <b>Consensus</b></td>
   </tr>
   <tr>
   <td>1D²</td>
