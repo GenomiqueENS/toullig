@@ -176,26 +176,22 @@ public class Fast5 implements AutoCloseable {
     // test if the basecaller is Metrichor
     if (this.basecaller == Basecaller.METRICHOR) {
 
-      String modelType = reader
-          .getStringAttribute("/Analyses/Basecall_1D_000/Configuration/general",
-              "model_type");
+      String modelType = reader.getStringAttribute(
+          "/Analyses/Basecall_1D_000/Configuration/general", "model_type");
 
       // test if the chemistry version is R7.3
-      if (modelType
-          .contains("r7.3_")) {
+      if (modelType.contains("r7.3_")) {
         return ChemistryVersion.R7_3;
       }
 
       // test if the chemistry version is R9
-      if (modelType
-          .contains("r9_")) {
+      if (modelType.contains("r9_")) {
         return ChemistryVersion.R9;
 
       }
 
       // test if the chemistry version is R9.4
-      if (modelType
-          .contains("r94_")) {
+      if (modelType.contains("r94_")) {
         return ChemistryVersion.R9_4;
 
       }
@@ -206,10 +202,15 @@ public class Fast5 implements AutoCloseable {
     if (this.basecaller == Basecaller.ALBACORE) {
 
       final String model;
-      if (reader.hasAttribute("/Analyses/Basecall_1D_000/Configuration/basecall_1d", "template_model")) {
-        model =reader.getStringAttribute("/Analyses/Basecall_1D_000/Configuration/basecall_1d", "template_model");
+      if (reader.hasAttribute(
+          "/Analyses/Basecall_1D_000/Configuration/basecall_1d",
+          "template_model")) {
+        model = reader.getStringAttribute(
+            "/Analyses/Basecall_1D_000/Configuration/basecall_1d",
+            "template_model");
       } else {
-        model = reader.getStringAttribute("/Analyses/Basecall_1D_000/Configuration/basecall_1d", "model");
+        model = reader.getStringAttribute(
+            "/Analyses/Basecall_1D_000/Configuration/basecall_1d", "model");
       }
 
       // test if the chemistry version is R7.3
@@ -245,7 +246,8 @@ public class Fast5 implements AutoCloseable {
       return null;
     }
 
-    String nameAttribute = reader.getStringAttribute("/Analyses/Basecall_1D_000", "name");
+    String nameAttribute =
+        reader.getStringAttribute("/Analyses/Basecall_1D_000", "name");
 
     // test if the basecaller is Metrichor by a specific Metrichor field
     if (nameAttribute.equals("ONT Sequencing Workflow")) {

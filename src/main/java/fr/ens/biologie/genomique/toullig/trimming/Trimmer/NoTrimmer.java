@@ -51,6 +51,11 @@ public class NoTrimmer implements Trimmer {
 
         // get information for the read
         InformationRead informationRead = this.workTrimmingMap.get(id);
+
+        if (id.equals("c485d66b-a618-47ca-9e49-6638b1c57cf5_Basecall_2D_2d")) {
+          System.out.println(informationRead);
+        }
+
         String cigar = informationRead.cigar;
         String quality = informationRead.quality;
         String sequence = informationRead.sequence;

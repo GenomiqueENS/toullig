@@ -25,7 +25,8 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
    * @param addIndexOutlier, a int of outlier index add
    */
   public PerfectOutlierPositionFinder(
-      Map<String, InformationRead> workTrimmingMap, int addIndexOutlier, File fastqFile) {
+      Map<String, InformationRead> workTrimmingMap, int addIndexOutlier,
+      File fastqFile) {
 
     this.workTrimmingMap = workTrimmingMap;
     this.addIndexOutlier = addIndexOutlier;
@@ -103,14 +104,25 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
 
           // test if the left index outlier is correct
           if (leftIndexOutlier != -1
-                  && leftIndexOutlier + 1 != cigar.length()
-                  && leftIndexOutlier <= 6) {
+              && leftIndexOutlier + 1 != cigar.length()
+              && leftIndexOutlier <= 6) {
 
             // get the left length of the outlier
             leftLengthOutlier =
-                    Integer.parseInt(cigar.substring(0, leftIndexOutlier))
-                            + this.addIndexOutlier;
-            informationRead.leftLengthOutlier = leftLengthOutlier;
+                Integer.parseInt(cigar.substring(0, leftIndexOutlier))
+                    + this.addIndexOutlier;
+
+            // strand case
+            if (qFlag == 0) {
+
+              informationRead.leftLengthOutlier = leftLengthOutlier;
+
+            }
+            // reverse complement case
+            else {
+
+              informationRead.rightLengthOutlier = leftLengthOutlier;
+            }
 
             countLeftOutlierFind++;
           } else {
@@ -133,21 +145,46 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
 
           // test if the left index outlier is correct
           if (rightIndexOutlier + 1 == cigar.length()
-                  && cigar.length() - rightIndexOutlier < 5) {
+              && cigar.length() - rightIndexOutlier < 5) {
 
             // get the right length of the outlier
             rightLengthOutlier = Integer.parseInt(
-                    cigar.substring(cigar.lastIndexOf("M") + 1, rightIndexOutlier))
-                    + this.addIndexOutlier;
-            informationRead.rightLengthOutlier = rightLengthOutlier;
+                cigar.substring(cigar.lastIndexOf("M") + 1, rightIndexOutlier))
+                + this.addIndexOutlier;
+
+            // strand case
+            if (qFlag == 0) {
+
+              informationRead.rightLengthOutlier = rightLengthOutlier;
+
+            }
+            // reverse complement case
+            else {
+
+              informationRead.leftLengthOutlier = rightLengthOutlier;
+            }
+
             countRightOutlierFind++;
+
           } else {
             leftLengthOutlier = 0;
           }
 
-          // pre-process trimming
-          trimmer.preProcessTrimming(leftLengthOutlier, rightLengthOutlier,
-                  sequence, id, quality);
+          // strand case
+          if (qFlag == 0) {
+
+            // pre-process trimming
+            trimmer.preProcessTrimming(leftLengthOutlier, rightLengthOutlier,
+                sequence, id, quality);
+
+          }
+          // reverse complement case
+          else {
+
+            // pre-process trimming
+            trimmer.preProcessTrimming(rightLengthOutlier, leftLengthOutlier,
+                sequence, id, quality);
+          }
 
         } else {
           countCigarReads++;
@@ -168,7 +205,6 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
           countQFlag4++;
         }
       }
-
 
       reader.close();
     } catch (IOException e) {

@@ -201,7 +201,6 @@ public class Fast5ToFastq {
     return listFast5Files;
   }
 
-
   //
   //
   // Getter Number Files
@@ -474,8 +473,6 @@ public class Fast5ToFastq {
 
   }
 
-
-
   /**
    * This method of the class Fast5ToFastq execute processDirectory with a list
    * of barcode.
@@ -508,8 +505,8 @@ public class Fast5ToFastq {
 
         }
         // process this list
-        this.processor.processDirectory(listBarcodeFast5Files, barcodeDirectory.getName(),
-            localReporter);
+        this.processor.processDirectory(listBarcodeFast5Files,
+            barcodeDirectory.getName(), localReporter);
 
         // incremente numberPassFast5Files counter
         localReporter.incrCounter("numberFiles", "numberPassFast5Files",
@@ -524,8 +521,8 @@ public class Fast5ToFastq {
         List<File> listBarcodeFast5Files = listFast5(barcodeDirectory);
 
         // process this list
-        this.processor.processDirectory(listBarcodeFast5Files, barcodeDirectory.getName(),
-            localReporter);
+        this.processor.processDirectory(listBarcodeFast5Files,
+            barcodeDirectory.getName(), localReporter);
 
         // incremente numberPassFast5Files counter
         localReporter.incrCounter("numberFiles", "numberPassFast5Files",
@@ -537,10 +534,6 @@ public class Fast5ToFastq {
       }
     }
   }
-
-
-
-
 
   /**
    * This method of the class Fast5ToFastq get a fast5 file.
@@ -598,11 +591,66 @@ public class Fast5ToFastq {
 
     // get the directory in the result list
     for (File resultDirectory : result1) {
+
+      boolean notBasecalled = false;
+
       for (File file : resultDirectory.listFiles()) {
 
         // test if the file is a directory
         if (file.isDirectory()) {
           result2.add(file);
+
+        }
+
+        // test if is it's a file and have an extension ".fast5"
+        if (file.isFile() && file.toString().contains(".fast5")) {
+
+          try (DirectoryStream<Path> stream =
+              Files.newDirectoryStream(resultDirectory.toPath(), "*.{fast5}")) {
+
+            if (notBasecalled == true) {
+              break;
+            }
+
+            for (Path entry : stream) {
+
+              try (Fast5 f5 = new Fast5(entry.toFile())) {
+
+                // test if the fast5 file is basecalled
+                if (f5.isBasecalled()) {
+
+                  return entry.toFile();
+
+                } else {
+                  notBasecalled = true;
+                  break;
+                }
+
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+            }
+          } catch (DirectoryIteratorException ex) {
+            // I/O error encounted during the iteration, the cause is an
+            // IOException
+            throw ex.getCause();
+          }
+        }
+      }
+    }
+
+    //
+    //
+    //
+
+    // get the directory in the result list
+    for (File resultDirectory : result2) {
+
+      for (File file : resultDirectory.listFiles()) {
+
+        // test if the file is a directory
+        if (file.isDirectory()) {
+          result3.add(file);
         }
 
         // test if is it's a file and have an extension ".fast5"
@@ -640,13 +688,9 @@ public class Fast5ToFastq {
     //
 
     // get the directory in the result list
-    for (File resultDirectory : result2) {
-      for (File file : resultDirectory.listFiles()) {
+    for (File resultDirectory : result3) {
 
-        // test if the file is a directory
-        if (file.isDirectory()) {
-          result3.add(file);
-        }
+      for (File file : resultDirectory.listFiles()) {
 
         // test if is it's a file and have an extension ".fast5"
         if (file.isFile() && file.toString().contains(".fast5")) {
@@ -694,26 +738,31 @@ public class Fast5ToFastq {
    */
   public void execute() throws IOException {
 
-    this.processor = new DirectoryProcessor(repertoryFastqOutput, saveComplementSequence,
-    saveTemplateSequence,
-    saveConsensusSequence,
-    saveTranscriptSequence,
-    saveCompressGZIP,
-    saveCompressBZIP2);
+    this.processor = new DirectoryProcessor(repertoryFastqOutput,
+        saveComplementSequence, saveTemplateSequence, saveConsensusSequence,
+        saveTranscriptSequence, saveCompressGZIP, saveCompressBZIP2);
+
+    System.out.println("Sampling of a Fast5 file !");
 
     // get a fast5 file
     File sampleFast5File = getAFast5File();
+
+    System.out.println("End of the sampling of a Fast5 file");
 
     try (Fast5 f5 = new Fast5(sampleFast5File)) {
 
       if (f5.getBasecaller() == Fast5.Basecaller.METRICHOR
           || f5.getBasecaller() == null) {
 
+        this.processor.setMetrichor();
+
         // execution for the basecaller Metrichor classification
         executeBasecallerMetrichor();
       }
 
       if (f5.getBasecaller() == Fast5.Basecaller.ALBACORE) {
+
+        this.processor.setAlbacore();
 
         // execution for the basecaller Metrichor classification
         executeBasecallerAlbacore();
@@ -737,7 +786,8 @@ public class Fast5ToFastq {
     if (this.processMergeStatus) {
 
       // process all fast5
-      this.processor.processDirectory(listAllFast5(), "merge_status", this.localReporter);
+      this.processor.processDirectory(listAllFast5(), "merge_status",
+          this.localReporter);
       return;
     }
 
@@ -762,14 +812,18 @@ public class Fast5ToFastq {
     // test if the pass fast5 is to process
     if (this.processPass) {
 
-      // get the list of pass fast5 files
-      int numberPassFast5Files = processDirectory(
-          new File(
-              this.fast5RunDirectory.toPath().toString() + "/downloads/pass"),
-          "pass", this.localReporter);
+      // get the list of barcode pass fast5 files
+      List<File> listBarcodeFast5Dir =
+          listSubDir(new File(this.fast5RunDirectory, "/downloads/pass"), "");
 
       // test if the number of pass fast5 files is not null
-      if (numberPassFast5Files != 0) {
+      if (listBarcodeFast5Dir.size() == 0) {
+
+        // get the list of pass fast5 files
+        int numberPassFast5Files = processDirectory(
+            new File(
+                this.fast5RunDirectory.toPath().toString() + "/downloads/pass"),
+            "pass", this.localReporter);
 
         // incremente pass fast5 files counter
         this.localReporter.incrCounter("numberFiles", "numberPassFast5Files",
@@ -779,10 +833,6 @@ public class Fast5ToFastq {
         this.localReporter.incrCounter("numberFiles", "numberFast5Files",
             numberPassFast5Files);
       } else {
-
-        // get the list of barcode pass fast5 files
-        List<File> listBarcodeFast5Dir =
-            listSubDir(new File(this.fast5RunDirectory, "/"), "");
 
         // process the barcode directories
         processDirectories(listBarcodeFast5Dir, this.localReporter);
@@ -820,7 +870,8 @@ public class Fast5ToFastq {
     if (this.processMergeStatus) {
 
       // process all fast5
-      this.processor.processDirectory(listAllFast5(), "merge_status", this.localReporter);
+      this.processor.processDirectory(listAllFast5(), "merge_status",
+          this.localReporter);
       return;
     }
 
@@ -828,9 +879,8 @@ public class Fast5ToFastq {
     if (this.processFail) {
 
       // get the list of fail fast5 files
-      int numberFailFast5Files = processDirectory(
-          this.fast5RunDirectory, "fail",
-          this.localReporter);
+      int numberFailFast5Files =
+          processDirectory(this.fast5RunDirectory, "fail", this.localReporter);
 
       // incremente fail fast5 files counter
       this.localReporter.incrCounter("numberFiles", "numberFailFast5Files",
@@ -845,9 +895,8 @@ public class Fast5ToFastq {
     if (this.processPass) {
 
       // get the list of pass fast5 files
-      int numberPassFast5Files = processDirectory(
-         this.fast5RunDirectory, "pass",
-          this.localReporter);
+      int numberPassFast5Files =
+          processDirectory(this.fast5RunDirectory, "pass", this.localReporter);
 
       // test if the number of pass fast5 files is not null
       if (numberPassFast5Files != 0) {
@@ -890,6 +939,5 @@ public class Fast5ToFastq {
     }
 
   }
-
 
 }

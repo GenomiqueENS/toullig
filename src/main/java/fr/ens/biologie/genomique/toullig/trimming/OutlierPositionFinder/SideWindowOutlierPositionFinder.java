@@ -31,8 +31,8 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
    * @param workTrimmingMap, a Map of working information
    */
   public SideWindowOutlierPositionFinder(int lengthWindowsSideWindow,
-      double thresholdSideWindow,
-      Map<String, InformationRead> workTrimmingMap, File fastqFile) {
+      double thresholdSideWindow, Map<String, InformationRead> workTrimmingMap,
+      File fastqFile) {
 
     this.lengthWindowsSideWindow = lengthWindowsSideWindow;
     this.thresholdSideWindow = thresholdSideWindow;
@@ -89,79 +89,117 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
         // set the quality of the read
         informationRead.quality = quality;
 
-      StringBuilder sequenceCigarBinary = new StringBuilder();
+        StringBuilder sequenceCigarBinary = new StringBuilder();
 
-      // get information of the read
-      String cigar = informationRead.cigar;
+        // get information of the read
+        String cigar = informationRead.cigar;
 
-      // test if the read is unmapped
-      if (!"*".equals(cigar)) {
+        // get the qflag
+        int qFlag = informationRead.qFlag;
 
-        // while the length of the cigar is not null
-        while (cigar.length() != 0) {
+        // test if the read is unmapped
+        if (!"*".equals(cigar)) {
 
-          // match the one Code Cigar
-          Matcher oneCodeCigarMatcher = oneCodeCigarPattern.matcher(cigar);
+          // while the length of the cigar is not null
+          while (cigar.length() != 0) {
 
-          // if one Code Cigar is found
-          if (oneCodeCigarMatcher.matches()) {
+            // match the one Code Cigar
+            Matcher oneCodeCigarMatcher = oneCodeCigarPattern.matcher(cigar);
 
-            // for each one Code Cigar
-            String oneCodeCigar = oneCodeCigarMatcher.group(2);
+            // if one Code Cigar is found
+            if (oneCodeCigarMatcher.matches()) {
 
-            // decremente the length of the Cigar code
-            cigar = cigar.substring(oneCodeCigarMatcher.group(2).length(),
-                cigar.length());
+              // for each one Code Cigar
+              String oneCodeCigar = oneCodeCigarMatcher.group(2);
 
-            // match the length of one Code Cigar
-            Matcher lengthOneCodeCigarMatcher =
-                lengthOneCodeCigarPattern.matcher(oneCodeCigar);
+              // decremente the length of the Cigar code
+              cigar = cigar.substring(oneCodeCigarMatcher.group(2).length(),
+                  cigar.length());
 
-            // if a length of one Code Cigar is found
-            if (lengthOneCodeCigarMatcher.matches()) {
+              // match the length of one Code Cigar
+              Matcher lengthOneCodeCigarMatcher =
+                  lengthOneCodeCigarPattern.matcher(oneCodeCigar);
 
-              // get the length of the cigar sequence
-              lengthSequenceCigar =
-                  Integer.parseInt(lengthOneCodeCigarMatcher.group(1)) - 1;
+              // if a length of one Code Cigar is found
+              if (lengthOneCodeCigarMatcher.matches()) {
 
-              // translate for each Ciagr letters a binary code (M=1 and other
-              // letters=0)
-              for (int i = 0; i <= lengthSequenceCigar; i++) {
+                // get the length of the cigar sequence
+                lengthSequenceCigar =
+                    Integer.parseInt(lengthOneCodeCigarMatcher.group(1)) - 1;
 
-                if (lengthOneCodeCigarMatcher.group(2).equals("M")) {
-                  sequenceCigarBinary.append(1);
-                  continue;
-                }
-                if (lengthOneCodeCigarMatcher.group(2).equals("N")
-                    || lengthOneCodeCigarMatcher.group(2).equals("D")) {
-                  continue;
-                }
-                if (!lengthOneCodeCigarMatcher.group(2).equals("N")
-                    || !lengthOneCodeCigarMatcher.group(2).equals("M")) {
-                  sequenceCigarBinary.append(0);
+                // translate for each Ciagr letters a binary code (M=1 and other
+                // letters=0)
+                for (int i = 0; i <= lengthSequenceCigar; i++) {
+
+                  if (lengthOneCodeCigarMatcher.group(2).equals("M")) {
+                    sequenceCigarBinary.append(1);
+                    continue;
+                  }
+                  if (lengthOneCodeCigarMatcher.group(2).equals("N")
+                      || lengthOneCodeCigarMatcher.group(2).equals("D")) {
+                    continue;
+                  }
+                  if (!lengthOneCodeCigarMatcher.group(2).equals("N")
+                      || !lengthOneCodeCigarMatcher.group(2).equals("M")) {
+                    sequenceCigarBinary.append(0);
+                  }
                 }
               }
             }
           }
+
+          int leftLengthOutlier = 0;
+          int rightLengthOutlier = 0;
+
+          // strand case
+          if (qFlag == 0) {
+
+            // get the length of the left outlier
+            leftLengthOutlier = sideWindowsLeft(sequenceCigarBinary.toString());
+            informationRead.leftLengthOutlier = leftLengthOutlier;
+
+            // get the length of the right outlier
+            rightLengthOutlier =
+                sideWindowsRight(sequenceCigarBinary.toString());
+            informationRead.rightLengthOutlier = rightLengthOutlier;
+
+            System.out.println(leftLengthOutlier
+                + "    " + rightLengthOutlier + "     " + sequence.length());
+
+          }
+          // reverse complement case
+          else {
+
+            // get the length of the left outlier
+            leftLengthOutlier = sideWindowsLeft(sequenceCigarBinary.toString());
+            informationRead.rightLengthOutlier = leftLengthOutlier;
+
+            // get the length of the right outlier
+            rightLengthOutlier =
+                sideWindowsRight(sequenceCigarBinary.toString());
+            informationRead.leftLengthOutlier = rightLengthOutlier;
+
+            System.out.println(leftLengthOutlier
+                + "    " + rightLengthOutlier + "     " + sequence.length());
+          }
+
+          // strand case
+          if (qFlag == 0) {
+
+            // pre-process trimming
+            trimmer.preProcessTrimming(leftLengthOutlier, rightLengthOutlier,
+                sequence, id, quality);
+
+          }
+          // reverse complement case
+          else {
+
+            // pre-process trimming
+            trimmer.preProcessTrimming(rightLengthOutlier, leftLengthOutlier,
+                sequence, id, quality);
+          }
         }
-
-        // get the length of the left outlier
-        int leftLengthOutlier = sideWindowsLeft(sequenceCigarBinary.toString());
-        informationRead.leftLengthOutlier = leftLengthOutlier;
-
-        // get the length of the right outlier
-        int rightLengthOutlier =
-            sideWindowsRight(sequenceCigarBinary.toString());
-        informationRead.rightLengthOutlier = rightLengthOutlier;
-
-        System.out.println(leftLengthOutlier
-            + "    " + rightLengthOutlier + "     " + sequence.length());
-
-        // pre-process trimming
-        trimmer.preProcessTrimming(leftLengthOutlier, rightLengthOutlier,
-            sequence, id, quality);
       }
-    }
       reader.close();
     } catch (IOException e) {
       e.printStackTrace();
