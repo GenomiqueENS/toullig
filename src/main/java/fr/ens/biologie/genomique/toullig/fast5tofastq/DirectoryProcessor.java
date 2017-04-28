@@ -19,14 +19,61 @@ public class DirectoryProcessor {
   private final boolean saveConsensusSequence;
   private final boolean saveTranscriptSequence;
 
-  private boolean isMetrichor = false;
-  private boolean isAlbacore = false;
+  private boolean metrichor = false;
 
   private final boolean saveCompressGZIP;
   private final boolean saveCompressBZIP2;
   private final File repertoryFastqOutput;
 
   private final List<File> listCorruptFast5Files = new ArrayList<>();
+
+  private final Fast5.Version version;
+  private final Fast5.Type type;
+  private final Fast5.Status status;
+  private final Fast5.ChemistryVersion chemistryVersion;
+  private final Fast5.Basecaller basecaller;
+
+  /**
+   * Constructor.
+   * @param repertoryFastqOutput FASTQ output directory
+   * @param saveComplementSequence save complement sequence
+   * @param saveTemplateSequence save template sequence
+   * @param saveConsensusSequence save consensus sequence
+   * @param saveTranscriptSequence save transcript sequence
+   * @param saveCompressGZIP use GZIP compression for output file
+   * @param saveCompressBZIP2 use BZIP2 compression for output file
+   * @param status the status of the ONT run
+   * @param basecaller the basecaller of the ONT run
+   * @param version the version of the ONT run
+   * @param type the type of the ONT run
+   * @param chemistryVersion the chemistryVersion of the ONT run
+   */
+  DirectoryProcessor(final File repertoryFastqOutput,
+      final boolean saveComplementSequence, final boolean saveTemplateSequence,
+      final boolean saveConsensusSequence, final boolean saveTranscriptSequence,
+      final boolean saveCompressGZIP, final boolean saveCompressBZIP2,
+      Fast5.Status status, Fast5.Basecaller basecaller, Fast5.Version version,
+      Fast5.Type type, Fast5.ChemistryVersion chemistryVersion,
+      final boolean metrichor) {
+
+    this.repertoryFastqOutput = repertoryFastqOutput;
+
+    this.saveComplementSequence = saveComplementSequence;
+    this.saveTemplateSequence = saveTemplateSequence;
+    this.saveConsensusSequence = saveConsensusSequence;
+    this.saveTranscriptSequence = saveTranscriptSequence;
+
+    this.saveCompressGZIP = saveCompressGZIP;
+    this.saveCompressBZIP2 = saveCompressBZIP2;
+
+    this.status = status;
+    this.basecaller = basecaller;
+    this.version = version;
+    this.type = type;
+    this.chemistryVersion = chemistryVersion;
+
+    this.metrichor = metrichor;
+  }
 
   //
   // Inner class
@@ -87,24 +134,6 @@ public class DirectoryProcessor {
    */
   public List<File> getListCorruptFast5Files() {
     return this.listCorruptFast5Files;
-  }
-
-  //
-  // Setter
-  //
-
-  /**
-   * Set the basecaller boolean Metrichor to true.
-   */
-  public void setMetrichor() {
-    this.isMetrichor = true;
-  }
-
-  /**
-   * Set the basecaller boolean Albacore to true.
-   */
-  public void setAlbacore() {
-    this.isAlbacore = true;
   }
 
   //
@@ -329,7 +358,7 @@ public class DirectoryProcessor {
    * @param status status value
    * @param localReporter local reporter
    */
-  private static final void fillCounters(final Fast5 f5, final String status,
+  private static void fillCounters(final Fast5 f5, final String status,
       final LocalReporter localReporter) {
 
     //
@@ -468,7 +497,8 @@ public class DirectoryProcessor {
       String status, LocalReporter localReporter) throws IOException {
 
     // test if the fast5 is corrupt or readable
-    try (Fast5 f5 = new Fast5(fast5File)) {
+    try (Fast5 f5 = new Fast5(fast5File, this.status, this.basecaller,
+        this.version, this.type, this.chemistryVersion)) {
 
       // test if the complementWriter is not null and if the complement sequence
       // is not null
@@ -499,7 +529,7 @@ public class DirectoryProcessor {
       }
 
       // test if the basecaller is Metrichor
-      if (this.isMetrichor) {
+      if (this.metrichor) {
 
         // Fill the counters
         fillCounters(f5, status, localReporter);
@@ -511,36 +541,6 @@ public class DirectoryProcessor {
       localReporter.incrCounter("numberFiles", "numberCorruptFast5Files", 1);
       this.listCorruptFast5Files.add(fast5File);
     }
-  }
-
-  //
-  // Constructor
-  //
-
-  /**
-   * Constructor.
-   * @param repertoryFastqOutput FASTQ output directory
-   * @param saveComplementSequence save complement sequence
-   * @param saveTemplateSequence save template sequence
-   * @param saveConsensusSequence save consensus sequence
-   * @param saveTranscriptSequence save transcript sequence
-   * @param saveCompressGZIP use GZIP compression for output file
-   * @param saveCompressBZIP2 use BZIP2 compression for output file
-   */
-  DirectoryProcessor(final File repertoryFastqOutput,
-      final boolean saveComplementSequence, final boolean saveTemplateSequence,
-      final boolean saveConsensusSequence, final boolean saveTranscriptSequence,
-      final boolean saveCompressGZIP, final boolean saveCompressBZIP2) {
-
-    this.repertoryFastqOutput = repertoryFastqOutput;
-
-    this.saveComplementSequence = saveComplementSequence;
-    this.saveTemplateSequence = saveTemplateSequence;
-    this.saveConsensusSequence = saveConsensusSequence;
-    this.saveTranscriptSequence = saveTranscriptSequence;
-
-    this.saveCompressGZIP = saveCompressGZIP;
-    this.saveCompressBZIP2 = saveCompressBZIP2;
   }
 
 }

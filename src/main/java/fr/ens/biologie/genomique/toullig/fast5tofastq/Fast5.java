@@ -23,7 +23,7 @@ public class Fast5 implements AutoCloseable {
 
   /**
    * Constructor of the Fast5 class.
-   * @param fast5File constructor
+   * @param fast5File a .fast5 file
    */
   public Fast5(File fast5File) {
 
@@ -34,6 +34,28 @@ public class Fast5 implements AutoCloseable {
     this.version = readVersion();
     this.type = readType();
     this.chemistryVersion = readChemistryVersion();
+
+  }
+
+  /**
+   * Constructor of the Fast5 class.
+   * @param fast5File a .fast5 file
+   * @param status the status of the run
+   * @param basecaller the basecaller of the run
+   * @param version the version of the run
+   * @param type the type of the run
+   * @param chemistryVersion the chemistry version of the run
+   */
+  public Fast5(File fast5File, Status status, Basecaller basecaller,
+      Version version, Type type, ChemistryVersion chemistryVersion) {
+
+    this.fast5File = fast5File;
+    this.reader = readFast5File(fast5File);
+    this.status = status;
+    this.basecaller = basecaller;
+    this.version = version;
+    this.type = type;
+    this.chemistryVersion = chemistryVersion;
 
   }
 

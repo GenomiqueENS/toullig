@@ -738,10 +738,6 @@ public class Fast5ToFastq {
    */
   public void execute() throws IOException {
 
-    this.processor = new DirectoryProcessor(repertoryFastqOutput,
-        saveComplementSequence, saveTemplateSequence, saveConsensusSequence,
-        saveTranscriptSequence, saveCompressGZIP, saveCompressBZIP2);
-
     System.out.println("Sampling of a Fast5 file !");
 
     // get a fast5 file
@@ -751,18 +747,25 @@ public class Fast5ToFastq {
 
     try (Fast5 f5 = new Fast5(sampleFast5File)) {
 
-      if (f5.getBasecaller() == Fast5.Basecaller.METRICHOR
-          || f5.getBasecaller() == null) {
+      Fast5.Status status = f5.getStatus();
+      Fast5.Basecaller basecaller = f5.getBasecaller();
+      Fast5.Version version = f5.getVersion();
+      Fast5.Type type = f5.getType();
+      Fast5.ChemistryVersion chemistryVersion = f5.getChemistryVersion();
 
-        this.processor.setMetrichor();
+      this.processor = new DirectoryProcessor(repertoryFastqOutput,
+          saveComplementSequence, saveTemplateSequence, saveConsensusSequence,
+          saveTranscriptSequence, saveCompressGZIP, saveCompressBZIP2, status,
+          basecaller, version, type, chemistryVersion,
+          basecaller == Fast5.Basecaller.METRICHOR);
+
+      if (basecaller == Fast5.Basecaller.METRICHOR || basecaller == null) {
 
         // execution for the basecaller Metrichor classification
         executeBasecallerMetrichor();
       }
 
-      if (f5.getBasecaller() == Fast5.Basecaller.ALBACORE) {
-
-        this.processor.setAlbacore();
+      if (basecaller == Fast5.Basecaller.ALBACORE) {
 
         // execution for the basecaller Metrichor classification
         executeBasecallerAlbacore();
@@ -780,7 +783,7 @@ public class Fast5ToFastq {
    * fastq sequence on fast5 file for the basecaller Metrichor.
    * @throws IOException, test the read of the file
    */
-  public void executeBasecallerMetrichor() throws IOException, ParseException {
+  public void executeBasecallerMetrichor() throws IOException {
 
     // test if the merge of fastq is enable
     if (this.processMergeStatus) {
@@ -864,7 +867,7 @@ public class Fast5ToFastq {
    * fastq sequence on fast5 file for the basecaller Albacore.
    * @throws IOException, test the read of the file
    */
-  public void executeBasecallerAlbacore() throws IOException, ParseException {
+  public void executeBasecallerAlbacore() throws IOException {
 
     // test if the merge of fastq is enable
     if (this.processMergeStatus) {
