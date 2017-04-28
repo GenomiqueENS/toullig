@@ -881,17 +881,9 @@ public class Fast5ToFastq {
     // test if the fail fast5 is to process
     if (this.processFail) {
 
-      // get the list of fail fast5 files
-      int numberFailFast5Files =
-          processDirectory(this.fast5RunDirectory, "fail", this.localReporter);
-
-      // incremente fail fast5 files counter
-      this.localReporter.incrCounter("numberFiles", "numberFailFast5Files",
-          numberFailFast5Files);
-
-      // incremente fast5 files counter
-      this.localReporter.incrCounter("numberFiles", "numberFast5Files",
-          numberFailFast5Files);
+      System.out
+          .println("No fail status available on the Basecaller Albacore ");
+      System.exit(0);
     }
 
     // test if the pass fast5 is to process

@@ -85,10 +85,14 @@ public class Fast5tofastqAction extends AbstractAction {
 
       // Get status
       if (line.hasOption("status")) {
+
         status = line.getOptionValue("status").toLowerCase();
-        if (status.equals("pass")
-            || status.equals("unclassified") || status.equals("fail")) {
+
+        if (status.contains("pass")
+            || status.contains("unclassified") || status.contains("fail")) {
+
         } else {
+
           System.out.println("The status: "
               + status
               + " is incorrect please entry a correct status options (pass|fail|unclassified)");
@@ -98,6 +102,7 @@ public class Fast5tofastqAction extends AbstractAction {
 
       // Get type
       if (line.hasOption("type")) {
+
         type = line.getOptionValue("type").toLowerCase();
       }
       // Get compression format
