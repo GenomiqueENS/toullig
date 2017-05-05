@@ -329,7 +329,7 @@ public class TrimAction extends AbstractAction {
       }
 
       // set the mode Side-Window for processing
-      if (mode.contains("SW")) {
+      if (mode.contains("sw")) {
         trim.setProcessSideWindowTrim();
       }
 

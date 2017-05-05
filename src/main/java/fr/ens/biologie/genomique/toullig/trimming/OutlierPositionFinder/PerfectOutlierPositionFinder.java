@@ -76,6 +76,13 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
         // map
         InformationRead informationRead = this.workTrimmingMap.get(id);
 
+        // case that the SAM file has not succesful read this id (present in
+        // fastq file) read
+        if (informationRead == null) {
+
+          break;
+        }
+
         // set the sequence of the read
         informationRead.sequence = sequence;
 

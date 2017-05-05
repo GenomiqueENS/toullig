@@ -83,6 +83,13 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
         // map
         InformationRead informationRead = this.workTrimmingMap.get(id);
 
+        // case that the SAM file has not succesful read this id (present in
+        // fastq file) read
+        if (informationRead == null) {
+
+          break;
+        }
+
         // set the sequence of the read
         informationRead.sequence = sequence;
 
@@ -163,8 +170,8 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
                 sideWindowsRight(sequenceCigarBinary.toString());
             informationRead.rightLengthOutlier = rightLengthOutlier;
 
-            System.out.println(leftLengthOutlier
-                + "    " + rightLengthOutlier + "     " + sequence.length());
+            // System.out.println(leftLengthOutlier
+            // + " " + rightLengthOutlier + " " + sequence.length());
 
           }
           // reverse complement case
@@ -179,8 +186,8 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
                 sideWindowsRight(sequenceCigarBinary.toString());
             informationRead.leftLengthOutlier = rightLengthOutlier;
 
-            System.out.println(leftLengthOutlier
-                + "    " + rightLengthOutlier + "     " + sequence.length());
+            // System.out.println(leftLengthOutlier
+            // + " " + rightLengthOutlier + " " + sequence.length());
           }
 
           // strand case

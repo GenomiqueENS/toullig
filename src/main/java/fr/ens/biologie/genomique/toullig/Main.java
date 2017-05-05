@@ -1,9 +1,12 @@
 package fr.ens.biologie.genomique.toullig;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import fr.ens.biologie.genomique.eoulsan.Common;
+import fr.ens.biologie.genomique.eoulsan.EoulsanException;
+import fr.ens.biologie.genomique.eoulsan.bio.BadBioEntryException;
 import org.apache.commons.cli.*;
 
 import fr.ens.biologie.genomique.toullig.actions.Fast5tofastqAction;

@@ -1,6 +1,7 @@
 package fr.ens.biologie.genomique.toullig.trimming;
 
 import java.io.*;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -38,6 +39,9 @@ public class TrimFastq implements AutoCloseable {
   private boolean processNoTrimmer = false;
 
   private boolean processStatsCutadapt = false;
+
+  private boolean processSideWindowTrim;
+  private boolean processPerfect;
 
   private int addIndexOutlier = 15;
   private int lengthWindowSideWindow = 15;
@@ -159,32 +163,42 @@ public class TrimFastq implements AutoCloseable {
       // create a hash for multi-mapped read
       HashSet<String> fastqHashMultimapped = new HashSet<>();
 
-      // read sam File
-      for (SAMRecord samRecord : inputSam) {
+      try {
+        // read sam File
+        for (SAMRecord samRecord : inputSam) {
 
-        // Get cigar information
-        String cigar = samRecord.getCigarString();
+          // Get cigar information
+          String cigar = samRecord.getCigarString();
 
-        // Get qFlag information
-        int qFlag = samRecord.getFlags();
+          // Get qFlag information
+          int qFlag = samRecord.getFlags();
 
-        // Get id information
-        String id = samRecord.getReadName();
+          // Get id information
+          String id = samRecord.getReadName();
 
-        // Get cigarLength information
-        int cigarLength = samRecord.getCigarLength();
+          // Get cigarLength information
+          int cigarLength = samRecord.getCigarLength();
 
-        // test if the work Map already contains this id
-        if (this.workTrimmingMap.containsKey(id)) {
+          // test if the work Map already contains this id
+          if (this.workTrimmingMap.containsKey(id)) {
 
-          // add this read to the multi-mapped reads
-          fastqHashMultimapped.add(id);
+            // add this read to the multi-mapped reads
+            fastqHashMultimapped.add(id);
 
-          // get the informationRead of existing read on the work trimming map
-          InformationRead informationRead = this.workTrimmingMap.get(id);
+            // get the informationRead of existing read on the work trimming map
+            InformationRead informationRead = this.workTrimmingMap.get(id);
 
-          // Select the largest alignement for a multi-mapped read
-          if (informationRead.cigarLength <= cigarLength) {
+            // Select the largest alignement for a multi-mapped read
+            if (informationRead.cigarLength <= cigarLength) {
+
+              // add the read to the work Trimming map
+              this.workTrimmingMap.put(id,
+                  new InformationRead(sequence, quality, cigar,
+                      lengthBeginOutlier, lengthEndOutlier, qFlag,
+                      cigarLength));
+            }
+
+          } else {
 
             // add the read to the work Trimming map
             this.workTrimmingMap.put(id,
@@ -192,12 +206,10 @@ public class TrimFastq implements AutoCloseable {
                     lengthBeginOutlier, lengthEndOutlier, qFlag, cigarLength));
           }
 
-        } else {
-
-          // add the read to the work Trimming map
-          this.workTrimmingMap.put(id, new InformationRead(sequence, quality,
-              cigar, lengthBeginOutlier, lengthEndOutlier, qFlag, cigarLength));
         }
+
+      } catch (Exception e) {
+        e.printStackTrace();
       }
 
       System.out.println(
@@ -216,8 +228,8 @@ public class TrimFastq implements AutoCloseable {
    * Method of the class TrimFastq to set the process SW in trim mode.
    */
   public void setProcessSideWindowTrim() {
-    boolean processSideWindowTrim = true;
-    this.processCutadapt = false;
+    this.processSideWindowTrim = true;
+    this.processPerfect = false;
   }
 
   /**
@@ -370,11 +382,8 @@ public class TrimFastq implements AutoCloseable {
     File infoTrimRightFile =
         new File(this.workDir + "/logCutadaptRightOutlier.txt");
 
-    // Set the perfect method on true
-    boolean processPerfectTrim = true;
-
     // test to process the perfect method
-    if (processPerfectTrim) {
+    if (this.processPerfect) {
 
       // call PerfectOutlierPositionFinder constructor
       outlierPositionFinder = new PerfectOutlierPositionFinder(
