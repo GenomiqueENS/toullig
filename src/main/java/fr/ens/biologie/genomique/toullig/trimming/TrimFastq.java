@@ -1,47 +1,41 @@
 package fr.ens.biologie.genomique.toullig.trimming;
 
 import java.io.*;
-import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import fr.ens.biologie.genomique.toullig.trimming.OutlierPositionFinder.OutlierPositionFinder;
-import fr.ens.biologie.genomique.toullig.trimming.OutlierPositionFinder.PerfectOutlierPositionFinder;
-import fr.ens.biologie.genomique.toullig.trimming.OutlierPositionFinder.SideWindowOutlierPositionFinder;
-import fr.ens.biologie.genomique.toullig.trimming.Trimmer.CutadaptTrimmer;
-import fr.ens.biologie.genomique.toullig.trimming.Trimmer.NoTrimmer;
-import fr.ens.biologie.genomique.toullig.trimming.Trimmer.Trimmer;
-import fr.ens.biologie.genomique.toullig.trimming.Trimmer.TrimmomaticTrimmer;
+import fr.ens.biologie.genomique.toullig.trimming.OutlierPositionFinder.OutlierPositionFinderFactory;
+import fr.ens.biologie.genomique.toullig.trimming.Trimmer.*;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamInputResource;
 import htsjdk.samtools.SamReader;
 import htsjdk.samtools.SamReaderFactory;
 
+import static fr.ens.biologie.genomique.eoulsan.EoulsanLogger.getLogger;
+
 /**
  * Class to execute the cutadaptTrimming of ONT read. Created by birer on
  * 24/02/17.
+ * @author Aurelien Birer
  */
-public class TrimFastq implements AutoCloseable {
+public class TrimFastq {
 
-  private final Map<String, InformationRead> workTrimmingMap = new HashMap<>();
   private String adaptorRT;
   private String adaptorStrandSwitching;
 
   private File samFile;
   private File fastqFile;
   private File workDir;
-  private File nameOutputFastq;
+  private File outputFastqFile;
   private File adaptorFile;
 
-  private boolean processCutadapt = true;
-  private boolean processTrimmomatic = false;
-  private boolean processNoTrimmer = false;
+  private String trimmer;
+  private String mode;
 
   private boolean processStatsCutadapt = false;
-
-  private boolean processSideWindowTrim;
-  private boolean processPerfect;
 
   private int addIndexOutlier = 15;
   private int lengthWindowSideWindow = 15;
@@ -56,12 +50,15 @@ public class TrimFastq implements AutoCloseable {
    * @param samFile, a sam File
    * @param fastqFile, a fastq File
    * @param adaptorFile, a adaptor (.txt) File
-   * @param nameOutputFastq, a output fasqt directory
+   * @param outputFastqFile, a output fasqt directory
    * @param workDir, a work directory
+   * @param trimmer, a trimmer to use
+   * @param mode, a outlierpositionfinder to use
    * @throws IOException if an IO error occur
    */
   public TrimFastq(File samFile, File fastqFile, File adaptorFile,
-      File nameOutputFastq, File workDir) throws IOException {
+      File outputFastqFile, File workDir, String trimmer, String mode)
+      throws IOException {
 
     // test if the sam File exist
     if (!samFile.exists()) {
@@ -78,18 +75,18 @@ public class TrimFastq implements AutoCloseable {
     }
 
     // test if the fastq output File exist
-    if (!nameOutputFastq.exists()) {
+    if (!outputFastqFile.exists()) {
       try {
         PrintWriter nameOutputFastqWriter =
-            new PrintWriter(nameOutputFastq.toString(), "UTF-8");
+            new PrintWriter(outputFastqFile.toString(), "UTF-8");
         nameOutputFastqWriter.close();
       } catch (IOException e) {
         e.printStackTrace();
       }
 
-      this.nameOutputFastq = nameOutputFastq;
+      this.outputFastqFile = outputFastqFile;
     } else {
-      this.nameOutputFastq = nameOutputFastq;
+      this.outputFastqFile = outputFastqFile;
     }
 
     // test if the adaptor File exist
@@ -101,10 +98,38 @@ public class TrimFastq implements AutoCloseable {
 
     // test if the working Directory exist
     if (!workDir.exists()) {
+
       throw new IOException("The directory " + workDir + " dont exist!");
+
     } else {
+
       this.workDir = workDir;
     }
+
+    // test if trimmer is null
+    if (trimmer != null) {
+
+      this.trimmer = trimmer;
+
+    } else {
+
+      System.out.println("The trimmer is null !");
+      System.exit(0);
+
+    }
+
+    // test if mode is null
+    if (mode != null) {
+
+      this.mode = mode;
+
+    } else {
+
+      System.out.println("The mode is null !");
+      System.exit(0);
+
+    }
+
   }
 
   //
@@ -149,7 +174,8 @@ public class TrimFastq implements AutoCloseable {
    * CIGAR of a sam file.
    * @param samInputStream, the input stream file sam
    */
-  private void readSamFile(InputStream samInputStream) {
+  private static void readSamFile(InputStream samInputStream,
+      Map<String, InformationRead> workTrimmingMap) {
 
     // opne the sam File
     try (final SamReader inputSam = SamReaderFactory.makeDefault()
@@ -161,9 +187,10 @@ public class TrimFastq implements AutoCloseable {
       String sequence = "";
 
       // create a hash for multi-mapped read
-      HashSet<String> fastqHashMultimapped = new HashSet<>();
+      Set<String> multiMappedReadsSet = null;
 
       try {
+
         // read sam File
         for (SAMRecord samRecord : inputSam) {
 
@@ -180,19 +207,19 @@ public class TrimFastq implements AutoCloseable {
           int cigarLength = samRecord.getCigarLength();
 
           // test if the work Map already contains this id
-          if (this.workTrimmingMap.containsKey(id)) {
+          if (workTrimmingMap.containsKey(id)) {
 
             // add this read to the multi-mapped reads
-            fastqHashMultimapped.add(id);
+            multiMappedReadsSet.add(id);
 
-            // get the informationRead of existing read on the work trimming map
-            InformationRead informationRead = this.workTrimmingMap.get(id);
+            // get the informationRead of existing read on the work trim map
+            InformationRead informationRead = workTrimmingMap.get(id);
 
             // Select the largest alignement for a multi-mapped read
             if (informationRead.cigarLength <= cigarLength) {
 
               // add the read to the work Trimming map
-              this.workTrimmingMap.put(id,
+              workTrimmingMap.put(id,
                   new InformationRead(sequence, quality, cigar,
                       lengthBeginOutlier, lengthEndOutlier, qFlag,
                       cigarLength));
@@ -201,7 +228,7 @@ public class TrimFastq implements AutoCloseable {
           } else {
 
             // add the read to the work Trimming map
-            this.workTrimmingMap.put(id,
+            workTrimmingMap.put(id,
                 new InformationRead(sequence, quality, cigar,
                     lengthBeginOutlier, lengthEndOutlier, qFlag, cigarLength));
           }
@@ -212,59 +239,25 @@ public class TrimFastq implements AutoCloseable {
         e.printStackTrace();
       }
 
-      System.out.println(
-          "Number of multi-mapped reads: " + fastqHashMultimapped.size());
+      if (multiMappedReadsSet != null) {
+
+        getLogger().info(
+            "Number of multi-mapped reads: " + multiMappedReadsSet.size());
+
+      }
+
       inputSam.close();
+
     } catch (IOException e) {
+
       e.printStackTrace();
     }
+
   }
 
   //
   // Set
   //
-
-  /**
-   * Method of the class TrimFastq to set the process SW in trim mode.
-   */
-  public void setProcessSideWindowTrim() {
-    this.processSideWindowTrim = true;
-    this.processPerfect = false;
-  }
-
-  /**
-   * Method of the class TrimFastq to set the process cutadapt.
-   */
-  public void setProcessCutadapt() {
-    this.processTrimmomatic = false;
-    this.processCutadapt = true;
-    this.processNoTrimmer = false;
-  }
-
-  /**
-   * Method of the class TrimFastq to set the process trimmomatic.
-   */
-  public void setProcessTrimmomatic() {
-    this.processTrimmomatic = true;
-    this.processCutadapt = false;
-    this.processNoTrimmer = false;
-  }
-
-  /**
-   * Method of the class TrimFastq to set the process no trimmer.
-   */
-  public void setProcessNoTrimmer() {
-    this.processTrimmomatic = false;
-    this.processCutadapt = false;
-    this.processNoTrimmer = true;
-  }
-
-  /**
-   * Method of the class TrimFastq to set the process stats.
-   */
-  public void setProcessStats() {
-    this.processStatsCutadapt = true;
-  }
 
   /**
    * Method of the class TrimFastq to set the number of bases to add for the
@@ -327,6 +320,10 @@ public class TrimFastq implements AutoCloseable {
     this.simpleClipThreshold = simpleClipThreshold;
   }
 
+  public void setProcessStatsCutadapt(boolean processStatsCutadapt) {
+    this.processStatsCutadapt = processStatsCutadapt;
+  }
+
   //
   // Main execution
   //
@@ -337,7 +334,9 @@ public class TrimFastq implements AutoCloseable {
    */
   public void execution() throws IOException {
 
-    System.out.println("add_index: " + this.addIndexOutlier);
+    Map<String, InformationRead> workTrimmingMap = new HashMap<>();
+
+    getLogger().info("add_index: " + this.addIndexOutlier);
 
     // Declare the left outlier output fasta for cutadapt
     File outputTrimLeftFastaFile =
@@ -355,16 +354,7 @@ public class TrimFastq implements AutoCloseable {
     InputStream samInputStream = new FileInputStream(this.samFile);
 
     // read the sam File
-    readSamFile(samInputStream);
-
-    // read the fastq File
-    // readFastqFile(this.fastqFile);
-
-    // call the OutlierPositionFinder interface
-    OutlierPositionFinder outlierPositionFinder;
-
-    // call the Trimmer interface
-    Trimmer trimmer = null;
+    readSamFile(samInputStream, workTrimmingMap);
 
     // Declare the left outlier fasta for cutadapt
     File fastaLeftOutlierFile =
@@ -374,57 +364,29 @@ public class TrimFastq implements AutoCloseable {
     File fastaRightOutlierFile =
         new File(this.workDir + "/fastaFileRightOutlier.fasta");
 
-    // Declare the left info on trimming for cutadapt
+    // Declare the left info on trim for cutadapt
     File infoTrimLeftFile =
         new File(this.workDir + "/logCutadaptLeftOutlier.txt");
 
-    // Declare the right info on trimming for cutadapt
+    // Declare the right info on trim for cutadapt
     File infoTrimRightFile =
         new File(this.workDir + "/logCutadaptRightOutlier.txt");
 
-    // test to process the perfect method
-    if (this.processPerfect) {
+    // Create the OutlierPositionFinder Object with the correct method to the
+    // OutlierPositionFactory
+    OutlierPositionFinder outlierPositionFinder =
+        OutlierPositionFinderFactory.newOutlierPositionFinder(workTrimmingMap,
+            this.addIndexOutlier, this.fastqFile, this.lengthWindowSideWindow,
+            this.thresholdSideWindow, this.mode);
 
-      // call PerfectOutlierPositionFinder constructor
-      outlierPositionFinder = new PerfectOutlierPositionFinder(
-          this.workTrimmingMap, this.addIndexOutlier, this.fastqFile);
-    } else {
-
-      // call SideWindowOutlierPositionFinder constructor
-      outlierPositionFinder =
-          new SideWindowOutlierPositionFinder(this.lengthWindowSideWindow,
-              this.thresholdSideWindow, this.workTrimmingMap, this.fastqFile);
-    }
-
-    // test to process the cutadapt trimmer
-    if (this.processCutadapt) {
-
-      System.out.println("error rate cutadapt: " + this.errorRateCutadapt);
-
-      // call CutadaptTrimmer constructor
-      trimmer = new CutadaptTrimmer(this.workTrimmingMap, this.nameOutputFastq,
-          outputTrimLeftFastaFile, outputTrimRightFastaFile, this.adaptorRT,
-          this.adaptorStrandSwitching, this.errorRateCutadapt,
-          fastaLeftOutlierFile, fastaRightOutlierFile, infoTrimLeftFile,
-          infoTrimRightFile);
-
-    }
-
-    // test to process the trimmomatic trimmer
-    if (this.processTrimmomatic) {
-
-      // call TrimmomaticTrimmer constructor
-      trimmer = new TrimmomaticTrimmer(this.adaptorFile, this.nameOutputFastq,
-          this.seedMismatchesTrimmomatic,
-          this.palindromeClipThresholdTrimmomatic, this.simpleClipThreshold);
-    }
-
-    // test to process no trimmer
-    if (this.processNoTrimmer) {
-
-      // call NoTrimmer constructor
-      trimmer = new NoTrimmer(this.workTrimmingMap, this.nameOutputFastq);
-    }
+    // Create the Trimmer Object with the correct method to the TrimmerFactory
+    Trimmer trimmer = TrimmerFactory.newTrimmer(workTrimmingMap,
+        this.outputFastqFile, outputTrimLeftFastaFile, outputTrimRightFastaFile,
+        this.adaptorRT, this.adaptorStrandSwitching, this.errorRateCutadapt,
+        fastaLeftOutlierFile, fastaRightOutlierFile, infoTrimLeftFile,
+        infoTrimRightFile, this.adaptorFile, this.seedMismatchesTrimmomatic,
+        this.palindromeClipThresholdTrimmomatic, this.simpleClipThreshold,
+        this.trimmer, this.processStatsCutadapt);
 
     // execute the outlier position finder
     outlierPositionFinder.findOutliers(fastaLeftOutlierFile,
@@ -432,35 +394,8 @@ public class TrimFastq implements AutoCloseable {
 
     // execute the trimming
     if (trimmer != null) {
-      trimmer.trimming();
+      trimmer.trim();
     }
-
-    // test to execute stats for cutadapt trimming
-    if (this.processStatsCutadapt && this.processCutadapt) {
-
-      // call CutadaptTrimmer constructor
-      CutadaptTrimmer trimmingCutadapt = new CutadaptTrimmer(
-          this.workTrimmingMap, this.nameOutputFastq, outputTrimLeftFastaFile,
-          outputTrimRightFastaFile, this.adaptorRT, this.adaptorStrandSwitching,
-          this.errorRateCutadapt, fastaLeftOutlierFile, fastaRightOutlierFile,
-          infoTrimLeftFile, infoTrimRightFile);
-
-      // execute for the left outlier the stats of cutadapt
-      trimmingCutadapt.statsLogCutadapt(infoTrimLeftFile,
-          "Start stat Left outlier");
-
-      // execute for the right outlier the stats of cutadapt
-      trimmingCutadapt.statsLogCutadapt(infoTrimRightFile,
-          "Start stat Right outlier");
-    }
-  }
-
-  /**
-   * Method to close File of the Autoclosable class.
-   * @throws Exception , if an exception occur
-   */
-  @Override
-  public void close() throws Exception {
 
   }
 }

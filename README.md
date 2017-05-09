@@ -1,4 +1,4 @@
-Toullig 0.2-alpha
+Toullig 1.0-alpha
 =======
 
 Toullig is (since January 17 2017) a reader, parser of Fast5 files of ONT (basecalled and not basecalled) and a '.fastq' files writer.

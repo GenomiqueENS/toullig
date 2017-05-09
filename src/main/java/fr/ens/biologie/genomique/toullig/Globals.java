@@ -9,6 +9,10 @@ import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
+/**
+ * Class of Globals variables.
+ * @author Aurelien Birer
+ */
 public class Globals {
 
   private static Attributes manifestAttributes;

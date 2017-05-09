@@ -75,22 +75,11 @@ public class TrimmingFastqONTModule extends AbstractModule {
 
         // call the constructor with the arguments
         TrimFastq trim = new TrimFastq(samFile, fastqFile, adaptorFile,
-            fastqOutputFile, workDir);
-
-        // Set the trimmer at trimmomatic (default: cutadapt)
-        if (this.trimmer.contains("trimmomatic")) {
-          trim.setProcessTrimmomatic();
-        }
-
-        // Set the oultier finder at Side-window method (default: Perfect
-        // method)
-        if (this.mode.contains("SW")) {
-          trim.setProcessSideWindowTrim();
-        }
+            fastqOutputFile, workDir, trimmer, mode);
 
         // Set the stats for cutadapt to display
         if (this.stats) {
-          trim.setProcessStats();
+          trim.setProcessStatsCutadapt(true);
         }
 
         // Set the threshold for Side-Window method

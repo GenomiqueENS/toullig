@@ -3,7 +3,8 @@ package fr.ens.biologie.genomique.toullig.trimming;
 import java.util.Objects;
 
 /**
- * Class of the Working trimming Map Created by birer on 03/04/17.
+ * Class of the Working trim Map Created by birer on 03/04/17.
+ * @author Aurelien Birer
  */
 public class InformationRead {
 
@@ -51,6 +52,7 @@ public class InformationRead {
   }
 
   /**
+   * Method of the InformationRead class to get the fields in string.
    * @return , a string of the InformationRead Object.
    */
   @Override
@@ -58,6 +60,27 @@ public class InformationRead {
     return this.sequence
         + " " + this.quality + " " + this.cigar + " " + this.leftLengthOutlier
         + " " + rightLengthOutlier + " " + qFlag + " " + cigarLength;
+  }
+
+  /**
+   * Method of the InformationRead class to compare InformationRead objects.
+   * @return , a boolean of the InformationRead Object.
+   */
+  public boolean equals(InformationRead informationRead) {
+
+    // test if the hashcode is the same between the two InformationRead object
+    if (informationRead.hashCode() == Objects.hash(this.sequence, this.quality,
+        this.cigar, this.leftLengthOutlier, this.rightLengthOutlier, this.qFlag,
+        this.cigarLength)) {
+
+      return true;
+
+    } else {
+
+      return false;
+
+    }
+
   }
 
 }

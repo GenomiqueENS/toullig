@@ -8,6 +8,7 @@ import fr.ens.biologie.genomique.eoulsan.bio.io.FastaReader;
 import fr.ens.biologie.genomique.eoulsan.bio.io.FastaWriter;
 import fr.ens.biologie.genomique.eoulsan.bio.io.FastqWriter;
 import fr.ens.biologie.genomique.eoulsan.util.LocalReporter;
+import fr.ens.biologie.genomique.toullig.Utils;
 import fr.ens.biologie.genomique.toullig.trimming.InformationRead;
 import fr.ens.biologie.genomique.toullig.trimming.UtilsTrimming;
 
@@ -15,14 +16,16 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import static fr.ens.biologie.genomique.eoulsan.EoulsanLogger.getLogger;
 import static fr.ens.biologie.genomique.eoulsan.bio.Alphabets.AMBIGUOUS_DNA_ALPHABET;
 import static fr.ens.biologie.genomique.eoulsan.bio.Sequence.reverseComplement;
 import static fr.ens.biologie.genomique.toullig.Utils.complement;
 
 /**
  * Class to execute the Cutadapt trimmer. Created by birer on 27/03/17.
+ * @author Aurelien Birer
  */
-public class CutadaptTrimmer implements Trimmer {
+class CutadaptTrimmer implements Trimmer {
 
   private final Map<String, InformationRead> workTrimmingMap;
   private final File nameOutputFastq;
@@ -40,9 +43,6 @@ public class CutadaptTrimmer implements Trimmer {
   private final File fastaLeftOutlierFile;
   private final File fastaRightOutlierFile;
 
-  private FastaWriter leftFastaWriter;
-  private FastaWriter rightFastaWriter;
-
   /**
    * Constructor of the CutadaptTrimmer class
    * @param workTrimmingMap, a Map of working information
@@ -59,7 +59,7 @@ public class CutadaptTrimmer implements Trimmer {
    * @param infoTrimRightFile, a File of the right information give by cutadapt
    * @throws IOException, an IOException if an error occur
    */
-  public CutadaptTrimmer(Map<String, InformationRead> workTrimmingMap,
+  CutadaptTrimmer(Map<String, InformationRead> workTrimmingMap,
       File outputFastqFile, File outputTrimLeftFastaFile,
       File outputTrimRightFastaFile, String adaptorRetroTranscritpion,
       String adaptorStrandSwitching, double errorRateCutadapt,
@@ -78,9 +78,55 @@ public class CutadaptTrimmer implements Trimmer {
     this.fastaLeftOutlierFile = fastaLeftOutlierFile;
     this.fastaRightOutlierFile = fastaRightOutlierFile;
 
-    this.leftFastaWriter = new FastaWriter(fastaLeftOutlierFile);
-    this.rightFastaWriter = new FastaWriter(fastaRightOutlierFile);
+  }
 
+  /**
+   * Method of the CutadaptTrimmer class to read a Cutadapt fasta output.
+   * @param outputTrimFastaFile, a fasta output of cutadapt
+   * @param fastaHash, a HashMap
+   * @return , a HashMap
+   */
+  private HashMap<String, String> FastaReaderForCutadapt(
+      File outputTrimFastaFile, HashMap<String, String> fastaHash) {
+
+    // test if the output left fasta file is correctly open
+    try (FastaReader reader = new FastaReader(outputTrimFastaFile)) {
+
+      // get each read in the output
+      for (final Sequence read : reader) {
+        fastaHash.put(read.getName(), read.getSequence());
+      }
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    return fastaHash;
+  }
+
+  /**
+   * Method of the class CutadapatTrimmer to get the outlier sequence.
+   * @param fastaLeftHash, a fastaLeftHash with all outliers sequence
+   * @param id, the id to the interest sequence
+   * @return , the sequence of the outlier trim
+   */
+  public String lengthSequence(HashMap<String, String> fastaLeftHash,
+      String id) {
+
+    String lengthSequence;
+
+    // test if the local left hash contains this id read
+    if (fastaLeftHash.containsKey(id)) {
+      lengthSequence = "";
+    } else {
+      lengthSequence = fastaLeftHash.get(id);
+    }
+
+    // test if the sequence is null and put it empty if it's null for the
+    // left outlier
+    lengthSequence = Strings.nullToEmpty(lengthSequence);
+
+    return lengthSequence;
   }
 
   //
@@ -91,7 +137,7 @@ public class CutadaptTrimmer implements Trimmer {
    * Method of the class CutadaptTrimmer to merge the results of cutadapt with
    * the trim sequence.
    */
-  public void mergeTrimOutlier() {
+  private void mergeTrimOutlier() {
 
     HashMap<String, String> fastaLeftHash = new HashMap<>();
     HashMap<String, String> fastaRightHash = new HashMap<>();
@@ -105,35 +151,16 @@ public class CutadaptTrimmer implements Trimmer {
     // Read of the outliers fastas outputs by cutadapt
     //
 
-    // test if the output left fasta file is correctly open
-    try (FastaReader reader = new FastaReader(this.outputTrimLeftFastaFile)) {
-
-      // get each read in the output
-      for (final Sequence read : reader) {
-        fastaLeftHash.put(read.getName(), read.getSequence());
-      }
-
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
-    // test if the output left fasta file is correctly open
-    try (FastaReader reader = new FastaReader(this.outputTrimRightFastaFile)) {
-
-      // get each read in the output
-      for (final Sequence read : reader) {
-        fastaRightHash.put(read.getName(), read.getSequence());
-      }
-
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    fastaLeftHash =
+        FastaReaderForCutadapt(this.outputTrimLeftFastaFile, fastaLeftHash);
+    fastaRightHash =
+        FastaReaderForCutadapt(this.outputTrimRightFastaFile, fastaRightHash);
 
     //
     // Start merging
     //
 
-    System.out.println("Start of merging sequence !");
+    getLogger().info("Start of merging sequence !");
 
     // test if the output left fasta file is correctly open
     try (BufferedWriter fastqTrimFile =
@@ -143,8 +170,6 @@ public class CutadaptTrimmer implements Trimmer {
       for (String id : this.workTrimmingMap.keySet()) {
 
         i++;
-        String leftSequence;
-        String rightSequence;
 
         // get information for the read
         InformationRead informationRead = this.workTrimmingMap.get(id);
@@ -169,34 +194,20 @@ public class CutadaptTrimmer implements Trimmer {
 
           String mainSequenceWithoutOutlier = "";
 
-          // test if the trimming sequence and strictly inferior to the length
+          // test if the trim sequence and strictly inferior to the length
           // of the sequence
           if ((leftLengthOutlier + rightLengthOutlier) < sequence.length()) {
+
             mainSequenceWithoutOutlier = sequence.substring(leftLengthOutlier,
                 sequence.length() - rightLengthOutlier);
+
           }
 
-          // test if the local left hash contains this id read
-          if (fastaLeftHash.containsKey(id)) {
-            leftSequence = "";
-          } else {
-            leftSequence = fastaLeftHash.get(id);
-          }
+          // get the left sequence outlier trimmed
+          String leftSequence = lengthSequence(fastaLeftHash, id);
 
-          // test if the local right hash contains this id read
-          if (fastaRightHash.containsKey(id)) {
-            rightSequence = "";
-          } else {
-            rightSequence = fastaRightHash.get(id);
-          }
-
-          // test if the sequence is null and put it empty if it's null for the
-          // left outlier
-          leftSequence = Strings.nullToEmpty(leftSequence);
-
-          // test if the sequence is null and put it empty if it's null for the
-          // right outlier
-          rightSequence = Strings.nullToEmpty(rightSequence);
+          // get the right sequence outlier trimmed
+          String rightSequence = lengthSequence(fastaRightHash, id);
 
           //
           // get the length of the trim outlier sequence
@@ -273,10 +284,10 @@ public class CutadaptTrimmer implements Trimmer {
       e.printStackTrace();
     }
 
-    System.out.println(
-        "The shortest read size is: " + shortestFastqSequence.length());
-    System.out.println("Number of trim read write: " + countWritten);
-    System.out.println("Number of trim read null: " + countNull);
+    getLogger()
+        .info("The shortest read size is: " + shortestFastqSequence.length());
+    getLogger().info("Number of trim read write: " + countWritten);
+    getLogger().info("Number of trim read null: " + countNull);
   }
 
   //
@@ -290,7 +301,7 @@ public class CutadaptTrimmer implements Trimmer {
    * @param infoTrimFile, path to the output log of cutadapt
    * @param pathOutputTrimFasta, path to the output of cutadapt
    */
-  public void cutadaptTrimming(File fastaOutlierFile, String strand,
+  private void cutadaptTrimming(File fastaOutlierFile, String strand,
       File infoTrimFile, File pathOutputTrimFasta) {
 
     // test if the follow code execute correctly
@@ -299,6 +310,7 @@ public class CutadaptTrimmer implements Trimmer {
       String reverseComplementAdaptorRT = strand
           + " reverse_complement_RT_adaptor="
           + reverseComplement(this.adaptorRetroTranscritpion, this.alphabet);
+
       String reverseComplementAdaptorSwithStrand = strand
           + " reverse_complement_Switch_Strand_RT_adaptor="
           + reverseComplement(this.adaptorStrandSwitching, this.alphabet);
@@ -306,23 +318,22 @@ public class CutadaptTrimmer implements Trimmer {
       String complementAdaptorRT = strand
           + " complement_RT_adaptor="
           + complement(this.adaptorRetroTranscritpion, this.alphabet);
+
       String complementAdaptorSwithStrand = strand
           + " complement_Switch_Strand_RT_adaptor="
           + complement(this.adaptorStrandSwitching, this.alphabet);
 
-      StringBuilder reverseAdaptorRTStringBuffer =
-          new StringBuilder(this.adaptorRetroTranscritpion);
-      StringBuilder reverseAdaptorSwithStrandStringBuffer =
-          new StringBuilder(this.adaptorStrandSwitching);
       String reverseAdaptorRT = strand
           + " reverse_RT_adaptor="
-          + reverseAdaptorRTStringBuffer.reverse().toString();
+          + Utils.reverse(this.adaptorRetroTranscritpion);
+
       String reverseAdaptorSwithStrand = strand
           + " reverse_Switch_Strand_RT_adaptor="
-          + reverseAdaptorSwithStrandStringBuffer.reverse().toString();
+          + Utils.reverse(this.adaptorStrandSwitching);
 
       String adaptorRT =
           strand + " RT_adaptor=" + this.adaptorRetroTranscritpion;
+
       String adaptorStrandSwitching =
           strand + " Switch_Strand_RT_adaptor=" + this.adaptorStrandSwitching;
 
@@ -395,8 +406,7 @@ public class CutadaptTrimmer implements Trimmer {
    * @param infoTrimFile, a path to store stats in a file
    * @throws IOException if an IO error occur
    */
-  public void statsLogCutadapt(File infoTrimFile, String header)
-      throws IOException {
+  void statsLogCutadapt(File infoTrimFile, String header) throws IOException {
 
     // create new localReporter object
     LocalReporter localReporterNumberTimesAdaptor = new LocalReporter();
@@ -481,22 +491,29 @@ public class CutadaptTrimmer implements Trimmer {
     // Analyze counter group Construction
     //
 
-    FileWriter writerStat = new FileWriter(this.nameOutputFastq.getParent()
-        + "/differents_constructions_of_RT_adaptor_on_outliers.txt");
+    try {
 
-    writerStat.write(header + "\n\n");
+      FileWriter writerStat = new FileWriter(this.nameOutputFastq.getParent()
+          + "/differents_constructions_of_RT_adaptor_on_outliers.txt");
 
-    // get all adaptor construction in the localReporterNumberTimesAdaptor
-    // object
-    for (String constructionAdaptor : localReporterNumberTimesAdaptor
-        .getCounterNames("Construction")) {
-      writerStat.write(constructionAdaptor
-          + " :  " + localReporterNumberTimesAdaptor
-              .getCounterValue("Construction", constructionAdaptor)
-          + "\n");
+      writerStat.write(header + "\n\n");
+
+      // get all adaptor construction in the localReporterNumberTimesAdaptor
+      // object
+      for (String constructionAdaptor : localReporterNumberTimesAdaptor
+          .getCounterNames("Construction")) {
+        writerStat.write(constructionAdaptor
+            + " :  " + localReporterNumberTimesAdaptor
+                .getCounterValue("Construction", constructionAdaptor)
+            + "\n");
+      }
+
+      writerStat.close();
+
+    } catch (Exception e) {
+
+      e.printStackTrace();
     }
-
-    writerStat.close();
 
   }
 
@@ -505,26 +522,27 @@ public class CutadaptTrimmer implements Trimmer {
   //
 
   /**
-   * Method of the class CutadaptTrimmer to trimming with the Trimmer interface.
+   * Method of the class CutadaptTrimmer to trim with the Trimmer interface.
    * @param leftLengthOutlier , the length of the left outlier
    * @param rightLengthOutlier , the length of the left outlier
    * @param sequence, the sequence of the read
    * @param id , the id of the read
    * @param quality , the quality of the read
    */
-  public void preProcessTrimming(int leftLengthOutlier, int rightLengthOutlier,
-      String sequence, String id, String quality) {
+  public void preProcessSequence(int leftLengthOutlier, int rightLengthOutlier,
+      String sequence, String id, String quality) throws IOException {
 
     // write outliers in a fasta file
     UtilsTrimming.writeOutliers(leftLengthOutlier, rightLengthOutlier, sequence,
-        id, this.leftFastaWriter, this.rightFastaWriter);
+        id, new FastaWriter(fastaLeftOutlierFile),
+        new FastaWriter(fastaRightOutlierFile));
 
   }
 
   /**
-   * Method of the class CutadaptTrimmer to trimming with the Trimmer interface
+   * Method of the class CutadaptTrimmer to trim with the Trimmer interface
    */
-  public void trimming() {
+  public void trim() {
 
     System.out.println("Begin use cutadapt !");
 

@@ -1,12 +1,9 @@
 package fr.ens.biologie.genomique.toullig;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import fr.ens.biologie.genomique.eoulsan.Common;
-import fr.ens.biologie.genomique.eoulsan.EoulsanException;
-import fr.ens.biologie.genomique.eoulsan.bio.BadBioEntryException;
 import org.apache.commons.cli.*;
 
 import fr.ens.biologie.genomique.toullig.actions.Fast5tofastqAction;
@@ -14,18 +11,9 @@ import fr.ens.biologie.genomique.toullig.actions.TrimAction;
 
 /**
  * Main class of nanoporetools
- * @author birer
+ * @author Aurelien Birer
  */
-abstract class Main {
-
-  /**
-   * Exit the application.
-   * @param exitCode exit code
-   */
-  private static void exit(final int exitCode) {
-
-    System.exit(exitCode);
-  }
+public class Main {
 
   /**
    * Show a message and then exit.
@@ -34,7 +22,7 @@ abstract class Main {
   public static void showErrorMessageAndExit(final String message) {
 
     System.err.println(message);
-    exit(1);
+    System.exit(1);
   }
 
   /**
@@ -44,7 +32,7 @@ abstract class Main {
   public static void showMessageAndExit(final String message) {
 
     System.out.println(message);
-    exit(0);
+    System.exit(0);
   }
 
   /**
@@ -170,6 +158,6 @@ abstract class Main {
     // Show help message
     System.out.println(Globals.HELP_TXT);
 
-    exit(0);
+    System.exit(0);
   }
 }

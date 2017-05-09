@@ -12,7 +12,7 @@ import java.util.*;
  * This class make Log files.
  * @author Aurelien Birer
  */
-public class Fast5ToFastqLogger {
+public class Fast5ToFastqReporter {
 
   private final List<String> listWriteSequenceLog = new ArrayList<>();
   private final List<String> listWorkflowStatusLog = new ArrayList<>();
@@ -25,12 +25,12 @@ public class Fast5ToFastqLogger {
   private Writer logWorkflowWriter;
 
   /**
-   * Constructor of the Fast5ToFastqLogger class.
+   * Constructor of the Fast5ToFastqReporter class.
    * @param runConversionFastq, the run directory of fast5
    * @param fastqDir, the output directory of fastq
    * @throws IOException if an IO error occur
    */
-  public Fast5ToFastqLogger(Fast5ToFastq runConversionFastq, File fastqDir)
+  public Fast5ToFastqReporter(Fast5ToFastq runConversionFastq, File fastqDir)
       throws IOException {
 
     // get the localReporter of the run of fast5tofastq
@@ -134,17 +134,17 @@ public class Fast5ToFastqLogger {
   private List<String> getListLog() {
     List<String> listLog = new ArrayList<>();
     listLog.add("Input fast5 files read: "
-        + this.f5.getNumberFast5Files(this.localReporter));
+        + Fast5ToFastq.getNumberFast5Files(this.localReporter));
     listLog.add("Input corrupt files: "
-        + this.f5.getNumberCorruptFast5Files(this.localReporter));
+        + Fast5ToFastq.getNumberCorruptFast5Files(this.localReporter));
     listLog.add("Input calibrate strand files read: "
-        + this.f5.getNumberCalibrateStrandFast5Files(this.localReporter));
+        + Fast5ToFastq.getNumberCalibrateStrandFast5Files(this.localReporter));
     listLog.add("Input unclassified files read: "
-        + this.f5.getNumberUnclassifiedFast5Files(this.localReporter));
+        + Fast5ToFastq.getNumberUnclassifiedFast5Files(this.localReporter));
     listLog.add("Input fail files read: "
-        + this.f5.getNumberFailFast5Files(this.localReporter));
+        + Fast5ToFastq.getNumberFailFast5Files(this.localReporter));
     listLog.add("Input pass files read: "
-        + this.f5.getNumberPassFast5Files(this.localReporter));
+        + Fast5ToFastq.getNumberPassFast5Files(this.localReporter));
 
     // add to the list log the write file per type
     listLog.addAll(this.listWriteSequenceLog);

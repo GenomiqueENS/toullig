@@ -11,9 +11,12 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static fr.ens.biologie.genomique.eoulsan.EoulsanLogger.getLogger;
+
 /**
  * Class to execute the SideWindow method to find outliers. Created by birer on
  * 29/03/17.
+ * @author Aurelien Birer
  */
 public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
 
@@ -36,8 +39,35 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
 
     this.lengthWindowsSideWindow = lengthWindowsSideWindow;
     this.thresholdSideWindow = thresholdSideWindow;
-    this.workTrimmingMap = workTrimmingMap;
-    this.fastqFile = fastqFile;
+
+    // test if the workTrimmingMap Hash is null
+    if (workTrimmingMap != null) {
+
+      this.workTrimmingMap = workTrimmingMap;
+
+    } else {
+
+      getLogger().info(
+          "Work Trimming Hash is null ! Critical error, contact developpers !");
+      this.workTrimmingMap = null;
+      System.exit(0);
+
+    }
+
+    // test if the fastqFile File is null
+    if (fastqFile != null) {
+
+      this.fastqFile = fastqFile;
+
+    } else {
+
+      getLogger()
+          .info("Fastq File is null ! Critical error, contact developpers !");
+      this.fastqFile = null;
+      System.exit(0);
+
+    }
+
   }
 
   /**
@@ -49,6 +79,22 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
    */
   public void findOutliers(File fastaLeftOutlierFile,
       File fastaRightOutlierFile, Trimmer trimmer) {
+
+    // test if the fasta left file is correct
+    if (!fastaLeftOutlierFile.isFile()) {
+
+      getLogger().info("Left Fasta File is null or dont exist !");
+      System.exit(0);
+
+    }
+
+    // test if the fasta left file is correct
+    if (!fastaRightOutlierFile.isFile()) {
+
+      getLogger().info("Right Fasta File is null or dont exist !");
+      System.exit(0);
+
+    }
 
     // pattern to have one Cigar Code
     Pattern oneCodeCigarPattern = Pattern.compile("(([0-9]*[A-Z]).*)");
@@ -67,11 +113,8 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
         // get header
         String header = read.getName();
 
-        // split header for get id
-        String[] part = header.split(" ");
-
         // get id
-        String id = part[0];
+        String id = header.substring(0, header.indexOf(" "));
 
         // get sequence
         String sequence = read.getSequence();
@@ -79,7 +122,7 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
         // get quality
         String quality = read.getQuality();
 
-        // get the information read of the id corresponding in the work trimming
+        // get the information read of the id corresponding in the work trim
         // map
         InformationRead informationRead = this.workTrimmingMap.get(id);
 
@@ -193,16 +236,16 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
           // strand case
           if (qFlag == 0) {
 
-            // pre-process trimming
-            trimmer.preProcessTrimming(leftLengthOutlier, rightLengthOutlier,
+            // pre-process trim
+            trimmer.preProcessSequence(leftLengthOutlier, rightLengthOutlier,
                 sequence, id, quality);
 
           }
           // reverse complement case
           else {
 
-            // pre-process trimming
-            trimmer.preProcessTrimming(rightLengthOutlier, leftLengthOutlier,
+            // pre-process trim
+            trimmer.preProcessSequence(rightLengthOutlier, leftLengthOutlier,
                 sequence, id, quality);
           }
         }

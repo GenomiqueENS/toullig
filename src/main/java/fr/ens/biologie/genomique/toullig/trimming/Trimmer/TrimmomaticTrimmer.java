@@ -16,10 +16,11 @@ import static fr.ens.biologie.genomique.toullig.trimming.UtilsTrimming.*;
 
 /**
  * Class to execute the Trimmomatic trimmer. Created by birer on 27/03/17.
+ * @author Aurelien Birer
  */
 public class TrimmomaticTrimmer implements Trimmer {
 
-  private org.usadellab.trimmomatic.trim.Trimmer trimer;
+  private static org.usadellab.trimmomatic.trim.Trimmer trimmer;
   private final File nameOutputFastq;
 
   public TrimmomaticTrimmer(File adaptorFile, File nameOutputFastq,
@@ -36,8 +37,8 @@ public class TrimmomaticTrimmer implements Trimmer {
       // create the logger for trimmomatic
       Logger logger = new Logger(true, true, true);
 
-      // create the trimer for trimmomatic
-      this.trimer = IlluminaClippingTrimmer.makeIlluminaClippingTrimmer(logger,
+      // create the trimmer for trimmomatic
+      this.trimmer = IlluminaClippingTrimmer.makeIlluminaClippingTrimmer(logger,
           adaptorFile.getPath()
               + ":" + seedMismatchesTrimmomatic + ":"
               + palindromeClipThresholdTrimmomatic + ":" + simpleClipThreshold);
@@ -52,15 +53,14 @@ public class TrimmomaticTrimmer implements Trimmer {
   //
 
   /**
-   * Method of the class TrimmomaticTrimmer to trimming with the Trimmer
-   * interface.
+   * Method of the class TrimmomaticTrimmer to trim with the Trimmer interface.
    * @param leftLengthOutlier , the length of the left outlier
    * @param rightLengthOutlier , the length of the left outlier
    * @param sequence, the sequence of the read
    * @param id , the id of the read
    * @param quality , the quality of the read
    */
-  public void preProcessTrimming(int leftLengthOutlier, int rightLengthOutlier,
+  public void preProcessSequence(int leftLengthOutlier, int rightLengthOutlier,
       String sequence, String id, String quality) {
 
     // execute the open of the output fastq file
@@ -135,8 +135,11 @@ public class TrimmomaticTrimmer implements Trimmer {
       fastq.setName(id);
       fastq.setSequence(sequenceTrimmed);
       fastq.setQuality(qualityTrimmed);
+
       FastqWriter fastqWriter = new FastqWriter(fastqOutputFile);
       fastqWriter.write(fastq);
+      fastqWriter.close();
+
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -144,26 +147,25 @@ public class TrimmomaticTrimmer implements Trimmer {
 
   /**
    * Method of the class TrimmomaticTrimmer to trim a sequence with trimmomatic.
-   * @return , a string
+   * @return , a sequence trimmed in string format
    */
   String trimmingTrimmomatic(String sequence, String quality) {
 
     // get basic information of the read
     FastqRecord record = new FastqRecord("name", sequence, "", quality, 33);
 
-    // trimming with trimmomatic
+    // trim with trimmomatic
     FastqRecord[] result =
-        this.trimer.processRecords(new FastqRecord[] {record});
+        this.trimmer.processRecords(new FastqRecord[] {record});
 
     // return the trimmed sequence
     return result[0].getSequence();
   }
 
   /**
-   * Method of the class TrimmomaticTrimmer to trimming with the Trimmer
-   * interface
+   * Method of the class TrimmomaticTrimmer to trim with the Trimmer interface
    */
-  public void trimming() {
+  public void trim() {
   }
 
 }

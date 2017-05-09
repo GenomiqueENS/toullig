@@ -4,7 +4,7 @@
 
     <groupId>fr.ens.biologie.genomique</groupId>
     <artifactId>toullig</artifactId>
-    <version>0.2-alpha</version>
+    <version>1.0-alpha</version>
     <packaging>jar</packaging>
 
     <name>Toullig</name>

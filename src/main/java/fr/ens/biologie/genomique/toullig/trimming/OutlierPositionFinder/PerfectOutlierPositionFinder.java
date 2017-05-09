@@ -9,9 +9,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import static fr.ens.biologie.genomique.eoulsan.EoulsanLogger.getLogger;
+
 /**
  * Class to execute the PerfectOutlierPositionFinder class to find outliers
  * Created by birer on 29/03/17.
+ * @author Aurelien Birer
  */
 public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
 
@@ -28,9 +31,35 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
       Map<String, InformationRead> workTrimmingMap, int addIndexOutlier,
       File fastqFile) {
 
-    this.workTrimmingMap = workTrimmingMap;
+    // test if the workTrimmingMap Hash is null
+    if (workTrimmingMap != null) {
+
+      this.workTrimmingMap = workTrimmingMap;
+
+    } else {
+
+      getLogger().info(
+          "Work Trimming Hash is null ! Critical error, contact developpers !");
+      this.workTrimmingMap = null;
+      System.exit(0);
+
+    }
+
     this.addIndexOutlier = addIndexOutlier;
-    this.fastqFile = fastqFile;
+
+    // test if the fastqFile File is null
+    if (fastqFile != null) {
+
+      this.fastqFile = fastqFile;
+
+    } else {
+
+      getLogger()
+          .info("Fastq File is null ! Critical error, contact developpers !");
+      this.fastqFile = null;
+      System.exit(0);
+
+    }
   }
 
   /**
@@ -51,6 +80,22 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
     int countQFlag0 = 0;
     int countQFlag4 = 0;
 
+    // test if the fasta left file is correct
+    if (!fastaLeftOutlierFile.isFile() || fastaLeftOutlierFile == null) {
+
+      getLogger().info("Left Fasta File is null or dont exist !");
+      System.exit(0);
+
+    }
+
+    // test if the fasta left file is correct
+    if (!fastaRightOutlierFile.isFile() || fastaRightOutlierFile == null) {
+
+      getLogger().info("Right Fasta File is null or dont exist !");
+      System.exit(0);
+
+    }
+
     // open the fastq File
     try (FastqReader reader = new FastqReader(this.fastqFile)) {
 
@@ -60,11 +105,8 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
         // get header
         String header = read.getName();
 
-        // split header for get id
-        String[] part = header.split(" ");
-
         // get id
-        String id = part[0];
+        String id = header.substring(0, header.indexOf(" "));
 
         // get sequence
         String sequence = read.getSequence();
@@ -72,7 +114,7 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
         // get quality
         String quality = read.getQuality();
 
-        // get the information read of the id corresponding in the work trimming
+        // get the information read of the id corresponding in the work trim
         // map
         InformationRead informationRead = this.workTrimmingMap.get(id);
 
@@ -180,16 +222,16 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
           // strand case
           if (qFlag == 0) {
 
-            // pre-process trimming
-            trimmer.preProcessTrimming(leftLengthOutlier, rightLengthOutlier,
+            // pre-process trim
+            trimmer.preProcessSequence(leftLengthOutlier, rightLengthOutlier,
                 sequence, id, quality);
 
           }
           // reverse complement case
           else {
 
-            // pre-process trimming
-            trimmer.preProcessTrimming(rightLengthOutlier, leftLengthOutlier,
+            // pre-process trim
+            trimmer.preProcessSequence(rightLengthOutlier, leftLengthOutlier,
                 sequence, id, quality);
           }
 
@@ -222,15 +264,13 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
     // Display information on the Perfect Outlier Position finder
     //
 
-    System.out.println("Number of reads in SAM File: " + countSamReads);
-    System.out
-        .println("Number of CIGAR code find (not '*'): " + countCigarReads);
-    System.out.println("Number of QFlag '16': " + countQFlag16);
-    System.out.println("Number of QFlag '0': " + countQFlag0);
-    System.out.println("Number of QFlag '4': " + countQFlag4);
-    System.out.println("Number of left Outlier find: " + countLeftOutlierFind);
-    System.out
-        .println("Number of right Outlier find: " + countRightOutlierFind);
+    getLogger().info("Number of reads in SAM File: " + countSamReads);
+    getLogger().info("Number of CIGAR code find (not '*'): " + countCigarReads);
+    getLogger().info("Number of QFlag '16': " + countQFlag16);
+    getLogger().info("Number of QFlag '0': " + countQFlag0);
+    getLogger().info("Number of QFlag '4': " + countQFlag4);
+    getLogger().info("Number of left Outlier find: " + countLeftOutlierFind);
+    getLogger().info("Number of right Outlier find: " + countRightOutlierFind);
 
   }
 }

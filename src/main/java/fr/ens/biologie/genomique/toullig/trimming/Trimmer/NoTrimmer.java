@@ -10,8 +10,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 
+import static fr.ens.biologie.genomique.eoulsan.EoulsanLogger.getLogger;
+
 /**
- * Class of NoTrimmer
+ * Class of NoTrimmer method to dont trim sequence
+ * @author Aurelien Birer
  */
 public class NoTrimmer implements Trimmer {
 
@@ -44,6 +47,9 @@ public class NoTrimmer implements Trimmer {
     try (BufferedWriter fastqTrimFile =
         new BufferedWriter(new FileWriter(this.nameOutputFastq))) {
 
+      // write the trimmed read
+      FastqWriter fastqWriter = new FastqWriter(fastqTrimFile);
+
       // get id for each red on the work map
       for (String id : this.workTrimmingMap.keySet()) {
 
@@ -51,10 +57,6 @@ public class NoTrimmer implements Trimmer {
 
         // get information for the read
         InformationRead informationRead = this.workTrimmingMap.get(id);
-
-        if (id.equals("c485d66b-a618-47ca-9e49-6638b1c57cf5_Basecall_2D_2d")) {
-          System.out.println(informationRead);
-        }
 
         String cigar = informationRead.cigar;
         String quality = informationRead.quality;
@@ -77,49 +79,48 @@ public class NoTrimmer implements Trimmer {
 
           String mainSequenceWithoutOutlier = "";
 
-          String sequenceTrim = "";
-          String qualityTrim = "";
+          String trimmedSequence = "";
+          String trimmedQuality = "";
 
           // test if the rightlengthsequence and the leftlengthsequence are
           // overlap
           if ((sequence.length() - rightLengthOutlier) > leftLengthOutlier) {
-            sequenceTrim = sequence.substring(leftLengthOutlier,
+            trimmedSequence = sequence.substring(leftLengthOutlier,
                 sequence.length() - rightLengthOutlier);
-            qualityTrim = quality.substring(leftLengthOutlier,
+            trimmedQuality = quality.substring(leftLengthOutlier,
                 quality.length() - rightLengthOutlier);
           }
 
           // test if the quality length is differerent to the sequence length
-          if (qualityTrim.length() != sequenceTrim.length()) {
-            System.out.println("problem :  "
-                + qualityTrim.length() + "     " + sequenceTrim.length() + "   "
-                + mainSequenceWithoutOutlier.length());
-            System.out.println(leftLengthOutlier
+          if (trimmedQuality.length() != trimmedSequence.length()) {
+            getLogger().info("problem :  "
+                + trimmedQuality.length() + "     " + trimmedSequence.length()
+                + "   " + mainSequenceWithoutOutlier.length());
+            getLogger().info(leftLengthOutlier
                 + "     " + rightLengthOutlier + "     " + id);
           }
 
           // test if the sequence trimmed is empty
-          if (!sequenceTrim.isEmpty()) {
+          if (!trimmedSequence.isEmpty()) {
 
             ReadSequence fastq = new ReadSequence();
             fastq.setName(id);
-            fastq.setSequence(sequenceTrim);
-            fastq.setQuality(qualityTrim);
+            fastq.setSequence(trimmedSequence);
+            fastq.setQuality(trimmedQuality);
 
-            // write the trimmed read
-            FastqWriter fastqWriter = new FastqWriter(fastqTrimFile);
+            // writer the fastq read
             fastqWriter.write(fastq);
 
             countWritten++;
 
             // test for the first loop
             if (i == 1) {
-              shortestFastqSequence = sequenceTrim;
+              shortestFastqSequence = trimmedSequence;
             }
 
             // test if a new shortest read is comput in this loop
-            if (shortestFastqSequence.length() >= sequenceTrim.length()) {
-              shortestFastqSequence = sequenceTrim;
+            if (shortestFastqSequence.length() >= trimmedSequence.length()) {
+              shortestFastqSequence = trimmedSequence;
             }
 
           } else {
@@ -127,28 +128,32 @@ public class NoTrimmer implements Trimmer {
           }
         }
       }
+
+      // close the writer
+      fastqTrimFile.close();
+
     } catch (IOException e) {
       e.printStackTrace();
     }
 
-    System.out.println(
-        "The shortest read size is: " + shortestFastqSequence.length());
-    System.out.println("Number of trim read write: " + countWritten);
-    System.out.println("Number of trim read null: " + countNull);
+    getLogger()
+        .info("The shortest read size is: " + shortestFastqSequence.length());
+    getLogger().info("Number of trim read write: " + countWritten);
+    getLogger().info("Number of trim read null: " + countNull);
 
   }
 
   // No preprocessTrimming are require
   @Override
-  public void preProcessTrimming(int leftLengthOutlier, int rightLengthOutlier,
+  public void preProcessSequence(int leftLengthOutlier, int rightLengthOutlier,
       String sequence, String id, String quality) {
 
   }
 
   /**
-   * Method of the class NoTrimmer to trimming with the Trimmer interface
+   * Method of the class NoTrimmer to trim with the Trimmer interface
    */
-  public void trimming() {
+  public void trim() {
 
     // execute the writting of the sequence.
     writeSequenceWithNoOutlier();

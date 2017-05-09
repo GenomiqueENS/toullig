@@ -6,6 +6,7 @@ import static fr.ens.biologie.genomique.eoulsan.bio.Sequence.reverseComplement;
 
 /**
  * Class of Utils methods. Created by birer on 27/03/17.
+ * @author Aurelien Birer
  */
 public class Utils {
 

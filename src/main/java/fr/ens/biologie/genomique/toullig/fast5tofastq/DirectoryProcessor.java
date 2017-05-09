@@ -9,17 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
+import static fr.ens.biologie.genomique.eoulsan.EoulsanLogger.getLogger;
+
 /**
  * This class allow to process all the FAST5 files of a directory.
+ * @author Aurelien Birer
  */
-public class DirectoryProcessor {
+class DirectoryProcessor {
 
   private final boolean saveComplementSequence;
   private final boolean saveTemplateSequence;
   private final boolean saveConsensusSequence;
   private final boolean saveTranscriptSequence;
-
-  private boolean metrichor = false;
 
   private final boolean saveCompressGZIP;
   private final boolean saveCompressBZIP2;
@@ -53,10 +54,22 @@ public class DirectoryProcessor {
       final boolean saveConsensusSequence, final boolean saveTranscriptSequence,
       final boolean saveCompressGZIP, final boolean saveCompressBZIP2,
       Fast5.Status status, Fast5.Basecaller basecaller, Fast5.Version version,
-      Fast5.Type type, Fast5.ChemistryVersion chemistryVersion,
-      final boolean metrichor) {
+      Fast5.Type type, Fast5.ChemistryVersion chemistryVersion) {
 
-    this.repertoryFastqOutput = repertoryFastqOutput;
+    // test if the fastq output repertory is valide
+    if (repertoryFastqOutput.isDirectory()) {
+
+      this.repertoryFastqOutput = repertoryFastqOutput;
+
+    } else {
+
+      this.repertoryFastqOutput = null;
+
+      System.out.println("The repertory "
+          + repertoryFastqOutput
+          + " is not a correct repertory! Please enter a correct repertory to save the fastq files!");
+      System.exit(0);
+    }
 
     this.saveComplementSequence = saveComplementSequence;
     this.saveTemplateSequence = saveTemplateSequence;
@@ -72,7 +85,6 @@ public class DirectoryProcessor {
     this.type = type;
     this.chemistryVersion = chemistryVersion;
 
-    this.metrichor = metrichor;
   }
 
   //
@@ -87,32 +99,33 @@ public class DirectoryProcessor {
     /**
      * The constructor of the abstract class SynchronizedWriter.
      * @param file, the file to be compressed
-     * @param compress, the type of compression
-     * @throws IOException, test if the file can be compress
+     * @param compression, the type of compression
+     * @throws IOException, test if the file can be compression
      */
-    private SynchronizedWriter(File file, String compress) throws IOException {
-      super(getOutputStream(file, compress));
+    private SynchronizedWriter(File file, String compression)
+        throws IOException {
+      super(getOutputStream(file, compression));
     }
 
     /**
-     * This method of the object of the class SynchronizedWriter compress a
+     * This method of the object of the class SynchronizedWriter compression a
      * file.
      * @param file, the file to be compressed
-     * @param compress, the type of compression
+     * @param compression, the type of compression
      * @return the file compressed
-     * @throws IOException, test if the file can be compress
+     * @throws IOException, test if the file can be compression
      */
-    private static OutputStream getOutputStream(File file, String compress)
+    private static OutputStream getOutputStream(File file, String compression)
         throws IOException {
       try {
 
-        // compress sequence to gzip
-        if (compress.equals("gzip")) {
+        // compression sequence to gzip
+        if (compression.equals("gzip")) {
           return new GZIPOutputStream(new FileOutputStream(file));
         }
 
-        // compress sequence to bzip2
-        if (compress.equals("bzip2")) {
+        // compression sequence to bzip2
+        if (compression.equals("bzip2")) {
           return new BZip2CompressorOutputStream(new FileOutputStream(file));
         } else {
           return new FileOutputStream(file);
@@ -132,7 +145,7 @@ public class DirectoryProcessor {
    * Get the list of corrupted files
    * @return a list with the corrupted files
    */
-  public List<File> getListCorruptFast5Files() {
+  List<File> getListCorruptFast5Files() {
     return this.listCorruptFast5Files;
   }
 
@@ -172,11 +185,11 @@ public class DirectoryProcessor {
    * @param status is the status of fast5 file
    * @throws IOException, test the read of the file
    */
-  public void processDirectory(List<File> listFast5Files, String status,
+  void processDirectory(List<File> listFast5Files, String status,
       LocalReporter localReporter) throws IOException {
 
     // test if the list of fast5 files is empty
-    if (listFast5Files.isEmpty()) {
+    if (listFast5Files == null || listFast5Files.isEmpty()) {
       return;
     }
     // Create writters
@@ -231,26 +244,22 @@ public class DirectoryProcessor {
     // get the time of the end execution of the translation of a fast5 directory
     // into a fastq
     long end1 = System.currentTimeMillis();
-    System.out.println("Time exe 1 thread:"
+    getLogger().info("Time execution 1 thread:"
         + (end1 - start1) / 1000 + "s for a " + listFast5Files.size()
         + " number of fast5");
 
     // Close writters
     if (this.saveComplementSequence) {
-      assert complementWriter != null;
       complementWriter.close();
     }
     if (this.saveTemplateSequence) {
-      assert templateWriter != null;
       templateWriter.close();
     }
     if (this.saveConsensusSequence) {
-      assert consensusWriter != null;
       consensusWriter.close();
     }
 
     if (this.saveTranscriptSequence) {
-      assert transcriptWriter != null;
       transcriptWriter.close();
     }
   }
@@ -529,7 +538,7 @@ public class DirectoryProcessor {
       }
 
       // test if the basecaller is Metrichor
-      if (this.metrichor) {
+      if (this.basecaller.toString().equals("METRICHOR")) {
 
         // Fill the counters
         fillCounters(f5, status, localReporter);

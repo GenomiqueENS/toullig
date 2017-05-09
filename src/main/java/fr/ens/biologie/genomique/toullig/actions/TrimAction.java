@@ -5,6 +5,8 @@ import static fr.ens.biologie.genomique.eoulsan.EoulsanLogger.getLogger;
 import java.io.File;
 import java.util.List;
 
+import fr.ens.biologie.genomique.toullig.trimming.Trimmer.Trimmer;
+import fr.ens.biologie.genomique.toullig.trimming.Trimmer.TrimmerFactory;
 import org.apache.commons.cli.*;
 
 import fr.ens.biologie.genomique.eoulsan.actions.AbstractAction;
@@ -64,7 +66,7 @@ public class TrimAction extends AbstractAction {
     int seedMismatchesTrimmomatic = 0;
     int palindromeClipThresholdTrimmomatic = 0;
     int simpleClipThreshold = 0;
-    int addIndexOutlier = 15;
+    int addIndexOutlier = 0;
 
     File samFile = new File("");
     File fastqFile = new File("");
@@ -226,7 +228,7 @@ public class TrimAction extends AbstractAction {
             "make somes stats on the cutadaptTrimming [true | false] (default : false)")
         .create("stats"));
 
-    // add option for add Index to the Outlier during the trimming
+    // add option for add Index to the Outlier during the trim
     options.addOption(OptionBuilder.withArgName("addIndexOutlier").hasArg()
         .withDescription(
             "add more bases in addition to the outlier for P mode (default: 15")
@@ -311,31 +313,11 @@ public class TrimAction extends AbstractAction {
 
       // Call the constructor with the arguments
       TrimFastq trim = new TrimFastq(samFile, fastqFile, adaptorFile,
-          fastqOutputFile, workDir);
+          fastqOutputFile, workDir, trimmer, mode);
 
-      // set the trimmer trimmomatic for processing
-      if (trimmer.contains("trimmomatic")) {
-        trim.setProcessTrimmomatic();
-      }
-
-      // set the trimmer cutadapt for processing
-      if (trimmer.contains("cutadapt")) {
-        trim.setProcessCutadapt();
-      }
-
-      // set no trimmer for processing
-      if (trimmer.contains("no")) {
-        trim.setProcessNoTrimmer();
-      }
-
-      // set the mode Side-Window for processing
-      if (mode.contains("sw")) {
-        trim.setProcessSideWindowTrim();
-      }
-
-      // if the stats on the trimming will be display
+      // if the stats on the trim will be display
       if (stats.contains("true")) {
-        trim.setProcessStats();
+        trim.setProcessStatsCutadapt(true);
       }
 
       // set the threshold for Side Window method
@@ -349,9 +331,7 @@ public class TrimAction extends AbstractAction {
       }
 
       // set the number of add index to the outlier
-      if (addIndexOutlier != 15) {
-        trim.setAddIndexOutlier(addIndexOutlier);
-      }
+      trim.setAddIndexOutlier(addIndexOutlier);
 
       // set the error rate fort cutadapt trimmmer
       if (errorRateCutadapt != 0) {
@@ -374,7 +354,7 @@ public class TrimAction extends AbstractAction {
         trim.setSimpleClipThreshold(simpleClipThreshold);
       }
 
-      // execute the trimming
+      // execute the trim
       trim.execution();
 
     } catch (Exception e3) {

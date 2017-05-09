@@ -5,9 +5,12 @@ import java.io.IOException;
 import fr.ens.biologie.genomique.eoulsan.bio.Sequence;
 import fr.ens.biologie.genomique.eoulsan.bio.io.FastaWriter;
 
+import static fr.ens.biologie.genomique.eoulsan.EoulsanLogger.getLogger;
+
 /**
  * Class of somes utils methods for cutadaptTrimming. Created by birer on
  * 29/03/17.
+ * @author Aurelien Birer
  */
 public class UtilsTrimming {
 
@@ -19,10 +22,23 @@ public class UtilsTrimming {
    */
   public static String getOutlierLeftSequence(int lengthOutlierBegin,
       String sequence) {
+
+    // test if the sequence is null
+    if (sequence == null) {
+
+      getLogger().info("the sequence use is null !");
+      System.exit(0);
+      return null;
+    }
+
     if (lengthOutlierBegin >= 0) {
+
       return sequence.substring(0, lengthOutlierBegin);
+
     } else {
+
       return "";
+
     }
 
   }
@@ -36,11 +52,23 @@ public class UtilsTrimming {
   public static String getOutlierRightSequence(int lengthOutlierRight,
       String sequence) {
 
+    // test if the sequence is null
+    if (sequence == null) {
+
+      getLogger().info("the sequence use is null !");
+      System.exit(0);
+      return null;
+    }
+
     if (lengthOutlierRight >= 0) {
+
       return sequence.substring(sequence.length() - lengthOutlierRight,
           sequence.length());
+
     } else {
+
       return "";
+
     }
 
   }
@@ -53,7 +81,17 @@ public class UtilsTrimming {
    */
   public static String getOutlierLeftQuality(int lengthOutlierBegin,
       String score) {
+
+    // test if the score is null
+    if (score == null) {
+
+      getLogger().info("the score use is null !");
+      System.exit(0);
+      return null;
+    }
+
     return score.substring(0, lengthOutlierBegin);
+
   }
 
   /**
@@ -64,7 +102,17 @@ public class UtilsTrimming {
    */
   public static String getOutlierRightQuality(int lengthOutlierEnd,
       String score) {
+
+    // test if the score is null
+    if (score == null) {
+
+      getLogger().info("the score use is null !");
+      System.exit(0);
+      return null;
+    }
+
     return score.substring(score.length() - lengthOutlierEnd, score.length());
+
   }
 
   //
@@ -82,6 +130,20 @@ public class UtilsTrimming {
   public static void writeOutliers(int leftLengthOutlier,
       int rightLengthOutlier, String sequence, String id,
       FastaWriter leftFastaWriter, FastaWriter rightFastaWriter) {
+
+    // test if the sequence is null
+    if (sequence == null) {
+
+      getLogger().info("the sequence use is null !");
+      System.exit(0);
+    }
+
+    // test if the id is null
+    if (id == null) {
+
+      getLogger().info("the id use is null !");
+      System.exit(0);
+    }
 
     // get the left outlier
     String leftOutlierSequence =

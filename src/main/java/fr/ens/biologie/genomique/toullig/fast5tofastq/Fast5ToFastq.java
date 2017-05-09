@@ -4,13 +4,14 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.*;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import fr.ens.biologie.genomique.eoulsan.util.LocalReporter;
+
+import static fr.ens.biologie.genomique.eoulsan.EoulsanLogger.getLogger;
 
 /**
  * This class read a minION run of Fast5 basecalled to extract fastq sequence.
@@ -212,13 +213,23 @@ public class Fast5ToFastq {
    * @param localReporter, a localReporter object
    * @return a long of the number of fast5 files
    */
-  public long getNumberFast5Files(LocalReporter localReporter) {
+  public static long getNumberFast5Files(LocalReporter localReporter) {
 
-    // test if the number of fast5 files is not negatif
-    if (localReporter.getCounterValue("numberFiles", "numberFast5Files") <= 0) {
+    // test if the LocalReporter object is null
+    if (localReporter != null) {
+
+      // test if the number of fast5 files is not negatif
+      if (localReporter.getCounterValue("numberFiles",
+          "numberFast5Files") <= 0) {
+        return 0;
+      }
+      return localReporter.getCounterValue("numberFiles", "numberFast5Files");
+
+    } else {
+
+      System.exit(0);
       return 0;
     }
-    return localReporter.getCounterValue("numberFiles", "numberFast5Files");
   }
 
   /**
@@ -226,14 +237,23 @@ public class Fast5ToFastq {
    * @param localReporter, a localReporter object
    * @return a long of the number of pass files
    */
-  public long getNumberPassFast5Files(LocalReporter localReporter) {
+  public static long getNumberPassFast5Files(LocalReporter localReporter) {
 
-    // test if the number of pass fast5 files is not negatif
-    if (localReporter.getCounterValue("numberFiles",
-        "numberPassFast5Files") <= 0) {
+    // test if the LocalReporter object is null
+    if (localReporter != null) {
+
+      // test if the number of pass fast5 files is not negatif
+      if (localReporter.getCounterValue("numberFiles",
+          "numberPassFast5Files") <= 0) {
+        return 0;
+      }
+      return localReporter.getCounterValue("numberFiles",
+          "numberPassFast5Files");
+    } else {
+
+      System.exit(0);
       return 0;
     }
-    return localReporter.getCounterValue("numberFiles", "numberPassFast5Files");
   }
 
   /**
@@ -241,15 +261,23 @@ public class Fast5ToFastq {
    * @param localReporter, a localReporter object
    * @return a long of the number of corrupt files
    */
-  public long getNumberCorruptFast5Files(LocalReporter localReporter) {
+  public static long getNumberCorruptFast5Files(LocalReporter localReporter) {
 
-    // test if the number of corrupt fast5 files is not negatif
-    if (localReporter.getCounterValue("numberFiles",
-        "numberCorruptFast5Files") <= 0) {
+    // test if the LocalReporter object is null
+    if (localReporter != null) {
+
+      // test if the number of corrupt fast5 files is not negatif
+      if (localReporter.getCounterValue("numberFiles",
+          "numberCorruptFast5Files") <= 0) {
+        return 0;
+      }
+      return localReporter.getCounterValue("numberFiles",
+          "numberCorruptFast5Files");
+    } else {
+
+      System.exit(0);
       return 0;
     }
-    return localReporter.getCounterValue("numberFiles",
-        "numberCorruptFast5Files");
   }
 
   /**
@@ -257,14 +285,24 @@ public class Fast5ToFastq {
    * @param localReporter, a localReporter object
    * @return a long of the number of fail files
    */
-  public long getNumberFailFast5Files(LocalReporter localReporter) {
+  public static long getNumberFailFast5Files(LocalReporter localReporter) {
 
-    // test if the number of fail fast5 files is not negatif
-    if (localReporter.getCounterValue("numberFiles",
-        "numberFailFast5Files") <= 0) {
+    // test if the LocalReporter object is null
+    if (localReporter != null) {
+
+      // test if the number of fail fast5 files is not negatif
+      if (localReporter.getCounterValue("numberFiles",
+          "numberFailFast5Files") <= 0) {
+        return 0;
+      }
+      return localReporter.getCounterValue("numberFiles",
+          "numberFailFast5Files");
+
+    } else {
+
+      System.exit(0);
       return 0;
     }
-    return localReporter.getCounterValue("numberFiles", "numberFailFast5Files");
   }
 
   /**
@@ -272,15 +310,26 @@ public class Fast5ToFastq {
    * @param localReporter, a localReporter object
    * @return a long of the number of bad barcoded files
    */
-  public long getNumberUnclassifiedFast5Files(LocalReporter localReporter) {
+  public static long getNumberUnclassifiedFast5Files(
+      LocalReporter localReporter) {
 
-    // test if the number of unclassified fast5 files is not negatif
-    if (localReporter.getCounterValue("numberFiles",
-        "numberUnclassifiedFast5Files") <= 0) {
+    // test if the LocalReporter object is null
+    if (localReporter != null) {
+
+      // test if the number of unclassified fast5 files is not negatif
+      if (localReporter.getCounterValue("numberFiles",
+          "numberUnclassifiedFast5Files") <= 0) {
+        return 0;
+      }
+      return localReporter.getCounterValue("numberFiles",
+          "numberUnclassifiedFast5Files");
+
+    } else {
+
+      System.exit(0);
       return 0;
     }
-    return localReporter.getCounterValue("numberFiles",
-        "numberUnclassifiedFast5Files");
+
   }
 
   /**
@@ -289,22 +338,33 @@ public class Fast5ToFastq {
    * @param localReporter, a localReporter object
    * @return a long of the number of calibrate strand files
    */
-  public long getNumberCalibrateStrandFast5Files(LocalReporter localReporter) {
+  public static long getNumberCalibrateStrandFast5Files(
+      LocalReporter localReporter) {
 
-    // test if the number of calibrate strand fast5 files is not negatif
-    if (localReporter.getCounterValue("numberFiles",
-        "numberCalibrateStrandFast5Files") <= 0) {
+    // test if the LocalReporter object is null
+    if (localReporter != null) {
+
+      // test if the number of calibrate strand fast5 files is not negatif
+      if (localReporter.getCounterValue("numberFiles",
+          "numberCalibrateStrandFast5Files") <= 0) {
+        return 0;
+      }
+      return localReporter.getCounterValue("numberFiles",
+          "numberCalibrateStrandFast5Files");
+
+    } else {
+
+      System.exit(0);
       return 0;
     }
-    return localReporter.getCounterValue("numberFiles",
-        "numberCalibrateStrandFast5Files");
+
   }
 
   /**
    * This method of the class Fast5ToFastq get a localReporter object.
    * @return a LocalReporter object
    */
-  public LocalReporter getLocalReporter() {
+  LocalReporter getLocalReporter() {
     return this.localReporter;
   }
 
@@ -344,58 +404,58 @@ public class Fast5ToFastq {
   }
 
   /**
-   * This method of the class Fast5ToFastq set the type of files Fail on
+   * This method of the class Fast5ToFastq set the type of files Fail to
    * process.
    */
-  public void setProcessFail() {
+  public void enableProcessFail() {
     this.processFail = true;
   }
 
   /**
-   * This method of the class Fast5ToFastq set the type of files Pass on
+   * This method of the class Fast5ToFastq set the type of files Pass to
    * process.
    */
-  public void setProcessPass() {
+  public void enableProcessPass() {
     this.processPass = true;
   }
 
   /**
-   * This method of the class Fast5ToFastq set the type of files Fail Barcoded
-   * on process. files to process.
+   * This method of the class Fast5ToFastq set the type of files Unclassified to
+   * process.
    */
-  public void setProcessUnclassified() {
+  public void enableProcessUnclassified() {
     this.processUnclassified = true;
   }
 
   /**
    * This method of the class Fast5ToFastq set the type of complement sequence
-   * on process.
+   * to process.
    */
-  public void setSaveComplementSequence() {
+  public void enableSaveComplementSequence() {
     this.saveComplementSequence = true;
   }
 
   /**
-   * This method of the class Fast5ToFastq set the type of template sequence on
+   * This method of the class Fast5ToFastq set the type of template sequence to
    * process.
    */
-  public void setSaveTemplateSequence() {
+  public void enableSaveTemplateSequence() {
     this.saveTemplateSequence = true;
   }
 
   /**
-   * This method of the class Fast5ToFastq set the type of consensus sequence on
+   * This method of the class Fast5ToFastq set the type of consensus sequence to
    * process.
    */
-  public void setSaveConsensusSequence() {
+  public void enableSaveConsensusSequence() {
     this.saveConsensusSequence = true;
   }
 
   /**
    * This method of the class Fast5ToFastq set the type of transcript sequence
-   * on process.
+   * to process.
    */
-  public void setSaveTranscriptSequence() {
+  public void enableSaveTranscriptSequence() {
     this.saveTranscriptSequence = true;
   }
 
@@ -407,7 +467,7 @@ public class Fast5ToFastq {
    * This method of the class Fast5ToFastq set the type of compression of fastq
    * output to gzip.
    */
-  public void setGzipCompression() {
+  public void enableGzipCompression() {
     this.saveCompressGZIP = true;
   }
 
@@ -415,7 +475,7 @@ public class Fast5ToFastq {
    * This method of the class Fast5ToFastq set the type of compression of fastq
    * output to bzip2.
    */
-  public void setBZip2Compression() {
+  public void enableBZip2Compression() {
     this.saveCompressBZIP2 = true;
   }
 
@@ -436,17 +496,17 @@ public class Fast5ToFastq {
   private int processDirectory(File fast5SubdirName, String status,
       LocalReporter localReporter) throws IOException {
 
-    boolean subDirectoryNumber4000 = false;
+    boolean subDirectory = false;
 
     if (fast5SubdirName.listFiles() != null) {
       for (File f1 : fast5SubdirName.listFiles()) {
-        subDirectoryNumber4000 = f1.isDirectory();
+        subDirectory = f1.isDirectory();
         break;
       }
     }
 
     // for search in sub Directory
-    if (subDirectoryNumber4000) {
+    if (subDirectory) {
 
       List<File> list = new ArrayList<>();
 
@@ -482,18 +542,18 @@ public class Fast5ToFastq {
   private void processDirectories(List<File> listBarcodeDir,
       LocalReporter localReporter) throws IOException {
 
-    boolean subDirectoryNumber4000 = false;
+    boolean subDirectory = false;
 
     // process each barcode directories
     for (File barcodeDirectory : listBarcodeDir) {
 
       for (File f1 : barcodeDirectory.listFiles()) {
-        subDirectoryNumber4000 = f1.isDirectory();
+        subDirectory = f1.isDirectory();
         break;
       }
 
       // for search in sub Directory
-      if (subDirectoryNumber4000) {
+      if (subDirectory) {
 
         List<File> listBarcodeFast5Files = new ArrayList<>();
 
@@ -738,12 +798,12 @@ public class Fast5ToFastq {
    */
   public void execute() throws IOException {
 
-    System.out.println("Sampling of a Fast5 file !");
+    getLogger().info("Sampling of a Fast5 file !");
 
     // get a fast5 file
     File sampleFast5File = getAFast5File();
 
-    System.out.println("End of the sampling of a Fast5 file");
+    getLogger().info("End of the sampling of a Fast5 file");
 
     try (Fast5 f5 = new Fast5(sampleFast5File)) {
 
@@ -756,8 +816,7 @@ public class Fast5ToFastq {
       this.processor = new DirectoryProcessor(repertoryFastqOutput,
           saveComplementSequence, saveTemplateSequence, saveConsensusSequence,
           saveTranscriptSequence, saveCompressGZIP, saveCompressBZIP2, status,
-          basecaller, version, type, chemistryVersion,
-          basecaller == Fast5.Basecaller.METRICHOR);
+          basecaller, version, type, chemistryVersion);
 
       if (basecaller == Fast5.Basecaller.METRICHOR || basecaller == null) {
 
@@ -783,7 +842,7 @@ public class Fast5ToFastq {
    * fastq sequence on fast5 file for the basecaller Metrichor.
    * @throws IOException, test the read of the file
    */
-  public void executeBasecallerMetrichor() throws IOException {
+  private void executeBasecallerMetrichor() throws IOException {
 
     // test if the merge of fastq is enable
     if (this.processMergeStatus) {
@@ -867,7 +926,7 @@ public class Fast5ToFastq {
    * fastq sequence on fast5 file for the basecaller Albacore.
    * @throws IOException, test the read of the file
    */
-  public void executeBasecallerAlbacore() throws IOException {
+  private void executeBasecallerAlbacore() throws IOException {
 
     // test if the merge of fastq is enable
     if (this.processMergeStatus) {

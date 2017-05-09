@@ -10,7 +10,7 @@ import org.apache.commons.cli.*;
 
 import fr.ens.biologie.genomique.eoulsan.actions.AbstractAction;
 import fr.ens.biologie.genomique.toullig.fast5tofastq.Fast5ToFastq;
-import fr.ens.biologie.genomique.toullig.fast5tofastq.Fast5ToFastqLogger;
+import fr.ens.biologie.genomique.toullig.fast5tofastq.Fast5ToFastqReporter;
 import fr.ens.biologie.genomique.toullig.Globals;
 
 /**
@@ -238,45 +238,45 @@ public class Fast5tofastqAction extends AbstractAction {
 
       // If the Experimental protocol is not barcoded
       if (status.contains("fail")) {
-        if5.setProcessFail();
+        if5.enableProcessFail();
       }
 
       // set the pass fast5 to process
       if (status.contains("pass")) {
-        if5.setProcessPass();
+        if5.enableProcessPass();
       }
       // If the Experimental protocol is barcoded
       if (status.contains("unclassified")) {
-        if5.setProcessUnclassified();
+        if5.enableProcessUnclassified();
       }
 
       // set Compress format bzip2
       if (type.contains("template")) {
-        if5.setSaveTemplateSequence();
+        if5.enableSaveTemplateSequence();
       }
 
       // set Compress format bzip2
       if (type.contains("complement")) {
-        if5.setSaveComplementSequence();
+        if5.enableSaveComplementSequence();
       }
 
       // set Compress format bzip2
       if (type.contains("consensus")) {
-        if5.setSaveConsensusSequence();
+        if5.enableSaveConsensusSequence();
       }
 
       // set Compress format bzip2
       if (type.contains("transcript")) {
-        if5.setSaveTranscriptSequence();
+        if5.enableSaveTranscriptSequence();
       }
       // set Compress format gzip
       if (compress.contains("gzip")) {
-        if5.setGzipCompression();
+        if5.enableGzipCompression();
       }
 
       // set Compress format bzip2
       if (compress.contains("bzip2")) {
-        if5.setBZip2Compression();
+        if5.enableBZip2Compression();
       }
 
       // Logger of the action
@@ -292,7 +292,8 @@ public class Fast5tofastqAction extends AbstractAction {
       // Write of few logs files
       try {
 
-        Fast5ToFastqLogger logIf5 = new Fast5ToFastqLogger(if5, dirOutputFastq);
+        Fast5ToFastqReporter logIf5 =
+            new Fast5ToFastqReporter(if5, dirOutputFastq);
         logIf5.createLogConversionFastq(beginDate, endDate, arguments);
         logIf5.createLogCorruptFile();
         logIf5.createLogWorkflow();
