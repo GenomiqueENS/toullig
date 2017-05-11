@@ -69,17 +69,9 @@ public class InformationRead {
   public boolean equals(InformationRead informationRead) {
 
     // test if the hashcode is the same between the two InformationRead object
-    if (informationRead.hashCode() == Objects.hash(this.sequence, this.quality,
-        this.cigar, this.leftLengthOutlier, this.rightLengthOutlier, this.qFlag,
-        this.cigarLength)) {
-
-      return true;
-
-    } else {
-
-      return false;
-
-    }
+    return informationRead.hashCode() == Objects.hash(this.sequence,
+        this.quality, this.cigar, this.leftLengthOutlier,
+        this.rightLengthOutlier, this.qFlag, this.cigarLength);
 
   }
 

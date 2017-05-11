@@ -64,7 +64,7 @@ class CutadaptTrimmer implements Trimmer {
       File outputTrimRightFastaFile, String adaptorRetroTranscritpion,
       String adaptorStrandSwitching, double errorRateCutadapt,
       File fastaLeftOutlierFile, File fastaRightOutlierFile,
-      File infoTrimLeftFile, File infoTrimRightFile) throws IOException {
+      File infoTrimLeftFile, File infoTrimRightFile) {
 
     this.workTrimmingMap = workTrimmingMap;
     this.nameOutputFastq = outputFastqFile;

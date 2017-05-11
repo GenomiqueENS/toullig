@@ -235,7 +235,10 @@ public class TrimFastq {
 
         }
 
-      } catch (Exception e) {
+
+      }
+      // catch SamRecord error
+      catch (Exception e) {
         e.printStackTrace();
       }
 
@@ -360,17 +363,42 @@ public class TrimFastq {
     File fastaLeftOutlierFile =
         new File(this.workDir + "/fastaFileLeftOutlier.fasta");
 
+
+    // Test if the file exist
+    if(!fastaLeftOutlierFile.exists()){
+
+      fastaLeftOutlierFile.createNewFile();
+    }
+
     // Declare the right outlier fasta for cutadapt
     File fastaRightOutlierFile =
         new File(this.workDir + "/fastaFileRightOutlier.fasta");
+
+    // Test if the file exist
+    if(!fastaRightOutlierFile.exists()){
+
+      fastaRightOutlierFile.createNewFile();
+    }
 
     // Declare the left info on trim for cutadapt
     File infoTrimLeftFile =
         new File(this.workDir + "/logCutadaptLeftOutlier.txt");
 
+    // Test if the file exist
+    if(!infoTrimLeftFile.exists()){
+
+      infoTrimLeftFile.createNewFile();
+    }
+
     // Declare the right info on trim for cutadapt
     File infoTrimRightFile =
         new File(this.workDir + "/logCutadaptRightOutlier.txt");
+
+    // Test if the file exist
+    if(!infoTrimRightFile.exists()){
+
+      infoTrimRightFile.createNewFile();
+    }
 
     // Create the OutlierPositionFinder Object with the correct method to the
     // OutlierPositionFactory

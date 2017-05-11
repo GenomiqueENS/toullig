@@ -668,7 +668,7 @@ public class Fast5ToFastq {
           try (DirectoryStream<Path> stream =
               Files.newDirectoryStream(resultDirectory.toPath(), "*.{fast5}")) {
 
-            if (notBasecalled == true) {
+            if (notBasecalled) {
               break;
             }
 

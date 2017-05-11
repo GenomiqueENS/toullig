@@ -38,7 +38,7 @@ public class TrimmomaticTrimmer implements Trimmer {
       Logger logger = new Logger(true, true, true);
 
       // create the trimmer for trimmomatic
-      this.trimmer = IlluminaClippingTrimmer.makeIlluminaClippingTrimmer(logger,
+      trimmer = IlluminaClippingTrimmer.makeIlluminaClippingTrimmer(logger,
           adaptorFile.getPath()
               + ":" + seedMismatchesTrimmomatic + ":"
               + palindromeClipThresholdTrimmomatic + ":" + simpleClipThreshold);
@@ -155,8 +155,7 @@ public class TrimmomaticTrimmer implements Trimmer {
     FastqRecord record = new FastqRecord("name", sequence, "", quality, 33);
 
     // trim with trimmomatic
-    FastqRecord[] result =
-        this.trimmer.processRecords(new FastqRecord[] {record});
+    FastqRecord[] result = trimmer.processRecords(new FastqRecord[] {record});
 
     // return the trimmed sequence
     return result[0].getSequence();

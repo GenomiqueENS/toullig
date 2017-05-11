@@ -198,8 +198,8 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
             }
           }
 
-          int leftLengthOutlier = 0;
-          int rightLengthOutlier = 0;
+          int leftLengthOutlier;
+          int rightLengthOutlier;
 
           // strand case
           if (qFlag == 0) {
