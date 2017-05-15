@@ -53,6 +53,8 @@ public class NoTrimmer implements Trimmer {
       // get id for each red on the work map
       for (String id : this.workTrimmingMap.keySet()) {
 
+
+
         i++;
 
         // get information for the read

@@ -96,11 +96,15 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
 
     }
 
+
+
     // open the fastq File
     try (FastqReader reader = new FastqReader(this.fastqFile)) {
 
       // read the fastq file
       for (ReadSequence read : reader) {
+
+
 
         // get header
         String header = read.getName();
@@ -116,6 +120,7 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
 
         // get the information read of the id corresponding in the work trim
         // map
+
         InformationRead informationRead = this.workTrimmingMap.get(id);
 
         // case that the SAM file has not succesful read this id (present in
@@ -138,6 +143,8 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
         // get information of each read
         String cigar = informationRead.cigar;
         int qFlag = informationRead.qFlag;
+
+
 
         // trim by CIGAR
         if (!"*".equals(cigar)) {

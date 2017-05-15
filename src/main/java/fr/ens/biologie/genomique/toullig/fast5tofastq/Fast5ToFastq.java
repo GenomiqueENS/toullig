@@ -9,7 +9,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import fr.ens.biologie.genomique.eoulsan.util.FileUtils;
 import fr.ens.biologie.genomique.eoulsan.util.LocalReporter;
+import org.apache.hadoop.fs.FileUtil;
 
 import static fr.ens.biologie.genomique.eoulsan.EoulsanLogger.getLogger;
 
@@ -654,13 +656,20 @@ public class Fast5ToFastq {
 
       boolean notBasecalled = false;
 
+      if(resultDirectory.toString().contains("uploaded")){
+          continue;
+      }
+
       for (File file : resultDirectory.listFiles()) {
+
+
 
         // test if the file is a directory
         if (file.isDirectory()) {
           result2.add(file);
 
         }
+
 
         // test if is it's a file and have an extension ".fast5"
         if (file.isFile() && file.toString().contains(".fast5")) {
@@ -674,6 +683,7 @@ public class Fast5ToFastq {
 
             for (Path entry : stream) {
 
+
               try (Fast5 f5 = new Fast5(entry.toFile())) {
 
                 // test if the fast5 file is basecalled
@@ -682,6 +692,7 @@ public class Fast5ToFastq {
                   return entry.toFile();
 
                 } else {
+
                   notBasecalled = true;
                   break;
                 }
@@ -698,6 +709,7 @@ public class Fast5ToFastq {
         }
       }
     }
+
 
     //
     //

@@ -353,8 +353,11 @@ class DirectoryProcessor {
 
     // test if the sequence is null
     if (sequence.substring(indexCR1 + 1, indexCR2).equals("")) {
+
+      getLogger().info("Sequence Null : "+sequence);
       localReporter.incrCounter("numberSequenceWrite", counterName + "Null", 1);
     } else {
+
       writer.write(sequence);
       localReporter.incrCounter("numberSequenceWrite", counterName + "Write",
           1);

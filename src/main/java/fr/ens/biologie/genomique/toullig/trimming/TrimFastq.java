@@ -13,6 +13,7 @@ import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamInputResource;
 import htsjdk.samtools.SamReader;
 import htsjdk.samtools.SamReaderFactory;
+import org.apache.commons.io.IOUtils;
 
 import static fr.ens.biologie.genomique.eoulsan.EoulsanLogger.getLogger;
 
@@ -57,8 +58,8 @@ public class TrimFastq {
    * @throws IOException if an IO error occur
    */
   public TrimFastq(File samFile, File fastqFile, File adaptorFile,
-      File outputFastqFile, File workDir, String trimmer, String mode)
-      throws IOException {
+                   File outputFastqFile, File workDir, String trimmer, String mode)
+          throws IOException {
 
     // test if the sam File exist
     if (!samFile.exists()) {
@@ -78,7 +79,7 @@ public class TrimFastq {
     if (!outputFastqFile.exists()) {
       try {
         PrintWriter nameOutputFastqWriter =
-            new PrintWriter(outputFastqFile.toString(), "UTF-8");
+                new PrintWriter(outputFastqFile.toString(), "UTF-8");
         nameOutputFastqWriter.close();
       } catch (IOException e) {
         e.printStackTrace();
@@ -145,7 +146,7 @@ public class TrimFastq {
 
     // open the adaptor File
     try (BufferedReader adaptorBufferedReader =
-        new BufferedReader(new FileReader(adaptorFile))) {
+                 new BufferedReader(new FileReader(adaptorFile))) {
 
       int i = 0;
       String line;
@@ -172,14 +173,16 @@ public class TrimFastq {
   /**
    * Method of the class TrimFastq to read and get the ID,sequence, quality and
    * CIGAR of a sam file.
-   * @param samInputStream, the input stream file sam
+   * @param workTrimmingMap, the input stream file sam
    */
-  private static void readSamFile(InputStream samInputStream,
-      Map<String, InformationRead> workTrimmingMap) {
+  private static void readSamFile(File samFile,
+                                  Map<String, InformationRead> workTrimmingMap) throws IOException {
 
-    // opne the sam File
-    try (final SamReader inputSam = SamReaderFactory.makeDefault()
-        .open(SamInputResource.of(samInputStream))) {
+    // open the sam File
+//    try (final SamReader inputSam = SamReaderFactory.makeDefault()
+//            .open(SamInputResource.of(samInputStream))) {
+
+
 
       int lengthBeginOutlier = 0;
       int lengthEndOutlier = 0;
@@ -189,74 +192,170 @@ public class TrimFastq {
       // create a hash for multi-mapped read
       Set<String> multiMappedReadsSet = null;
 
-      try {
+      BufferedReader reader = new BufferedReader(new FileReader(samFile));
+      String line;
 
-        // read sam File
-        for (SAMRecord samRecord : inputSam) {
+      try{
 
-          // Get cigar information
-          String cigar = samRecord.getCigarString();
+      while ((line = reader.readLine()) != null) {
 
-          // Get qFlag information
-          int qFlag = samRecord.getFlags();
 
-          // Get id information
-          String id = samRecord.getReadName();
+        String part[] = line.split("\t");
 
-          // Get cigarLength information
-          int cigarLength = samRecord.getCigarLength();
 
-          // test if the work Map already contains this id
-          if (workTrimmingMap.containsKey(id)) {
+        if(line.indexOf("@")==0){
+          continue;
+        }
 
-            // add this read to the multi-mapped reads
-            multiMappedReadsSet.add(id);
+        // Get cigar information
+        String cigar = part[5];
 
-            // get the informationRead of existing read on the work trim map
-            InformationRead informationRead = workTrimmingMap.get(id);
 
-            // Select the largest alignement for a multi-mapped read
-            if (informationRead.cigarLength <= cigarLength) {
+        int qFlag = 0;
+        // Get qFlag information
+        try {
+          qFlag = Integer.parseInt(part[1]);
+        }catch (Exception e){
+          e.printStackTrace();
+          continue;
+        }
 
-              // add the read to the work Trimming map
-              workTrimmingMap.put(id,
-                  new InformationRead(sequence, quality, cigar,
-                      lengthBeginOutlier, lengthEndOutlier, qFlag,
-                      cigarLength));
-            }
+        // Get id information
+        String id = part[0];
 
-          } else {
+        // Get cigarLength information
+        int cigarLength = 0;
 
-            // add the read to the work Trimming map
-            workTrimmingMap.put(id,
-                new InformationRead(sequence, quality, cigar,
-                    lengthBeginOutlier, lengthEndOutlier, qFlag, cigarLength));
+        // test if the cigar code is a '*'
+        if(part[5].equals("*")){
+
+          cigarLength = 0;
+
+        }else{
+
+          String partCigarLength[] = part[5].split("[A-Z]");
+          int sum =0;
+
+          // comput the length of the cigar length that correrspond of the alignment length
+          for (String numberCigar: partCigarLength){
+
+            sum += Integer.parseInt(numberCigar);
           }
 
+          cigarLength = sum;
         }
 
 
+
+
+        // test if the work Map already contains this id
+        if (workTrimmingMap.containsKey(id)) {
+
+          // add this read to the multi-mapped reads
+          multiMappedReadsSet.add(id);
+
+          // get the informationRead of existing read on the work trim map
+          InformationRead informationRead = workTrimmingMap.get(id);
+
+          // Select the largest alignement for a multi-mapped read
+          if (informationRead.cigarLength <= cigarLength) {
+
+            // add the read to the work Trimming map
+            workTrimmingMap.put(id,
+                    new InformationRead(sequence, quality, cigar,
+                            lengthBeginOutlier, lengthEndOutlier, qFlag,
+                            cigarLength));
+          }
+
+        } else {
+
+
+
+          // add the read to the work Trimming map
+          workTrimmingMap.put(id,
+                  new InformationRead(sequence, quality, cigar,
+                          lengthBeginOutlier, lengthEndOutlier, qFlag, cigarLength));
+        }
+
       }
-      // catch SamRecord error
-      catch (Exception e) {
-        e.printStackTrace();
-      }
 
-      if (multiMappedReadsSet != null) {
-
-        getLogger().info(
-            "Number of multi-mapped reads: " + multiMappedReadsSet.size());
-
-      }
-
-      inputSam.close();
-
-    } catch (IOException e) {
-
-      e.printStackTrace();
+    } catch (IOException e1) {
+      e1.printStackTrace();
     }
 
-  }
+    reader.close();
+
+
+      // This follow comment code work for SAMRcord object BUT i rise a error of SAMtools for a suit of a Deletion base and an Insertion base
+
+//      try {
+//
+//        // read sam File
+//        for (SAMRecord samRecord : inputSam) {
+//
+//          count++;
+//
+//          // Get cigar information
+//          String cigar = samRecord.getCigarString();
+//
+//          // Get qFlag information
+//          int qFlag = samRecord.getFlags();
+//
+//          // Get id information
+//          String id = samRecord.getReadName();
+//
+//          // Get cigarLength information
+//          int cigarLength = samRecord.getCigarLength();
+//
+//          // test if the work Map already contains this id
+//          if (workTrimmingMap.containsKey(id)) {
+//
+//            // add this read to the multi-mapped reads
+//            multiMappedReadsSet.add(id);
+//
+//            // get the informationRead of existing read on the work trim map
+//            InformationRead informationRead = workTrimmingMap.get(id);
+//
+//            // Select the largest alignement for a multi-mapped read
+//            if (informationRead.cigarLength <= cigarLength) {
+//
+//              // add the read to the work Trimming map
+//              workTrimmingMap.put(id,
+//                  new InformationRead(sequence, quality, cigar,
+//                      lengthBeginOutlier, lengthEndOutlier, qFlag,
+//                      cigarLength));
+//            }
+//
+//          } else {
+//
+//            // add the read to the work Trimming map
+//            workTrimmingMap.put(id,
+//                new InformationRead(sequence, quality, cigar,
+//                    lengthBeginOutlier, lengthEndOutlier, qFlag, cigarLength));
+//          }
+//
+//        }
+//
+//
+//      }
+//      // catch SamRecord error
+//      catch (Exception e) {
+//        e.printStackTrace();
+//      }
+
+
+    if (multiMappedReadsSet != null) {
+
+      getLogger().info(
+              "Number of multi-mapped reads: " + multiMappedReadsSet.size());
+
+    }
+
+
+//  } catch (IOException e) {
+//    e.printStackTrace();
+//  }
+}
 
   //
   // Set
@@ -309,9 +408,9 @@ public class TrimFastq {
    * @param palindromeClipThresholdTrimmomatic, a int
    */
   public void setPalindromeClipThresholdTrimmomatic(
-      int palindromeClipThresholdTrimmomatic) {
+          int palindromeClipThresholdTrimmomatic) {
     this.palindromeClipThresholdTrimmomatic =
-        palindromeClipThresholdTrimmomatic;
+            palindromeClipThresholdTrimmomatic;
   }
 
   /**
@@ -343,25 +442,25 @@ public class TrimFastq {
 
     // Declare the left outlier output fasta for cutadapt
     File outputTrimLeftFastaFile =
-        new File(this.workDir + "/outputFastaFileLeftOutlier.fastq");
+            new File(this.workDir + "/outputFastaFileLeftOutlier.fastq");
 
     // Declare the right outlier output fasta for cutadapt
     File outputTrimRightFastaFile =
-        new File(this.workDir + "/outputFastaFileRightOutlier.fastq");
+            new File(this.workDir + "/outputFastaFileRightOutlier.fastq");
 
     // Problem with ONT skip read for the RT adaptor (to many TTTT..)
     // read the adaptor File
     readAdaptorRTFile(this.adaptorFile);
 
-    // create InputStream for read sam File
-    InputStream samInputStream = new FileInputStream(this.samFile);
+//    // create InputStream for read sam File
+//    InputStream samInputStream = new FileInputStream(this.samFile);
 
     // read the sam File
-    readSamFile(samInputStream, workTrimmingMap);
+    readSamFile(this.samFile, workTrimmingMap);
 
     // Declare the left outlier fasta for cutadapt
     File fastaLeftOutlierFile =
-        new File(this.workDir + "/fastaFileLeftOutlier.fasta");
+            new File(this.workDir + "/fastaFileLeftOutlier.fasta");
 
 
     // Test if the file exist
@@ -372,7 +471,7 @@ public class TrimFastq {
 
     // Declare the right outlier fasta for cutadapt
     File fastaRightOutlierFile =
-        new File(this.workDir + "/fastaFileRightOutlier.fasta");
+            new File(this.workDir + "/fastaFileRightOutlier.fasta");
 
     // Test if the file exist
     if(!fastaRightOutlierFile.exists()){
@@ -382,7 +481,7 @@ public class TrimFastq {
 
     // Declare the left info on trim for cutadapt
     File infoTrimLeftFile =
-        new File(this.workDir + "/logCutadaptLeftOutlier.txt");
+            new File(this.workDir + "/logCutadaptLeftOutlier.txt");
 
     // Test if the file exist
     if(!infoTrimLeftFile.exists()){
@@ -392,7 +491,7 @@ public class TrimFastq {
 
     // Declare the right info on trim for cutadapt
     File infoTrimRightFile =
-        new File(this.workDir + "/logCutadaptRightOutlier.txt");
+            new File(this.workDir + "/logCutadaptRightOutlier.txt");
 
     // Test if the file exist
     if(!infoTrimRightFile.exists()){
@@ -403,22 +502,22 @@ public class TrimFastq {
     // Create the OutlierPositionFinder Object with the correct method to the
     // OutlierPositionFactory
     OutlierPositionFinder outlierPositionFinder =
-        OutlierPositionFinderFactory.newOutlierPositionFinder(workTrimmingMap,
-            this.addIndexOutlier, this.fastqFile, this.lengthWindowSideWindow,
-            this.thresholdSideWindow, this.mode);
+            OutlierPositionFinderFactory.newOutlierPositionFinder(workTrimmingMap,
+                    this.addIndexOutlier, this.fastqFile, this.lengthWindowSideWindow,
+                    this.thresholdSideWindow, this.mode);
 
     // Create the Trimmer Object with the correct method to the TrimmerFactory
     Trimmer trimmer = TrimmerFactory.newTrimmer(workTrimmingMap,
-        this.outputFastqFile, outputTrimLeftFastaFile, outputTrimRightFastaFile,
-        this.adaptorRT, this.adaptorStrandSwitching, this.errorRateCutadapt,
-        fastaLeftOutlierFile, fastaRightOutlierFile, infoTrimLeftFile,
-        infoTrimRightFile, this.adaptorFile, this.seedMismatchesTrimmomatic,
-        this.palindromeClipThresholdTrimmomatic, this.simpleClipThreshold,
-        this.trimmer, this.processStatsCutadapt);
+            this.outputFastqFile, outputTrimLeftFastaFile, outputTrimRightFastaFile,
+            this.adaptorRT, this.adaptorStrandSwitching, this.errorRateCutadapt,
+            fastaLeftOutlierFile, fastaRightOutlierFile, infoTrimLeftFile,
+            infoTrimRightFile, this.adaptorFile, this.seedMismatchesTrimmomatic,
+            this.palindromeClipThresholdTrimmomatic, this.simpleClipThreshold,
+            this.trimmer, this.processStatsCutadapt);
 
     // execute the outlier position finder
     outlierPositionFinder.findOutliers(fastaLeftOutlierFile,
-        fastaRightOutlierFile, trimmer);
+            fastaRightOutlierFile, trimmer);
 
     // execute the trimming
     if (trimmer != null) {
