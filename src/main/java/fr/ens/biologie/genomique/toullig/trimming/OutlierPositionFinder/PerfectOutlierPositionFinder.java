@@ -1,6 +1,7 @@
 package fr.ens.biologie.genomique.toullig.trimming.OutlierPositionFinder;
 
 import fr.ens.biologie.genomique.eoulsan.bio.ReadSequence;
+import fr.ens.biologie.genomique.eoulsan.bio.io.FastaWriter;
 import fr.ens.biologie.genomique.eoulsan.bio.io.FastqReader;
 import fr.ens.biologie.genomique.toullig.trimming.InformationRead;
 import fr.ens.biologie.genomique.toullig.trimming.Trimmer.Trimmer;
@@ -70,7 +71,8 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
    * @param trimmer, the trimmer interface
    */
   public void findOutliers(File fastaLeftOutlierFile,
-      File fastaRightOutlierFile, Trimmer trimmer) {
+      File fastaRightOutlierFile, Trimmer trimmer, File fastqOutputFile)
+      throws IOException {
 
     int countSamReads = 0;
     int countLeftOutlierFind = 0;
@@ -96,15 +98,28 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
 
     }
 
+    FastaWriter fastqOutputWriter = null;
+    FastaWriter fastaLeftOutlierWriter = null;
+    FastaWriter fastaRightOutlierWriter = null;
 
+    // test if the trimmer is trimmomatic
+    if (trimmer.toString().contains("TrimmomaticTrimmer")) {
+
+      fastqOutputWriter = new FastaWriter(fastqOutputFile);
+    }
+
+    // test if the trimmer is cutadapt
+    if (trimmer.toString().contains("CutadaptTrimmer")) {
+
+      fastaLeftOutlierWriter = new FastaWriter(fastaLeftOutlierFile);
+      fastaRightOutlierWriter = new FastaWriter(fastaRightOutlierFile);
+    }
 
     // open the fastq File
     try (FastqReader reader = new FastqReader(this.fastqFile)) {
 
       // read the fastq file
       for (ReadSequence read : reader) {
-
-
 
         // get header
         String header = read.getName();
@@ -143,8 +158,6 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
         // get information of each read
         String cigar = informationRead.cigar;
         int qFlag = informationRead.qFlag;
-
-
 
         // trim by CIGAR
         if (!"*".equals(cigar)) {
@@ -226,20 +239,21 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
             leftLengthOutlier = 0;
           }
 
-          // strand case
-          if (qFlag == 0) {
+          // test if the trimmer is trimmomatic
+          if (trimmer.toString().contains("TrimmomaticTrimmer")) {
 
             // pre-process trim
             trimmer.preProcessSequence(leftLengthOutlier, rightLengthOutlier,
-                sequence, id, quality);
-
+                sequence, id, quality, fastqOutputWriter);
           }
-          // reverse complement case
-          else {
+
+          // test if the trimmer is cutadapt
+          if (trimmer.toString().contains("CutadaptTrimmer")) {
 
             // pre-process trim
-            trimmer.preProcessSequence(rightLengthOutlier, leftLengthOutlier,
-                sequence, id, quality);
+            trimmer.preProcessSequence(leftLengthOutlier, rightLengthOutlier,
+                sequence, id, quality, fastaLeftOutlierWriter,
+                fastaRightOutlierWriter);
           }
 
         } else {
@@ -265,6 +279,19 @@ public class PerfectOutlierPositionFinder implements OutlierPositionFinder {
       reader.close();
     } catch (IOException e) {
       e.printStackTrace();
+    }
+
+    // test if the trimmer is trimmomatic
+    if (trimmer.toString().contains("TrimmomaticTrimmer")) {
+
+      fastqOutputWriter.close();
+    }
+
+    // test if the trimmer is cutadapt
+    if (trimmer.toString().contains("CutadaptTrimmer")) {
+
+      fastaLeftOutlierWriter.close();
+      fastaRightOutlierWriter.close();
     }
 
     //

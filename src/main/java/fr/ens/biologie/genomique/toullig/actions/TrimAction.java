@@ -5,8 +5,6 @@ import static fr.ens.biologie.genomique.eoulsan.EoulsanLogger.getLogger;
 import java.io.File;
 import java.util.List;
 
-import fr.ens.biologie.genomique.toullig.trimming.Trimmer.Trimmer;
-import fr.ens.biologie.genomique.toullig.trimming.Trimmer.TrimmerFactory;
 import org.apache.commons.cli.*;
 
 import fr.ens.biologie.genomique.eoulsan.actions.AbstractAction;
@@ -317,7 +315,7 @@ public class TrimAction extends AbstractAction {
 
       // if the stats on the trim will be display
       if (stats.contains("true")) {
-        trim.setProcessStatsCutadapt(true);
+        trim.setProcessStatsCutadapt();
       }
 
       // set the threshold for Side Window method

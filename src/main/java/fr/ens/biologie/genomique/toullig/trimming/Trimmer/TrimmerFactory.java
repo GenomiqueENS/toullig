@@ -60,9 +60,9 @@ public class TrimmerFactory {
     if (trimmer.contains("trimmomatic")) {
 
       // call TrimmomaticTrimmer constructor
-      trimmerObject = new TrimmomaticTrimmer(adaptorFile, outputFastqFile,
-          seedMismatchesTrimmomatic, palindromeClipThresholdTrimmomatic,
-          simpleClipThreshold);
+      trimmerObject =
+          new TrimmomaticTrimmer(adaptorFile, seedMismatchesTrimmomatic,
+              palindromeClipThresholdTrimmomatic, simpleClipThreshold);
     }
 
     // test to process no trimmer

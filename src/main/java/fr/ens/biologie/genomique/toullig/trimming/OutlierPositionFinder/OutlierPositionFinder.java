@@ -3,6 +3,7 @@ package fr.ens.biologie.genomique.toullig.trimming.OutlierPositionFinder;
 import fr.ens.biologie.genomique.toullig.trimming.Trimmer.Trimmer;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Interface for Outlier position finder Created by birer on 31/03/17.
@@ -17,5 +18,5 @@ public interface OutlierPositionFinder {
    * @param trimmer, a trimmer interface to know the trimmer to use
    */
   void findOutliers(File fastaLeftOutlierFile, File fastaRightOutlierFile,
-      Trimmer trimmer);
+      Trimmer trimmer, File fastqOutputFile) throws IOException;
 }

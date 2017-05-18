@@ -57,7 +57,6 @@ class CutadaptTrimmer implements Trimmer {
    * @param fastaRightOutlierFile, a File of the right outlier output fasta
    * @param infoTrimLeftFile, a File of the left information give by cutadapt
    * @param infoTrimRightFile, a File of the right information give by cutadapt
-   * @throws IOException, an IOException if an error occur
    */
   CutadaptTrimmer(Map<String, InformationRead> workTrimmingMap,
       File outputFastqFile, File outputTrimLeftFastaFile,
@@ -530,12 +529,19 @@ class CutadaptTrimmer implements Trimmer {
    * @param quality , the quality of the read
    */
   public void preProcessSequence(int leftLengthOutlier, int rightLengthOutlier,
-      String sequence, String id, String quality) throws IOException {
+      String sequence, String id, String quality,
+      FastaWriter fastaLeftOutlierWriter, FastaWriter fastaRightOutlierWriter) {
 
     // write outliers in a fasta file
     UtilsTrimming.writeOutliers(leftLengthOutlier, rightLengthOutlier, sequence,
-        id, new FastaWriter(fastaLeftOutlierFile),
-        new FastaWriter(fastaRightOutlierFile));
+        id, fastaLeftOutlierWriter, fastaRightOutlierWriter);
+
+  }
+
+  @Override
+  public void preProcessSequence(int leftLengthOutlier, int rightLengthOutlier,
+      String sequence, String id, String quality, FastaWriter fastqOutputFile)
+      throws IOException {
 
   }
 

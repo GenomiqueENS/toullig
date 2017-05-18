@@ -1,6 +1,7 @@
 package fr.ens.biologie.genomique.toullig.trimming.OutlierPositionFinder;
 
 import fr.ens.biologie.genomique.eoulsan.bio.ReadSequence;
+import fr.ens.biologie.genomique.eoulsan.bio.io.FastaWriter;
 import fr.ens.biologie.genomique.eoulsan.bio.io.FastqReader;
 import fr.ens.biologie.genomique.toullig.trimming.InformationRead;
 import fr.ens.biologie.genomique.toullig.trimming.Trimmer.Trimmer;
@@ -78,7 +79,8 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
    * @param trimmer, the trimmer interface
    */
   public void findOutliers(File fastaLeftOutlierFile,
-      File fastaRightOutlierFile, Trimmer trimmer) {
+      File fastaRightOutlierFile, Trimmer trimmer, File fastqOutputFile)
+      throws IOException {
 
     // test if the fasta left file is correct
     if (!fastaLeftOutlierFile.isFile()) {
@@ -103,6 +105,23 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
     Pattern lengthOneCodeCigarPattern = Pattern.compile("([0-9]*)(.)");
 
     int lengthSequenceCigar;
+
+    FastaWriter fastqOutputWriter = null;
+    FastaWriter fastaLeftOutlierWriter = null;
+    FastaWriter fastaRightOutlierWriter = null;
+
+    // test if the trimmer is trimmomatic
+    if (trimmer.toString().contains("TrimmomaticTrimmer")) {
+
+      fastqOutputWriter = new FastaWriter(fastqOutputFile);
+    }
+
+    // test if the trimmer is cutadapt
+    if (trimmer.toString().contains("CutadaptTrimmer")) {
+
+      fastaLeftOutlierWriter = new FastaWriter(fastaLeftOutlierFile);
+      fastaRightOutlierWriter = new FastaWriter(fastaRightOutlierFile);
+    }
 
     // open the fastq File
     try (FastqReader reader = new FastqReader(this.fastqFile)) {
@@ -233,26 +252,40 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
             // + " " + rightLengthOutlier + " " + sequence.length());
           }
 
-          // strand case
-          if (qFlag == 0) {
+          // test if the trimmer is trimmomatic
+          if (trimmer.toString().contains("TrimmomaticTrimmer")) {
 
             // pre-process trim
             trimmer.preProcessSequence(leftLengthOutlier, rightLengthOutlier,
-                sequence, id, quality);
-
+                sequence, id, quality, fastqOutputWriter);
           }
-          // reverse complement case
-          else {
+
+          // test if the trimmer is cutadapt
+          if (trimmer.toString().contains("CutadaptTrimmer")) {
 
             // pre-process trim
-            trimmer.preProcessSequence(rightLengthOutlier, leftLengthOutlier,
-                sequence, id, quality);
+            trimmer.preProcessSequence(leftLengthOutlier, rightLengthOutlier,
+                sequence, id, quality, fastaLeftOutlierWriter,
+                fastaRightOutlierWriter);
           }
         }
       }
       reader.close();
     } catch (IOException e) {
       e.printStackTrace();
+    }
+
+    // test if the trimmer is trimmomatic
+    if (trimmer.toString().contains("TrimmomaticTrimmer")) {
+
+      fastqOutputWriter.close();
+    }
+
+    // test if the trimmer is cutadapt
+    if (trimmer.toString().contains("CutadaptTrimmer")) {
+
+      fastaLeftOutlierWriter.close();
+      fastaRightOutlierWriter.close();
     }
 
   }
@@ -364,4 +397,5 @@ public class SideWindowOutlierPositionFinder implements OutlierPositionFinder {
     }
     return (double) sum / windows.length();
   }
+
 }

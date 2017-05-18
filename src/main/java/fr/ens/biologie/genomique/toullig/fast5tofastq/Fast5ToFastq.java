@@ -9,9 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import fr.ens.biologie.genomique.eoulsan.util.FileUtils;
 import fr.ens.biologie.genomique.eoulsan.util.LocalReporter;
-import org.apache.hadoop.fs.FileUtil;
 
 import static fr.ens.biologie.genomique.eoulsan.EoulsanLogger.getLogger;
 
@@ -495,12 +493,14 @@ public class Fast5ToFastq {
    * @return an int who is the number of fast5 process
    * @throws IOException, test the read of the file
    */
+  @SuppressWarnings("LoopStatementThatDoesntLoop")
   private int processDirectory(File fast5SubdirName, String status,
       LocalReporter localReporter) throws IOException {
 
     boolean subDirectory = false;
 
     if (fast5SubdirName.listFiles() != null) {
+
       for (File f1 : fast5SubdirName.listFiles()) {
         subDirectory = f1.isDirectory();
         break;
@@ -541,6 +541,7 @@ public class Fast5ToFastq {
    * @param listBarcodeDir is the list of barcode of the run
    * @throws IOException, test the read of the file
    */
+  @SuppressWarnings("LoopStatementThatDoesntLoop")
   private void processDirectories(List<File> listBarcodeDir,
       LocalReporter localReporter) throws IOException {
 
@@ -656,20 +657,17 @@ public class Fast5ToFastq {
 
       boolean notBasecalled = false;
 
-      if(resultDirectory.toString().contains("uploaded")){
-          continue;
+      if (resultDirectory.toString().contains("uploaded")) {
+        continue;
       }
 
       for (File file : resultDirectory.listFiles()) {
-
-
 
         // test if the file is a directory
         if (file.isDirectory()) {
           result2.add(file);
 
         }
-
 
         // test if is it's a file and have an extension ".fast5"
         if (file.isFile() && file.toString().contains(".fast5")) {
@@ -682,7 +680,6 @@ public class Fast5ToFastq {
             }
 
             for (Path entry : stream) {
-
 
               try (Fast5 f5 = new Fast5(entry.toFile())) {
 
@@ -709,7 +706,6 @@ public class Fast5ToFastq {
         }
       }
     }
-
 
     //
     //

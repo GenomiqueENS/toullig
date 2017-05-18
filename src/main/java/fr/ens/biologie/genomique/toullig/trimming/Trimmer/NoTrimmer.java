@@ -1,6 +1,7 @@
 package fr.ens.biologie.genomique.toullig.trimming.Trimmer;
 
 import fr.ens.biologie.genomique.eoulsan.bio.ReadSequence;
+import fr.ens.biologie.genomique.eoulsan.bio.io.FastaWriter;
 import fr.ens.biologie.genomique.eoulsan.bio.io.FastqWriter;
 import fr.ens.biologie.genomique.toullig.trimming.InformationRead;
 
@@ -52,8 +53,6 @@ public class NoTrimmer implements Trimmer {
 
       // get id for each red on the work map
       for (String id : this.workTrimmingMap.keySet()) {
-
-
 
         i++;
 
@@ -148,7 +147,15 @@ public class NoTrimmer implements Trimmer {
   // No preprocessTrimming are require
   @Override
   public void preProcessSequence(int leftLengthOutlier, int rightLengthOutlier,
-      String sequence, String id, String quality) {
+      String sequence, String id, String quality,
+      FastaWriter fastaLeftOutlierWriter, FastaWriter fastaRightOutlierWriter) {
+
+  }
+
+  @Override
+  public void preProcessSequence(int leftLengthOutlier, int rightLengthOutlier,
+      String sequence, String id, String quality, FastaWriter fastqOutputFile)
+      throws IOException {
 
   }
 

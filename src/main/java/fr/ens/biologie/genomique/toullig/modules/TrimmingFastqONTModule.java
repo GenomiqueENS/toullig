@@ -79,7 +79,7 @@ public class TrimmingFastqONTModule extends AbstractModule {
 
         // Set the stats for cutadapt to display
         if (this.stats) {
-          trim.setProcessStatsCutadapt(true);
+          trim.setProcessStatsCutadapt();
         }
 
         // Set the threshold for Side-Window method

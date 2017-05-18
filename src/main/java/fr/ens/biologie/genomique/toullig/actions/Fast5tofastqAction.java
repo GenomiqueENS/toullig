@@ -88,10 +88,8 @@ public class Fast5tofastqAction extends AbstractAction {
 
         status = line.getOptionValue("status").toLowerCase();
 
-        if (status.contains("pass")
-            || status.contains("unclassified") || status.contains("fail")) {
-
-        } else {
+        if (!status.contains("pass")
+            || !status.contains("unclassified") || !status.contains("fail")) {
 
           System.out.println("The status: "
               + status
