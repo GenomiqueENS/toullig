@@ -30,7 +30,7 @@ public class TrimFastq {
 
   private boolean processStatsCutadapt = false;
 
-  private int addIndexOutlier = 15;
+  private int addIndexOutlier = 0;
   private int lengthWindowSideWindow = 15;
   private double thresholdSideWindow = 0.8;
   private double errorRateCutadapt = 0.5;
@@ -182,7 +182,7 @@ public class TrimFastq {
     String sequence = "";
 
     // create a hash for multi-mapped read
-    Set<String> multiMappedReadsSet = null;
+    Set<String> multiMappedReadsSet = new HashSet<String>();
 
     BufferedReader reader = new BufferedReader(new FileReader(samFile));
     String line;
@@ -234,7 +234,7 @@ public class TrimFastq {
 
           cigarLength = sum;
         }
-
+        
         // test if the work Map already contains this id
         if (workTrimmingMap.containsKey(id)) {
 

@@ -36,6 +36,9 @@ Aurélien Birer, [birer@biologie.ens.fr](birer@biologie.ens.fr)
 * [TrimFastq](#TrimFastq)
     * [Options TrimFastq](#Options-TrimFastq)
     * [Example trim](#Example-trim)
+* [Gtftogpd](#Gtftogpd)
+    * [Arguments Gtftogpd](#Arguments-Gtftogpd)
+    * [Example Gtftogpd](#Example-Gtftogpd)
 * [Development environment](#Development-environment)
 * [Repository](#Repository)
 * [License](#License)
@@ -389,7 +392,7 @@ In the execution of toullig Trim, the program step :
     
     #Options Trimming by Side-window mode
     
-    -addIndexOutlier (default: 15)                         # A addition of bases of the outlier to have a better catch of the adaptor
+    -addIndexOutlier (default: 0)                         # A addition of bases of the outlier from the transcript sequence to have a better catch of the adaptor if adaptor base match on the reference genome
     
     #Options Trimming by Side-window mode
     
@@ -420,6 +423,31 @@ In the execution of toullig Trim, the program step :
 
 
     bash ./target/dist/toullig-0.2-alpha/toullig.sh trim /home/user/samFile.sam /home/user/fastqONTFile.fastq /home/user/myFastqTrim.fastq ~/toullig/config_files/adaptor_RT_sequence_modify_for_nanopore.txt /home/user/yourTmpRepertoryOfWork
+
+
+<div id='Gtftogpd'/>
+
+# Gtftogpd
+
+For AlignQC QC tool for alignment.
+An analyze with annotation can be processed but only with an annotation file in format GPD. 
+So, toullig provide a tool to translate a common GTF format to GPD format.
+
+<div id='Arguments-Gtftogpd'/>
+
+### Arguments Gtftogpd
+    
+    #Arguments
+    
+    -gtfFile            /home/user/yourGTFFile
+    -gpdOutputFile      /home/user/yourGPDFile
+
+<div id='Example-Gtftogpd'/>
+
+### Example Gtftogpd
+
+
+    bash ./target/dist/toullig-0.2-alpha/toullig.sh trim /home/user/GTFFile.gtf /home/user/GPDFile.gpd
 
 <div id='Development-environment'/>
 

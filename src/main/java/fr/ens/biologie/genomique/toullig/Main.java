@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import fr.ens.biologie.genomique.eoulsan.Common;
+import fr.ens.biologie.genomique.toullig.actions.GtftogpdAction;
 import org.apache.commons.cli.*;
 
 import fr.ens.biologie.genomique.toullig.actions.Fast5tofastqAction;
@@ -138,6 +139,15 @@ public class Main {
             new ArrayList<>(Arrays.asList(args)).subList(1, args.length));
 
         break;
+
+      // process gtftogpd module
+        case "gtftogpd":
+
+        new GtftogpdAction().action(
+                new ArrayList<>(Arrays.asList(args)).subList(1, args.length));
+
+        break;
+
 
       // // process test module
       // case "test":

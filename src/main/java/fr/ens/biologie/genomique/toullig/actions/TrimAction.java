@@ -229,7 +229,7 @@ public class TrimAction extends AbstractAction {
     // add option for add Index to the Outlier during the trim
     options.addOption(OptionBuilder.withArgName("addIndexOutlier").hasArg()
         .withDescription(
-            "add more bases in addition to the outlier for P mode (default: 15")
+            "add more bases in addition to the outlier find from the transcript sequence for P mode (default: 0")
         .create("addIndexOutlier"));
 
     // add option for error Rate Cutadapt
@@ -308,6 +308,9 @@ public class TrimAction extends AbstractAction {
       getLogger().info("Fastq Trimmed Output File: " + fastqOutputFile);
       getLogger().info("Adaptor File: " + adaptorFile);
       getLogger().info("Work Directory: " + workDir);
+      getLogger().info("Mode: " + mode);
+      getLogger().info("Trimmer: " + trimmer);
+
 
       // Call the constructor with the arguments
       TrimFastq trim = new TrimFastq(samFile, fastqFile, adaptorFile,

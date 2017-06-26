@@ -53,9 +53,10 @@ public class Globals {
   /** Help text. */
   public static final String HELP_TXT = Globals.APP_NAME_LOWER_CASE
       + ".sh tool [options_tool] arguments_tool \n\n"
-      + "Toullig have 2 tools : \n"
+      + "Toullig have 3 tools : \n"
       + "\t\t - fast5tofastq : Tool for read Fast5 files of minION and create the fastq.\n"
-      + "\t\t - trim : Tool for trim adaptor in the fasqt of ONT.\n\n";
+      + "\t\t - trim : Tool for trim adaptor in the fasqt of ONT.\n"
+      + "\t\t - gtftogpd : Tool for translate GTF file format to GPD format.\n\n";
 
   /** Licence text. */
   public static final String LICENSE_TXT =
