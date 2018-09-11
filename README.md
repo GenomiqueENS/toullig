@@ -4,6 +4,7 @@ Toullig 1.0-alpha
 Toullig is (since January 17 2017) a reader, parser of Fast5 files of ONT (basecalled and not basecalled) and a '.fastq' files writer.
 The 01 March Toullig can trim fastq of ONT based on the RT adaptors.
 
+**This project is now closed**. Most of the parts of this work has been merged in [Eoulsan](https://github.com/GenomicParisCentre/Eoulsan).
 
 # Author
 
